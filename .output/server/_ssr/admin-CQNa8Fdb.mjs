@@ -1,0 +1,1404 @@
+import { n as __toESM } from "../_runtime.mjs";
+import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
+import { v as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
+import { c as formatDate, d as formatPrice, g as useStore, h as uid, i as courseStats, l as formatDateTime } from "./store-By_ZMgNx.mjs";
+import { h as Link } from "../_libs/@tanstack/react-router+[...].mjs";
+import { A as GraduationCap, I as CreditCard, K as ChevronDown, N as FileQuestionMark, O as LayoutDashboard, P as Eye, S as Megaphone, T as LockKeyhole, U as ChevronUp, V as CircleDollarSign, W as ChevronRight, Z as BookOpen, d as Settings2, f as Send, g as Plus, h as RotateCcw, i as UserRoundCheck, n as Users, p as Search, q as Check, s as TrendingUp, t as X, u as ShieldCheck, w as LogOut, x as Menu, y as Pencil } from "../_libs/lucide-react.mjs";
+import { a as DialogOverlay$1, i as DialogDescription$1, n as DialogClose, o as DialogPortal$1, r as DialogContent$1, s as DialogTitle$1, t as Dialog$1 } from "../_libs/@radix-ui/react-dialog+[...].mjs";
+import { c as SheetHeader, d as cn, l as SheetTitle, n as BrandMark, o as Sheet, r as Button, s as SheetContent, u as SheetTrigger } from "./app-shell-CAxw0SYi.mjs";
+import { t as Label } from "./label-jUwV-k0U.mjs";
+import { a as courseProgressPercent, d as isEnrolled, i as courseEnrollmentCount, o as courseRevenue } from "./selectors-Z06sDMBN.mjs";
+import { n as toast } from "../_libs/sonner.mjs";
+import { t as Badge } from "./badge-DDEClDpn.mjs";
+import { t as Input } from "./input-D2aMc97k.mjs";
+import { t as Progress } from "./progress-CuwXnkvg.mjs";
+import { i as TabsTrigger, n as TabsContent, r as TabsList, t as Tabs } from "./tabs-C3fJXHGI.mjs";
+import { n as CourseStatusBadge } from "./course-card-DCLks9GM.mjs";
+import { a as SelectItemIndicator, c as SelectPortal, d as SelectSeparator$1, f as SelectTrigger$1, i as SelectItem$1, l as SelectScrollDownButton$1, m as SelectViewport, n as SelectContent$1, o as SelectItemText, p as SelectValue$1, r as SelectIcon, s as SelectLabel$1, t as Select$1, u as SelectScrollUpButton$1 } from "../_libs/@radix-ui/react-select+[...].mjs";
+import { n as SwitchThumb, t as Switch$1 } from "../_libs/radix-ui__react-switch.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/admin-CQNa8Fdb.js
+var import_react = /* @__PURE__ */ __toESM(require_react());
+var import_jsx_runtime = require_jsx_runtime();
+var Dialog = Dialog$1;
+var DialogPortal = DialogPortal$1;
+var DialogOverlay = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogOverlay$1, {
+	ref,
+	className: cn("fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0", className),
+	...props
+}));
+DialogOverlay.displayName = DialogOverlay$1.displayName;
+var DialogContent = import_react.forwardRef(({ className, children, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogPortal, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogOverlay, {}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogContent$1, {
+	ref,
+	className: cn("fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:rounded-lg", className),
+	...props,
+	children: [children, /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogClose, {
+		className: "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background cursor-pointer transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "h-4 w-4" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+			className: "sr-only",
+			children: "Close"
+		})]
+	})]
+})] }));
+DialogContent.displayName = DialogContent$1.displayName;
+var DialogHeader = ({ className, ...props }) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+	className: cn("flex flex-col space-y-1.5 text-center sm:text-left", className),
+	...props
+});
+DialogHeader.displayName = "DialogHeader";
+var DialogFooter = ({ className, ...props }) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+	className: cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className),
+	...props
+});
+DialogFooter.displayName = "DialogFooter";
+var DialogTitle = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle$1, {
+	ref,
+	className: cn("text-lg font-semibold leading-none tracking-tight", className),
+	...props
+}));
+DialogTitle.displayName = DialogTitle$1.displayName;
+var DialogDescription = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogDescription$1, {
+	ref,
+	className: cn("text-sm text-muted-foreground", className),
+	...props
+}));
+DialogDescription.displayName = DialogDescription$1.displayName;
+var Select = Select$1;
+var SelectValue = SelectValue$1;
+var SelectTrigger = import_react.forwardRef(({ className, children, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(SelectTrigger$1, {
+	ref,
+	className: cn("flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background cursor-pointer data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1", className),
+	...props,
+	children: [children, /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectIcon, {
+		asChild: true,
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { className: "h-4 w-4 opacity-50" })
+	})]
+}));
+SelectTrigger.displayName = SelectTrigger$1.displayName;
+var SelectScrollUpButton = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectScrollUpButton$1, {
+	ref,
+	className: cn("flex cursor-default items-center justify-center py-1", className),
+	...props,
+	children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronUp, { className: "h-4 w-4" })
+}));
+SelectScrollUpButton.displayName = SelectScrollUpButton$1.displayName;
+var SelectScrollDownButton = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectScrollDownButton$1, {
+	ref,
+	className: cn("flex cursor-default items-center justify-center py-1", className),
+	...props,
+	children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronDown, { className: "h-4 w-4" })
+}));
+SelectScrollDownButton.displayName = SelectScrollDownButton$1.displayName;
+var SelectContent = import_react.forwardRef(({ className, children, position = "popper", ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectPortal, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(SelectContent$1, {
+	ref,
+	className: cn("relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] overflow-y-auto overflow-x-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-(--radix-select-content-transform-origin)", position === "popper" && "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1", className),
+	position,
+	...props,
+	children: [
+		/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectScrollUpButton, {}),
+		/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectViewport, {
+			className: cn("p-1", position === "popper" && "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"),
+			children
+		}),
+		/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectScrollDownButton, {})
+	]
+}) }));
+SelectContent.displayName = SelectContent$1.displayName;
+var SelectLabel = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectLabel$1, {
+	ref,
+	className: cn("px-2 py-1.5 text-sm font-semibold", className),
+	...props
+}));
+SelectLabel.displayName = SelectLabel$1.displayName;
+var SelectItem = import_react.forwardRef(({ className, children, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(SelectItem$1, {
+	ref,
+	className: cn("relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50", className),
+	...props,
+	children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+		className: "absolute right-2 flex h-3.5 w-3.5 items-center justify-center",
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectItemIndicator, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Check, { className: "h-4 w-4" }) })
+	}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectItemText, { children })]
+}));
+SelectItem.displayName = SelectItem$1.displayName;
+var SelectSeparator = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectSeparator$1, {
+	ref,
+	className: cn("-mx-1 my-1 h-px bg-muted", className),
+	...props
+}));
+SelectSeparator.displayName = SelectSeparator$1.displayName;
+var Switch = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Switch$1, {
+	className: cn("peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input", className),
+	...props,
+	ref,
+	children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SwitchThumb, { className: cn("pointer-events-none block h-4 w-4 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0") })
+}));
+Switch.displayName = Switch$1.displayName;
+var Table = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+	className: "relative w-full overflow-auto",
+	children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("table", {
+		ref,
+		className: cn("w-full caption-bottom text-sm", className),
+		...props
+	})
+}));
+Table.displayName = "Table";
+var TableHeader = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("thead", {
+	ref,
+	className: cn("[&_tr]:border-b", className),
+	...props
+}));
+TableHeader.displayName = "TableHeader";
+var TableBody = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tbody", {
+	ref,
+	className: cn("[&_tr:last-child]:border-0", className),
+	...props
+}));
+TableBody.displayName = "TableBody";
+var TableFooter = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tfoot", {
+	ref,
+	className: cn("border-t bg-muted/50 font-medium [&>tr]:last:border-b-0", className),
+	...props
+}));
+TableFooter.displayName = "TableFooter";
+var TableRow = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tr", {
+	ref,
+	className: cn("border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted", className),
+	...props
+}));
+TableRow.displayName = "TableRow";
+var TableHead = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", {
+	ref,
+	className: cn("h-10 px-2 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]", className),
+	...props
+}));
+TableHead.displayName = "TableHead";
+var TableCell = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
+	ref,
+	className: cn("p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]", className),
+	...props
+}));
+TableCell.displayName = "TableCell";
+var TableCaption = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("caption", {
+	ref,
+	className: cn("mt-4 text-sm text-muted-foreground", className),
+	...props
+}));
+TableCaption.displayName = "TableCaption";
+var Textarea = import_react.forwardRef(({ className, ...props }, ref) => {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
+		className: cn("flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm", className),
+		ref,
+		...props
+	});
+});
+Textarea.displayName = "Textarea";
+var navigation = [
+	{
+		id: "overview",
+		label: "Overview",
+		icon: LayoutDashboard
+	},
+	{
+		id: "courses",
+		label: "Courses",
+		icon: BookOpen
+	},
+	{
+		id: "students",
+		label: "Students",
+		icon: Users
+	},
+	{
+		id: "payments",
+		label: "Payments",
+		icon: CreditCard
+	},
+	{
+		id: "announcements",
+		label: "Announcements",
+		icon: Megaphone
+	}
+];
+function AdminPage() {
+	const { state, user, enterDemo, signOut, resetDemo, saveCourse, setPublishState, grantAccess, revokeAccess, publishAnnouncement, deleteAnnouncement } = useStore();
+	const [tab, setTab] = (0, import_react.useState)("overview");
+	const [courseEditor, setCourseEditor] = (0, import_react.useState)(null);
+	const [managedStudent, setManagedStudent] = (0, import_react.useState)(null);
+	const [courseQuery, setCourseQuery] = (0, import_react.useState)("");
+	const [studentQuery, setStudentQuery] = (0, import_react.useState)("");
+	if (!user || user.role !== "admin") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+		className: "grid min-h-screen place-items-center bg-secondary/35 px-4",
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			className: "w-full max-w-lg rounded-3xl border bg-card p-8 text-center shadow-lift",
+			children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+					className: "mx-auto grid size-16 place-items-center rounded-2xl bg-accent text-accent-foreground",
+					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ShieldCheck, { className: "size-7" })
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
+					className: "mt-5 text-3xl font-extrabold text-navy",
+					children: "Open the admin demo"
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "mt-3 leading-7 text-muted-foreground",
+					children: "Manage courses, students, access, payments and announcements using the seeded demo."
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "mt-7 flex flex-col justify-center gap-3 sm:flex-row",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+						onClick: () => enterDemo("admin"),
+						children: ["Enter Admin Demo ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, {})]
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+						variant: "outline",
+						asChild: true,
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
+							to: "/",
+							children: "Return home"
+						})
+					})]
+				})
+			]
+		})
+	});
+	const students = state.users.filter((item) => item.role === "student");
+	const totalRevenue = state.payments.filter((payment) => payment.status === "success").reduce((sum, payment) => sum + payment.amount, 0);
+	const activeEnrollmentCount = state.enrollments.filter((enrollment) => !enrollment.revoked).length;
+	const progressValues = state.enrollments.flatMap((enrollment) => {
+		const course = state.courses.find((item) => item.id === enrollment.courseId);
+		return course ? [courseProgressPercent(state, enrollment.userId, course)] : [];
+	});
+	const avgProgress = progressValues.length ? Math.round(progressValues.reduce((sum, value) => sum + value, 0) / progressValues.length) : 0;
+	const quizScores = state.attempts.map((attempt) => attempt.score);
+	const avgQuiz = quizScores.length ? Math.round(quizScores.reduce((sum, value) => sum + value, 0) / quizScores.length) : 0;
+	const filteredCourses = state.courses.filter((course) => `${course.title} ${course.subject}`.toLowerCase().includes(courseQuery.toLowerCase()));
+	const filteredStudents = students.filter((student) => `${student.name} ${student.email} ${student.university}`.toLowerCase().includes(studentQuery.toLowerCase()));
+	const createCourse = () => {
+		const template = state.courses[0];
+		if (!template) return;
+		const id = uid("course");
+		const draft = {
+			...structuredClone(template),
+			id,
+			slug: `untitled-course-${id.slice(-5)}`,
+			title: "Untitled Dental Course",
+			subject: "New subject",
+			summary: "Add a clear one-sentence course summary.",
+			description: "Add the full course description.",
+			outcomes: ["Add the first learning outcome"],
+			publishState: "draft",
+			sections: []
+		};
+		setCourseEditor(draft);
+	};
+	const sidebar = /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		className: "flex h-full flex-col bg-navy text-white",
+		children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				className: "border-b border-white/10 p-5",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(BrandMark, { light: true })
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				className: "px-4 pt-5",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "px-3 text-[10px] font-extrabold uppercase tracking-[0.18em] text-white/35",
+					children: "Administration"
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("nav", {
+					className: "mt-3 grid gap-1",
+					children: navigation.map(({ id, label, icon: Icon }) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+						onClick: () => setTab(id),
+						className: cn("flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-bold transition", tab === id ? "bg-primary text-primary-foreground" : "text-white/65 hover:bg-white/7 hover:text-white"),
+						children: [
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon, { className: "size-4" }),
+							" ",
+							label
+						]
+					}, id))
+				})]
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				className: "mt-auto border-t border-white/10 p-4",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "mb-3 flex items-center gap-3 rounded-xl bg-white/5 p-3",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+						className: "grid size-9 place-items-center rounded-lg bg-primary font-extrabold text-primary-foreground",
+						children: user.name.charAt(0)
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "min-w-0",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+							className: "truncate text-sm font-bold",
+							children: user.name
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+							className: "truncate text-[11px] text-white/45",
+							children: "Administrator"
+						})]
+					})]
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+					onClick: () => {
+						signOut();
+					},
+					className: "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold text-white/55 hover:bg-white/7 hover:text-white",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(LogOut, { className: "size-4" }), " Sign out"]
+				})]
+			})
+		]
+	});
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		className: "min-h-screen bg-secondary/35 lg:grid lg:grid-cols-[250px_1fr]",
+		children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("aside", {
+				className: "hidden lg:block",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					className: "fixed inset-y-0 w-[250px]",
+					children: sidebar
+				})
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				className: "min-w-0",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("header", {
+					className: "sticky top-0 z-30 border-b bg-background/94 backdrop-blur",
+					children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "flex h-17 items-center justify-between gap-4 px-4 sm:px-7",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "flex items-center gap-3",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Sheet, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SheetTrigger, {
+								asChild: true,
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+									variant: "outline",
+									size: "icon",
+									className: "lg:hidden",
+									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Menu, {})
+								})
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(SheetContent, {
+								side: "left",
+								className: "w-[280px] p-0",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SheetHeader, {
+									className: "sr-only",
+									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SheetTitle, { children: "Admin navigation" })
+								}), sidebar]
+							})] }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+								className: "text-[11px] font-bold uppercase tracking-wide text-muted-foreground",
+								children: "Admin workspace"
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
+								className: "font-extrabold capitalize text-navy",
+								children: tab
+							})] })]
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "flex items-center gap-2",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+								variant: "ghost",
+								size: "sm",
+								onClick: () => {
+									resetDemo();
+									toast.success("Demo data reset.");
+								},
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(RotateCcw, {}),
+									" ",
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "hidden sm:inline",
+										children: "Reset demo"
+									})
+								]
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+								variant: "outline",
+								size: "sm",
+								asChild: true,
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
+									to: "/",
+									children: [
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Eye, {}),
+										" ",
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "hidden sm:inline",
+											children: "View site"
+										})
+									]
+								})
+							})]
+						})]
+					})
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("main", {
+					className: "p-4 sm:p-7",
+					children: [
+						tab === "overview" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Overview, {
+							state,
+							totalRevenue,
+							activeEnrollmentCount,
+							students,
+							avgProgress,
+							avgQuiz,
+							onNavigate: setTab
+						}),
+						tab === "courses" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(PageHeading, {
+							eyebrow: "Content",
+							title: "Courses",
+							description: "Edit course information, access dates and lesson settings.",
+							action: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+								onClick: createCourse,
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, {}), " Create course"]
+							})
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "mt-7 rounded-2xl border bg-card shadow-card",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+								className: "border-b p-4",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+									className: "relative block max-w-sm",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { className: "absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+										value: courseQuery,
+										onChange: (event) => setCourseQuery(event.target.value),
+										placeholder: "Search courses",
+										className: "pl-9"
+									})]
+								})
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Table, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHeader, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(TableRow, { children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHead, { children: "Course" }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHead, { children: "Status" }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHead, { children: "Price" }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHead, { children: "Students" }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHead, { children: "Access closes" }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHead, { children: "Revenue" }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHead, {
+									className: "text-right",
+									children: "Actions"
+								})
+							] }) }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableBody, { children: filteredCourses.map((course) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(TableRow, { children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableCell, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "flex min-w-64 items-center gap-3",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
+										src: course.thumbnail,
+										alt: "",
+										className: "size-12 rounded-lg object-cover"
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+										className: "font-extrabold text-navy",
+										children: course.title
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+										className: "mt-0.5 text-xs text-muted-foreground",
+										children: [
+											course.subject,
+											" · ",
+											courseStats(course).lessons,
+											" lessons"
+										]
+									})] })]
+								}) }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableCell, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "flex flex-col items-start gap-1.5",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CourseStatusBadge, { course }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {
+										variant: "outline",
+										className: "capitalize",
+										children: course.publishState
+									})]
+								}) }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableCell, {
+									className: "font-bold",
+									children: formatPrice(course.price)
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableCell, { children: courseEnrollmentCount(state, course.id) }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableCell, {
+									className: "whitespace-nowrap",
+									children: formatDate(course.accessCloseAt)
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableCell, {
+									className: "font-bold",
+									children: formatPrice(courseRevenue(state, course.id))
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableCell, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "flex justify-end gap-2",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+										variant: "outline",
+										size: "sm",
+										onClick: () => setCourseEditor(structuredClone(course)),
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pencil, {}), " Edit"]
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+										variant: "ghost",
+										size: "sm",
+										onClick: () => {
+											const next = course.publishState === "published" ? "draft" : "published";
+											setPublishState(course.id, next);
+											toast.success(`Course set to ${next}.`);
+										},
+										children: course.publishState === "published" ? "Unpublish" : "Publish"
+									})]
+								}) })
+							] }, course.id)) })] })]
+						})] }),
+						tab === "students" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(PageHeading, {
+							eyebrow: "Learners",
+							title: "Students",
+							description: "Review enrollment, activity and progress, then manage course access."
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "mt-7 rounded-2xl border bg-card shadow-card",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+								className: "border-b p-4",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+									className: "relative block max-w-sm",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { className: "absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+										value: studentQuery,
+										onChange: (event) => setStudentQuery(event.target.value),
+										placeholder: "Search name, email or university",
+										className: "pl-9"
+									})]
+								})
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Table, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHeader, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(TableRow, { children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHead, { children: "Student" }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHead, { children: "University" }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHead, { children: "Courses" }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHead, { children: "Average progress" }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHead, { children: "Last activity" }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHead, {
+									className: "text-right",
+									children: "Access"
+								})
+							] }) }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableBody, { children: filteredStudents.map((student) => {
+								const enrollments = state.enrollments.filter((item) => item.userId === student.id && !item.revoked);
+								const values = enrollments.flatMap((item) => {
+									const course = state.courses.find((entry) => entry.id === item.courseId);
+									return course ? [courseProgressPercent(state, student.id, course)] : [];
+								});
+								const average = values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : 0;
+								const recent = [...state.progress].filter((item) => item.userId === student.id).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
+								return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(TableRow, { children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableCell, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "flex min-w-52 items-center gap-3",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "grid size-10 place-items-center rounded-xl bg-accent font-extrabold text-accent-foreground",
+											children: student.name.charAt(0)
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+											className: "font-extrabold text-navy",
+											children: student.name
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+											className: "text-xs text-muted-foreground",
+											children: student.email
+										})] })]
+									}) }),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(TableCell, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+										className: "font-semibold",
+										children: student.university
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+										className: "text-xs text-muted-foreground",
+										children: student.academicYear
+									})] }),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableCell, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Badge, {
+										variant: "outline",
+										children: [enrollments.length, " active"]
+									}) }),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableCell, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "flex min-w-32 items-center gap-3",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Progress, {
+											value: average,
+											className: "h-1.5"
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+											className: "text-xs font-bold",
+											children: [average, "%"]
+										})]
+									}) }),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableCell, {
+										className: "whitespace-nowrap text-sm text-muted-foreground",
+										children: recent ? formatDateTime(recent.updatedAt) : "No activity"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableCell, {
+										className: "text-right",
+										children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+											variant: "outline",
+											size: "sm",
+											onClick: () => setManagedStudent(student),
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Settings2, {}), " Manage"]
+										})
+									})
+								] }, student.id);
+							}) })] })]
+						})] }),
+						tab === "payments" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(PageHeading, {
+							eyebrow: "Transactions",
+							title: "Payments",
+							description: "Simulated payment records for the prototype."
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+							className: "mt-7 overflow-hidden rounded-2xl border bg-card shadow-card",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Table, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHeader, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(TableRow, { children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHead, { children: "Transaction" }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHead, { children: "Student" }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHead, { children: "Course" }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHead, { children: "Amount" }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHead, { children: "Method" }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHead, { children: "Date" }),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableHead, { children: "Status" })
+							] }) }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableBody, { children: state.payments.map((payment) => {
+								const student = state.users.find((item) => item.id === payment.userId);
+								const course = state.courses.find((item) => item.id === payment.courseId);
+								return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(TableRow, { children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableCell, {
+										className: "font-mono text-xs font-bold",
+										children: payment.txnId
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(TableCell, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+										className: "font-bold text-navy",
+										children: student?.name ?? "Unknown"
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+										className: "text-xs text-muted-foreground",
+										children: student?.email
+									})] }),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableCell, {
+										className: "min-w-48 font-semibold",
+										children: course?.title ?? "Unknown course"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableCell, {
+										className: "font-extrabold",
+										children: formatPrice(payment.amount)
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableCell, { children: payment.method }),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableCell, {
+										className: "whitespace-nowrap",
+										children: formatDateTime(payment.createdAt)
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TableCell, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PaymentBadge, { status: payment.status }) })
+								] }, payment.id);
+							}) })] })
+						})] }),
+						tab === "announcements" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Announcements, {
+							courses: state.courses,
+							announcements: state.announcements,
+							onPublish: publishAnnouncement,
+							onDelete: deleteAnnouncement
+						})
+					]
+				})]
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CourseEditor, {
+				course: courseEditor,
+				onClose: () => setCourseEditor(null),
+				onSave: (course) => {
+					saveCourse(course);
+					setCourseEditor(null);
+					toast.success("Course saved.");
+				}
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(AccessManager, {
+				student: managedStudent,
+				courses: state.courses,
+				isEnrolled: (courseId) => isEnrolled(state, managedStudent?.id ?? null, courseId),
+				onClose: () => setManagedStudent(null),
+				onGrant: (studentId, courseId) => {
+					grantAccess(studentId, courseId);
+					toast.success("Course access granted.");
+				},
+				onRevoke: (studentId, courseId) => {
+					revokeAccess(studentId, courseId);
+					toast.success("Course access revoked.");
+				}
+			})
+		]
+	});
+}
+function Overview({ state, totalRevenue, activeEnrollmentCount, students, avgProgress, avgQuiz, onNavigate }) {
+	const metrics = [
+		{
+			label: "Total revenue",
+			value: formatPrice(totalRevenue),
+			note: "Successful demo payments",
+			icon: CircleDollarSign,
+			tone: "bg-success/10 text-success"
+		},
+		{
+			label: "Active enrollments",
+			value: String(activeEnrollmentCount),
+			note: `${students.length} student accounts`,
+			icon: GraduationCap,
+			tone: "bg-accent text-accent-foreground"
+		},
+		{
+			label: "Average progress",
+			value: `${avgProgress}%`,
+			note: "Across course enrollments",
+			icon: TrendingUp,
+			tone: "bg-blue-50 text-blue-700"
+		},
+		{
+			label: "Average quiz score",
+			value: `${avgQuiz}%`,
+			note: `${state.attempts.length} attempts recorded`,
+			icon: FileQuestionMark,
+			tone: "bg-orange-50 text-orange-700"
+		}
+	];
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { children: [
+		/* @__PURE__ */ (0, import_jsx_runtime.jsx)(PageHeading, {
+			eyebrow: "Dashboard",
+			title: "Good morning.",
+			description: "A clear view of course sales and student activity."
+		}),
+		/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			className: "mt-7 grid gap-4 sm:grid-cols-2 2xl:grid-cols-4",
+			children: metrics.map(({ label, value, note, icon: Icon, tone }) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				className: "rounded-2xl border bg-card p-5 shadow-card",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "flex items-start justify-between gap-3",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						className: "text-xs font-bold uppercase tracking-wide text-muted-foreground",
+						children: label
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						className: "mt-2 text-2xl font-extrabold text-navy",
+						children: value
+					})] }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+						className: cn("grid size-10 place-items-center rounded-xl", tone),
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Icon, { className: "size-5" })
+					})]
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "mt-4 text-xs font-semibold text-muted-foreground",
+					children: note
+				})]
+			}, label))
+		}),
+		/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			className: "mt-6 grid gap-6 xl:grid-cols-[1.25fr_.75fr]",
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				className: "rounded-2xl border bg-card shadow-card",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "flex items-center justify-between border-b p-5",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						className: "text-xs font-bold uppercase tracking-wide text-primary",
+						children: "Performance"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+						className: "mt-1 text-xl font-extrabold text-navy",
+						children: "Course overview"
+					})] }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+						variant: "ghost",
+						size: "sm",
+						onClick: () => onNavigate("courses"),
+						children: ["Manage courses ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, {})]
+					})]
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					className: "divide-y",
+					children: state.courses.map((course) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "grid items-center gap-4 p-5 sm:grid-cols-[1fr_auto_auto]",
+						children: [
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "flex items-center gap-3",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
+									src: course.thumbnail,
+									alt: "",
+									className: "size-12 rounded-lg object-cover"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+									className: "font-extrabold text-navy",
+									children: course.title
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+									className: "text-xs text-muted-foreground",
+									children: [
+										courseEnrollmentCount(state, course.id),
+										" students ·",
+										" ",
+										courseStats(course).lessons,
+										" lessons"
+									]
+								})] })]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "text-left sm:text-right",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+									className: "text-xs text-muted-foreground",
+									children: "Revenue"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+									className: "font-extrabold text-navy",
+									children: formatPrice(courseRevenue(state, course.id))
+								})]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CourseStatusBadge, { course })
+						]
+					}, course.id))
+				})]
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				className: "rounded-2xl border bg-card p-5 shadow-card",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "flex items-center justify-between",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+							className: "text-xs font-bold uppercase tracking-wide text-primary",
+							children: "Recent"
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+							className: "mt-1 text-xl font-extrabold text-navy",
+							children: "Payments"
+						})] }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CreditCard, { className: "size-5 text-primary" })]
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						className: "mt-4 divide-y",
+						children: state.payments.slice(0, 5).map((payment) => {
+							const student = state.users.find((item) => item.id === payment.userId);
+							return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "flex items-center justify-between gap-3 py-3",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "min-w-0",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+										className: "truncate text-sm font-bold text-navy",
+										children: student?.name
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+										className: "text-xs text-muted-foreground",
+										children: formatDateTime(payment.createdAt)
+									})]
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "text-right",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+										className: "text-sm font-extrabold text-navy",
+										children: formatPrice(payment.amount)
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PaymentBadge, { status: payment.status })]
+								})]
+							}, payment.id);
+						})
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+						variant: "outline",
+						className: "mt-4 w-full",
+						onClick: () => onNavigate("payments"),
+						children: "View all payments"
+					})
+				]
+			})]
+		})
+	] });
+}
+function PageHeading({ eyebrow, title, description, action }) {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		className: "flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+				className: "text-xs font-extrabold uppercase tracking-[0.18em] text-primary",
+				children: eyebrow
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+				className: "mt-1 text-3xl font-extrabold tracking-[-0.035em] text-navy",
+				children: title
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+				className: "mt-2 text-sm text-muted-foreground",
+				children: description
+			})
+		] }), action]
+	});
+}
+function PaymentBadge({ status }) {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {
+		className: cn("capitalize shadow-none", status === "success" ? "bg-success/10 text-success" : status === "pending" ? "bg-warning/15 text-amber-800" : "bg-destructive/8 text-destructive"),
+		children: status
+	});
+}
+function CourseEditor({ course, onClose, onSave }) {
+	const [draft, setDraft] = (0, import_react.useState)(course);
+	(0, import_react.useEffect)(() => setDraft(course), [course]);
+	if (!draft) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Dialog, { open: false });
+	const patch = (values) => setDraft((current) => current ? {
+		...current,
+		...values
+	} : current);
+	const dateValue = (iso) => iso.slice(0, 16);
+	const isoValue = (value) => new Date(value).toISOString();
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Dialog, {
+		open: Boolean(course),
+		onOpenChange: (open) => {
+			if (!open) onClose();
+		},
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogContent, {
+			className: "max-h-[92vh] max-w-4xl overflow-hidden p-0",
+			children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogHeader, {
+					className: "border-b p-6 pb-5",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle, {
+						className: "text-2xl text-navy",
+						children: "Edit course"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogDescription, { children: "Changes are saved to local demo data." })]
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Tabs, {
+					defaultValue: "details",
+					className: "min-h-0",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						className: "border-b px-6",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(TabsList, {
+							className: "h-11 bg-transparent p-0",
+							children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TabsTrigger, {
+									value: "details",
+									children: "Details"
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TabsTrigger, {
+									value: "access",
+									children: "Pricing & access"
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TabsTrigger, {
+									value: "curriculum",
+									children: "Curriculum"
+								})
+							]
+						})
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "max-h-[62vh] overflow-y-auto p-6",
+						children: [
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TabsContent, {
+								value: "details",
+								className: "mt-0 space-y-5",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "grid gap-5 sm:grid-cols-2",
+									children: [
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-2 sm:col-span-2",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+												htmlFor: "course-title",
+												children: "Course title"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+												id: "course-title",
+												value: draft.title,
+												onChange: (event) => patch({ title: event.target.value })
+											})]
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-2",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+												htmlFor: "course-subject",
+												children: "Subject"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+												id: "course-subject",
+												value: draft.subject,
+												onChange: (event) => patch({ subject: event.target.value })
+											})]
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-2",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+												htmlFor: "course-level",
+												children: "Academic level"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+												id: "course-level",
+												value: draft.level,
+												onChange: (event) => patch({ level: event.target.value })
+											})]
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-2 sm:col-span-2",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+												htmlFor: "course-summary",
+												children: "Short summary"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Textarea, {
+												id: "course-summary",
+												value: draft.summary,
+												onChange: (event) => patch({ summary: event.target.value })
+											})]
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-2 sm:col-span-2",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+												htmlFor: "course-description",
+												children: "Full description"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Textarea, {
+												id: "course-description",
+												rows: 5,
+												value: draft.description,
+												onChange: (event) => patch({ description: event.target.value })
+											})]
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-2",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, { children: "Publishing state" }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Select, {
+												value: draft.publishState,
+												onValueChange: (value) => patch({ publishState: value }),
+												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectTrigger, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectValue, {}) }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(SelectContent, { children: [
+													/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectItem, {
+														value: "draft",
+														children: "Draft"
+													}),
+													/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectItem, {
+														value: "published",
+														children: "Published"
+													}),
+													/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectItem, {
+														value: "archived",
+														children: "Archived"
+													})
+												] })]
+											})]
+										})
+									]
+								})
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(TabsContent, {
+								value: "access",
+								className: "mt-0 space-y-5",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "rounded-xl border border-primary/20 bg-accent/55 p-4 text-sm leading-6 text-accent-foreground",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Universal access rule:" }), " every enrolled student loses access on the same closing date."]
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "grid gap-5 sm:grid-cols-2",
+									children: [
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-2",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+												htmlFor: "course-price",
+												children: "One-time price (EGP)"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+												id: "course-price",
+												type: "number",
+												min: 0,
+												value: draft.price,
+												onChange: (event) => patch({ price: Number(event.target.value) })
+											})]
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-2",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+												htmlFor: "sales-open",
+												children: "Sales open"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+												id: "sales-open",
+												type: "datetime-local",
+												value: dateValue(draft.salesOpenAt),
+												onChange: (event) => patch({ salesOpenAt: isoValue(event.target.value) })
+											})]
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-2",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+												htmlFor: "sales-close",
+												children: "Sales close"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+												id: "sales-close",
+												type: "datetime-local",
+												value: dateValue(draft.salesCloseAt),
+												onChange: (event) => patch({ salesCloseAt: isoValue(event.target.value) })
+											})]
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-2",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+												htmlFor: "access-open",
+												children: "Access opens"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+												id: "access-open",
+												type: "datetime-local",
+												value: dateValue(draft.accessOpenAt),
+												onChange: (event) => patch({ accessOpenAt: isoValue(event.target.value) })
+											})]
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "space-y-2",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+												htmlFor: "access-close",
+												children: "Access closes for everyone"
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+												id: "access-close",
+												type: "datetime-local",
+												value: dateValue(draft.accessCloseAt),
+												onChange: (event) => patch({ accessCloseAt: isoValue(event.target.value) })
+											})]
+										})
+									]
+								})]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TabsContent, {
+								value: "curriculum",
+								className: "mt-0",
+								children: draft.sections.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+									className: "space-y-4",
+									children: draft.sections.map((section, sectionIndex) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "rounded-xl border",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+											className: "border-b bg-muted/35 px-4 py-3",
+											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+												className: "text-xs font-bold uppercase tracking-wide text-primary",
+												children: ["Section ", sectionIndex + 1]
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+												className: "font-extrabold text-navy",
+												children: section.title
+											})]
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+											className: "divide-y",
+											children: section.lessons.map((lesson) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+												className: "grid gap-4 p-4 sm:grid-cols-[1fr_auto_auto_auto] sm:items-center",
+												children: [
+													/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+														className: "font-bold text-navy",
+														children: lesson.title
+													}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+														className: "mt-1 text-xs text-muted-foreground",
+														children: [
+															lesson.durationMin,
+															" min · ",
+															lesson.quiz.length,
+															" questions"
+														]
+													})] }),
+													/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Label, {
+														className: "flex items-center gap-2 text-xs font-bold",
+														children: [
+															/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Switch, {
+																checked: lesson.published,
+																onCheckedChange: (checked) => setDraft((current) => current ? {
+																	...current,
+																	sections: current.sections.map((candidate) => candidate.id === section.id ? {
+																		...candidate,
+																		lessons: candidate.lessons.map((item) => item.id === lesson.id ? {
+																			...item,
+																			published: checked
+																		} : item)
+																	} : candidate)
+																} : current)
+															}),
+															" ",
+															"Published"
+														]
+													}),
+													/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Label, {
+														className: "flex items-center gap-2 text-xs font-bold",
+														children: [
+															/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Switch, {
+																checked: lesson.allowDownload,
+																onCheckedChange: (checked) => setDraft((current) => current ? {
+																	...current,
+																	sections: current.sections.map((candidate) => candidate.id === section.id ? {
+																		...candidate,
+																		lessons: candidate.lessons.map((item) => item.id === lesson.id ? {
+																			...item,
+																			allowDownload: checked
+																		} : item)
+																	} : candidate)
+																} : current)
+															}),
+															" ",
+															"Download"
+														]
+													}),
+													/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Label, {
+														className: "flex items-center gap-2 text-xs font-bold",
+														children: [
+															/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Switch, {
+																checked: lesson.isPreview,
+																onCheckedChange: (checked) => setDraft((current) => current ? {
+																	...current,
+																	sections: current.sections.map((candidate) => candidate.id === section.id ? {
+																		...candidate,
+																		lessons: candidate.lessons.map((item) => item.id === lesson.id ? {
+																			...item,
+																			isPreview: checked
+																		} : item)
+																	} : candidate)
+																} : current)
+															}),
+															" ",
+															"Preview"
+														]
+													})
+												]
+											}, lesson.id))
+										})]
+									}, section.id))
+								}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "rounded-xl border border-dashed p-10 text-center",
+									children: [
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(BookOpen, { className: "mx-auto size-8 text-muted-foreground" }),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
+											className: "mt-3 font-extrabold text-navy",
+											children: "No lessons yet"
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+											className: "mt-1 text-sm text-muted-foreground",
+											children: "The production editor would add sections, videos, PDFs and quiz questions here."
+										})
+									]
+								})
+							})
+						]
+					})]
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogFooter, {
+					className: "border-t p-5",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+						variant: "outline",
+						onClick: onClose,
+						children: "Cancel"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+						onClick: () => onSave(draft),
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Check, {}), " Save course"]
+					})]
+				})
+			]
+		})
+	});
+}
+function AccessManager({ student, courses, isEnrolled, onClose, onGrant, onRevoke }) {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Dialog, {
+		open: Boolean(student),
+		onOpenChange: (open) => {
+			if (!open) onClose();
+		},
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogContent, {
+			className: "max-w-2xl",
+			children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogHeader, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle, {
+					className: "text-navy",
+					children: "Manage course access"
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogDescription, { children: [
+					student?.name,
+					" · ",
+					student?.email
+				] })] }),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					className: "my-2 divide-y rounded-xl border",
+					children: student && courses.map((course) => {
+						const active = isEnrolled(course.id);
+						return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "flex items-center justify-between gap-4 p-4",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "min-w-0",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+									className: "truncate font-extrabold text-navy",
+									children: course.title
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+									className: "mt-1 text-xs text-muted-foreground",
+									children: ["Access closes ", formatDate(course.accessCloseAt)]
+								})]
+							}), active ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+								variant: "outline",
+								size: "sm",
+								onClick: () => onRevoke(student.id, course.id),
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(LockKeyhole, {}), " Revoke"]
+							}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+								size: "sm",
+								onClick: () => onGrant(student.id, course.id),
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(UserRoundCheck, {}), " Grant"]
+							})]
+						}, course.id);
+					})
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogFooter, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+					variant: "outline",
+					onClick: onClose,
+					children: "Done"
+				}) })
+			]
+		})
+	});
+}
+function Announcements({ courses, announcements, onPublish, onDelete }) {
+	const [audience, setAudience] = (0, import_react.useState)("all");
+	const submit = (event) => {
+		event.preventDefault();
+		const data = new FormData(event.currentTarget);
+		onPublish({
+			courseId: audience === "all" ? null : audience,
+			title: String(data.get("title")),
+			body: String(data.get("body"))
+		});
+		event.currentTarget.reset();
+		toast.success("Announcement published.");
+	};
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(PageHeading, {
+		eyebrow: "Communication",
+		title: "Announcements",
+		description: "Publish an update to all students or one course."
+	}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		className: "mt-7 grid gap-6 xl:grid-cols-[.8fr_1.2fr]",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", {
+			onSubmit: submit,
+			className: "h-fit rounded-2xl border bg-card p-6 shadow-card",
+			children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+					className: "text-xl font-extrabold text-navy",
+					children: "New announcement"
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "mt-5 space-y-2",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, { children: "Audience" }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Select, {
+						value: audience,
+						onValueChange: setAudience,
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectTrigger, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectValue, {}) }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(SelectContent, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectItem, {
+							value: "all",
+							children: "All enrolled students"
+						}), courses.map((course) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectItem, {
+							value: course.id,
+							children: course.title
+						}, course.id))] })]
+					})]
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "mt-4 space-y-2",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+						htmlFor: "announcement-title",
+						children: "Title"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+						id: "announcement-title",
+						name: "title",
+						required: true,
+						placeholder: "What students need to know"
+					})]
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "mt-4 space-y-2",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+						htmlFor: "announcement-body",
+						children: "Message"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Textarea, {
+						id: "announcement-body",
+						name: "body",
+						rows: 5,
+						required: true,
+						placeholder: "Write the announcement…"
+					})]
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+					type: "submit",
+					className: "mt-5 w-full",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Send, {}), " Publish announcement"]
+				})
+			]
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			className: "rounded-2xl border bg-card shadow-card",
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				className: "border-b p-5",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+					className: "text-xl font-extrabold text-navy",
+					children: "Published announcements"
+				})
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				className: "divide-y",
+				children: announcements.map((announcement) => {
+					const course = courses.find((item) => item.id === announcement.courseId);
+					return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", {
+						className: "flex items-start gap-4 p-5",
+						children: [
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+								className: "grid size-10 shrink-0 place-items-center rounded-xl bg-accent text-accent-foreground",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Megaphone, { className: "size-4" })
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "min-w-0 flex-1",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "flex flex-wrap items-center gap-2",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
+											className: "font-extrabold text-navy",
+											children: announcement.title
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {
+											variant: "outline",
+											children: course?.title ?? "Everyone"
+										})]
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+										className: "mt-2 text-sm leading-6 text-muted-foreground",
+										children: announcement.body
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+										className: "mt-2 text-xs font-semibold text-muted-foreground",
+										children: formatDateTime(announcement.createdAt)
+									})
+								]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+								variant: "ghost",
+								size: "icon",
+								onClick: () => onDelete(announcement.id),
+								"aria-label": "Delete announcement",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, {})
+							})
+						]
+					}, announcement.id);
+				})
+			})]
+		})]
+	})] });
+}
+//#endregion
+export { AdminPage as component };

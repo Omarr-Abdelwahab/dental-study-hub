@@ -1,0 +1,1050 @@
+import { n as __toESM } from "../_runtime.mjs";
+import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
+import { v as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/store-By_ZMgNx.js
+var import_react = /* @__PURE__ */ __toESM(require_react());
+var import_jsx_runtime = require_jsx_runtime();
+var course_oral_pathology_default = "/assets/course-oral-pathology-BODJlxkb.jpg";
+var course_dental_anatomy_default = "/assets/course-dental-anatomy-BBjPoj_i.jpg";
+var course_pharmacology_default = "/assets/course-pharmacology-CREqv1fL.jpg";
+var course_radiology_default = "/assets/course-radiology-J3mf7MUt.jpg";
+/**
+* Central brand configuration.
+* Replace these values to rebrand the whole product.
+*/
+var brand = {
+	name: "Dental Study Hub",
+	shortName: "DSH",
+	tagline: "Structured video courses for university dental students",
+	supportEmail: "support@dentalstudyhub.example",
+	supportPhone: "+20 100 000 0000",
+	currency: "EGP",
+	locale: "en-GB"
+};
+function formatPrice(amount) {
+	return `${brand.currency} ${amount.toLocaleString("en-US")}`;
+}
+function formatDate(iso) {
+	return new Date(iso).toLocaleDateString(brand.locale, {
+		day: "numeric",
+		month: "long",
+		year: "numeric"
+	});
+}
+function formatDateTime(iso) {
+	return new Date(iso).toLocaleString(brand.locale, {
+		day: "2-digit",
+		month: "short",
+		year: "numeric",
+		hour: "2-digit",
+		minute: "2-digit"
+	});
+}
+function daysBetween(from, to) {
+	return Math.ceil((to.getTime() - from.getTime()) / 864e5);
+}
+function daysRemaining(iso) {
+	return daysBetween(/* @__PURE__ */ new Date(), new Date(iso));
+}
+function formatDuration(totalMinutes) {
+	const h = Math.floor(totalMinutes / 60);
+	const m = Math.round(totalMinutes % 60);
+	if (h === 0) return `${m} min`;
+	return m === 0 ? `${h} h` : `${h} h ${m} min`;
+}
+function formatClock(seconds) {
+	const s = Math.max(0, Math.floor(seconds));
+	return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
+}
+function toDateKey(d) {
+	return (typeof d === "string" ? new Date(d) : d).toISOString().slice(0, 10);
+}
+function courseStatus(course, now = /* @__PURE__ */ new Date()) {
+	const t = now.getTime();
+	if (t > new Date(course.accessCloseAt).getTime()) return "expired";
+	if (t < new Date(course.salesOpenAt).getTime()) return "upcoming";
+	if (t > new Date(course.salesCloseAt).getTime()) return "closed";
+	return "open";
+}
+var statusLabel = {
+	open: "Open",
+	upcoming: "Upcoming",
+	closed: "Enrollment Closed",
+	expired: "Expired"
+};
+function isAccessActive(course, now = /* @__PURE__ */ new Date()) {
+	const t = now.getTime();
+	return t >= new Date(course.accessOpenAt).getTime() && t <= new Date(course.accessCloseAt).getTime();
+}
+function courseLessons(course) {
+	return course.sections.flatMap((s) => s.lessons);
+}
+function courseStats(course) {
+	const lessons = courseLessons(course);
+	return {
+		lessons: lessons.length,
+		sections: course.sections.length,
+		quizzes: lessons.filter((l) => l.quiz.length > 0).length,
+		minutes: lessons.reduce((sum, l) => sum + l.durationMin, 0)
+	};
+}
+var PDF = "/slides/lesson-slides.pdf";
+var YT = [
+	"M7lc1UVf-VE",
+	"aqz-KE-bpKQ",
+	"ScMzIvxBSi4",
+	"5qap5aO4i9A"
+];
+function q(id, text, choices, correctIndex, explanation) {
+	return {
+		id,
+		text,
+		choices,
+		correctIndex,
+		explanation
+	};
+}
+function lesson(partial) {
+	return {
+		description: "",
+		durationMin: 18,
+		youtubeId: YT[0],
+		pdfUrl: PDF,
+		pdfName: "lesson-slides.pdf",
+		allowDownload: false,
+		isPreview: false,
+		published: true,
+		quiz: [],
+		...partial
+	};
+}
+function genericQuiz(prefix, topic) {
+	return [
+		q(`${prefix}-q1`, `Which statement best describes the core idea of ${topic}?`, [
+			"It is a purely theoretical concept with no clinical use",
+			`It explains the mechanism clinicians use when reasoning about ${topic}`,
+			"It only applies to laboratory animals",
+			"It was disproven by recent literature"
+		], 1, `${topic} is taught because it directly supports clinical reasoning at the chair side.`),
+		q(`${prefix}-q2`, `In an exam question about ${topic}, which detail is usually the deciding clue?`, [
+			"The patient's favourite toothpaste",
+			"The clinical presentation combined with the site of the lesion",
+			"The colour of the dental chair",
+			"The time of day of the appointment"
+		], 1, "Site plus presentation is the classic pairing examiners use to separate similar answers."),
+		q(`${prefix}-q3`, `What is the best revision strategy for ${topic}?`, [
+			"Memorise slide titles only",
+			"Skip the quiz and re-watch the video twice",
+			"Work through cases and explain the reasoning out loud",
+			"Read the textbook index"
+		], 2, "Active recall through cases retains far better than passive re-watching.")
+	];
+}
+var oralPathologySections = [
+	{
+		id: "sec-op-1",
+		title: "Foundations",
+		lessons: [lesson({
+			id: "les-op-1",
+			title: "Cell Injury and Adaptation",
+			description: "How cells respond to stress: reversible injury, irreversible injury, and the four adaptive patterns you are expected to recognise in oral tissues.",
+			durationMin: 22,
+			youtubeId: YT[0],
+			isPreview: true,
+			allowDownload: true,
+			quiz: [
+				q("les-op-1-q1", "Which change is a reversible response to cell injury?", [
+					"Karyorrhexis",
+					"Cellular swelling",
+					"Karyolysis",
+					"Coagulative necrosis"
+				], 1, "Cellular (hydropic) swelling follows failure of the sodium pump and reverses once the insult is removed."),
+				q("les-op-1-q2", "Replacement of one differentiated cell type by another is called:", [
+					"Hyperplasia",
+					"Hypertrophy",
+					"Metaplasia",
+					"Atrophy"
+				], 2, "Metaplasia is an adaptive substitution of one mature cell type for another, often in response to chronic irritation."),
+				q("les-op-1-q3", "Apoptosis differs from necrosis mainly because it is:", [
+					"Always pathological",
+					"Energy-dependent and does not provoke inflammation",
+					"Accompanied by massive neutrophil influx",
+					"Limited to epithelial cells"
+				], 1, "Apoptosis is an ATP-dependent, programmed process; membranes stay intact so inflammation is not triggered.")
+			]
+		}), lesson({
+			id: "les-op-2",
+			title: "Inflammation and Repair",
+			description: "Acute and chronic inflammation in the oral cavity, the cells involved, and how healing by primary versus secondary intention affects clinical outcomes.",
+			durationMin: 26,
+			youtubeId: YT[1],
+			quiz: [
+				q("les-op-2-q1", "The predominant cell in the first 24 hours of acute inflammation is the:", [
+					"Lymphocyte",
+					"Neutrophil",
+					"Plasma cell",
+					"Fibroblast"
+				], 1, "Neutrophils arrive first, peaking within the first day before macrophages take over."),
+				q("les-op-2-q2", "Granulation tissue is characterised by:", [
+					"Granulomas with giant cells",
+					"New capillaries and fibroblasts",
+					"Dense mature collagen only",
+					"Keratin pearls"
+				], 1, "Granulation tissue is angiogenesis plus fibroblast proliferation — do not confuse it with granulomatous inflammation."),
+				q("les-op-2-q3", "A chronic inflammatory infiltrate typically contains:", [
+					"Neutrophils and eosinophils only",
+					"Lymphocytes, plasma cells and macrophages",
+					"Erythrocytes only",
+					"Osteoclasts only"
+				], 1, "Mononuclear cells define chronicity in histopathology reports.")
+			]
+		})]
+	},
+	{
+		id: "sec-op-2",
+		title: "Oral Lesions",
+		lessons: [lesson({
+			id: "les-op-3",
+			title: "White Oral Lesions",
+			description: "Leukoplakia, lichen planus, frictional keratosis and candidiasis — how to separate them clinically and which ones need a biopsy.",
+			durationMin: 24,
+			youtubeId: YT[2],
+			allowDownload: true,
+			quiz: [
+				q("les-op-3-q1", "A white patch that wipes off with gauze most likely represents:", [
+					"Leukoplakia",
+					"Pseudomembranous candidiasis",
+					"Lichen planus",
+					"Leukoedema"
+				], 1, "Only the pseudomembranous form of candidiasis rubs away, leaving an erythematous base."),
+				q("les-op-3-q2", "Leukoplakia is best defined as:", [
+					"Any white patch in the mouth",
+					"A white patch that cannot be attributed to another condition",
+					"A white patch caused by trauma",
+					"A fungal white patch"
+				], 1, "It is a clinical diagnosis of exclusion and carries malignant potential."),
+				q("les-op-3-q3", "Wickham striae are typical of:", [
+					"Oral lichen planus",
+					"Nicotinic stomatitis",
+					"White sponge naevus",
+					"Candidiasis"
+				], 0, "Fine lace-like white lines on the buccal mucosa are the classic sign of lichen planus.")
+			]
+		}), lesson({
+			id: "les-op-4",
+			title: "Red and Pigmented Lesions",
+			description: "Erythroplakia, vascular lesions, amalgam tattoo and melanotic macules, with the red flags that require urgent referral.",
+			durationMin: 21,
+			youtubeId: YT[3],
+			quiz: [
+				q("les-op-4-q1", "Compared with leukoplakia, erythroplakia has:", [
+					"Lower malignant potential",
+					"Equal malignant potential",
+					"Higher malignant potential",
+					"No malignant potential"
+				], 2, "Erythroplakia shows dysplasia or carcinoma far more often than leukoplakia."),
+				q("les-op-4-q2", "A blue-grey macule adjacent to a restored tooth is most likely:", [
+					"Melanoma",
+					"Amalgam tattoo",
+					"Haemangioma",
+					"Blue naevus"
+				], 1, "Amalgam particles embedded in mucosa give a stable, asymptomatic grey macule, often radiopaque."),
+				q("les-op-4-q3", "Which finding most urgently warrants referral?", [
+					"A symmetrical brown macule present since childhood",
+					"A blanching red lesion on the lip",
+					"A non-healing red lesion on the floor of the mouth for six weeks",
+					"Generalised gingival erythema after poor brushing"
+				], 2, "The floor of the mouth is high-risk; a persistent red lesion there needs biopsy.")
+			]
+		})]
+	},
+	{
+		id: "sec-op-3",
+		title: "Clinical Revision",
+		lessons: [lesson({
+			id: "les-op-5",
+			title: "Case-Based Diagnosis",
+			description: "Six worked cases taken through history, examination, differential diagnosis and investigation, in the same order examiners expect.",
+			durationMin: 28,
+			youtubeId: YT[0],
+			pdfUrl: PDF,
+			quiz: genericQuiz("les-op-5", "case-based oral diagnosis")
+		}), lesson({
+			id: "les-op-6",
+			title: "Final Subject Revision",
+			description: "A rapid pass over the whole subject with high-yield tables and the mistakes that lose marks most often.",
+			durationMin: 19,
+			youtubeId: YT[1],
+			pdfUrl: null,
+			pdfName: null,
+			quiz: genericQuiz("les-op-6", "oral pathology revision")
+		})]
+	}
+];
+function simpleSections(prefix, titles) {
+	return titles.map(([sectionTitle, lessonTitles], si) => ({
+		id: `sec-${prefix}-${si + 1}`,
+		title: sectionTitle,
+		lessons: lessonTitles.map((title, li) => lesson({
+			id: `les-${prefix}-${si + 1}-${li + 1}`,
+			title,
+			description: `${title} — structured walkthrough with slides and a short mandatory quiz.`,
+			durationMin: 16 + li * 5,
+			youtubeId: YT[(si + li) % YT.length] ?? YT[0],
+			isPreview: si === 0 && li === 0,
+			quiz: genericQuiz(`les-${prefix}-${si + 1}-${li + 1}`, title.toLowerCase())
+		}))
+	}));
+}
+var courses = [
+	{
+		id: "course-oral-pathology",
+		slug: "oral-pathology-essentials",
+		title: "Oral Pathology Essentials",
+		subject: "Oral Pathology",
+		level: "3rd & 4th year dental students",
+		summary: "A structured walk through the oral pathology syllabus with slides, worked cases and a mandatory quiz after every lesson.",
+		description: "Oral Pathology Essentials follows the way the subject is actually taught and examined at university. Each lesson pairs a focused video with a slide deck and a short mandatory quiz, so you can check that you really understood the mechanism before moving on. The course is supplementary academic support for your college subject — it is not an accredited continuing-education programme and no certificate is issued.",
+		outcomes: [
+			"Describe reversible and irreversible cell injury and the four adaptive responses",
+			"Separate acute from chronic inflammation on histology and clinically",
+			"Build a differential diagnosis for white, red and pigmented oral lesions",
+			"Decide which lesions need a biopsy and which can be observed",
+			"Answer case-based exam questions in a structured order"
+		],
+		price: 1499,
+		thumbnail: course_oral_pathology_default,
+		salesOpenAt: "2026-07-01T00:00:00.000Z",
+		salesCloseAt: "2027-01-15T23:59:59.000Z",
+		accessOpenAt: "2026-07-15T00:00:00.000Z",
+		accessCloseAt: "2027-01-31T23:59:59.000Z",
+		publishState: "published",
+		sections: oralPathologySections
+	},
+	{
+		id: "course-dental-anatomy",
+		slug: "dental-anatomy-and-occlusion",
+		title: "Dental Anatomy and Occlusion",
+		subject: "Dental Anatomy",
+		level: "1st & 2nd year dental students",
+		summary: "Tooth morphology, arch relationships and occlusion, built around the drawings and models used in practical exams.",
+		description: "A first-year friendly course covering tooth morphology and occlusion in the order practical exams test them. Sales open later this term; the curriculum below is final.",
+		outcomes: [
+			"Identify every permanent tooth from its morphology",
+			"Draw the standard views expected in practical exams",
+			"Explain centric relation and centric occlusion",
+			"Recognise common occlusal discrepancies"
+		],
+		price: 1199,
+		thumbnail: course_dental_anatomy_default,
+		salesOpenAt: "2026-11-01T00:00:00.000Z",
+		salesCloseAt: "2027-03-15T23:59:59.000Z",
+		accessOpenAt: "2026-11-10T00:00:00.000Z",
+		accessCloseAt: "2027-06-30T23:59:59.000Z",
+		publishState: "published",
+		sections: simpleSections("da", [["Tooth Morphology", ["Anterior Teeth", "Posterior Teeth"]], ["Occlusion", ["Centric Relation and Occlusion", "Occlusal Discrepancies"]]])
+	},
+	{
+		id: "course-pharmacology",
+		slug: "dental-pharmacology",
+		title: "Dental Pharmacology",
+		subject: "Pharmacology",
+		level: "3rd year dental students",
+		summary: "Analgesics, antibiotics and local anaesthetics for dentistry, with dosing tables and interaction traps.",
+		description: "Enrollment for this term has closed. Students who bought the course keep access until the access closing date shown below.",
+		outcomes: [
+			"Choose analgesics safely for dental pain",
+			"Apply antibiotic prescribing principles in dentistry",
+			"Compare local anaesthetic agents and their limits",
+			"Spot the interactions that matter in dental practice"
+		],
+		price: 999,
+		thumbnail: course_pharmacology_default,
+		salesOpenAt: "2026-03-01T00:00:00.000Z",
+		salesCloseAt: "2026-08-31T23:59:59.000Z",
+		accessOpenAt: "2026-03-10T00:00:00.000Z",
+		accessCloseAt: "2027-03-31T23:59:59.000Z",
+		publishState: "published",
+		sections: simpleSections("ph", [["Pain Control", ["Analgesics in Dentistry", "Local Anaesthetics"]], ["Infection", ["Antibiotic Principles", "Prescribing Traps"]]])
+	},
+	{
+		id: "course-radiology",
+		slug: "oral-radiology-basics",
+		title: "Oral Radiology Basics",
+		subject: "Oral Radiology",
+		level: "2nd & 3rd year dental students",
+		summary: "Radiographic technique, normal anatomy on film, and a systematic reading routine for periapicals and panoramics.",
+		description: "Access for this course ended. Your progress and quiz results stay visible in your dashboard for revision reference.",
+		outcomes: [
+			"Apply paralleling and bisecting techniques correctly",
+			"Identify normal radiographic anatomy",
+			"Read a panoramic radiograph systematically"
+		],
+		price: 899,
+		thumbnail: course_radiology_default,
+		salesOpenAt: "2025-10-01T00:00:00.000Z",
+		salesCloseAt: "2026-04-30T23:59:59.000Z",
+		accessOpenAt: "2025-10-10T00:00:00.000Z",
+		accessCloseAt: "2026-06-30T23:59:59.000Z",
+		publishState: "published",
+		sections: simpleSections("rad", [["Technique", ["Intraoral Techniques", "Panoramic Imaging"]], ["Interpretation", ["Normal Radiographic Anatomy", "A Systematic Reading Routine"]]])
+	}
+];
+var users = [
+	{
+		id: "user-student",
+		name: "Mariam Adel",
+		email: "student@demo.com",
+		password: "demo1234",
+		phone: "+20 100 123 4567",
+		university: "Cairo University",
+		academicYear: "3rd year",
+		role: "student",
+		createdAt: "2026-07-20T09:00:00.000Z"
+	},
+	{
+		id: "user-admin",
+		name: "Admin",
+		email: "admin@demo.com",
+		password: "demo1234",
+		phone: "+20 100 765 4321",
+		university: "Cairo University",
+		academicYear: "Faculty",
+		role: "admin",
+		createdAt: "2026-06-01T09:00:00.000Z"
+	},
+	{
+		id: "user-2",
+		name: "Youssef Kamal",
+		email: "youssef@demo.com",
+		password: "demo1234",
+		phone: "+20 101 222 3344",
+		university: "Ain Shams University",
+		academicYear: "4th year",
+		role: "student",
+		createdAt: "2026-07-28T09:00:00.000Z"
+	},
+	{
+		id: "user-3",
+		name: "Nour Ibrahim",
+		email: "nour@demo.com",
+		password: "demo1234",
+		phone: "+20 102 555 8899",
+		university: "Alexandria University",
+		academicYear: "3rd year",
+		role: "student",
+		createdAt: "2026-08-02T09:00:00.000Z"
+	},
+	{
+		id: "user-4",
+		name: "Hana Mostafa",
+		email: "hana@demo.com",
+		password: "demo1234",
+		phone: "+20 103 444 1122",
+		university: "Mansoura University",
+		academicYear: "2nd year",
+		role: "student",
+		createdAt: "2026-08-11T09:00:00.000Z"
+	}
+];
+function daysAgoIso(days, hour = 18) {
+	const d = /* @__PURE__ */ new Date();
+	d.setDate(d.getDate() - days);
+	d.setHours(hour, 0, 0, 0);
+	return d.toISOString();
+}
+function buildSeedState() {
+	const streakDays = Array.from({ length: 6 }, (_, i) => toDateKey(/* @__PURE__ */ new Date(Date.now() - i * 864e5)));
+	return {
+		users,
+		courses,
+		enrollments: [
+			{
+				id: "enr-1",
+				userId: "user-student",
+				courseId: "course-oral-pathology",
+				enrolledAt: "2026-08-05T10:12:00.000Z",
+				source: "purchase"
+			},
+			{
+				id: "enr-2",
+				userId: "user-student",
+				courseId: "course-radiology",
+				enrolledAt: "2025-11-14T10:12:00.000Z",
+				source: "purchase"
+			},
+			{
+				id: "enr-3",
+				userId: "user-2",
+				courseId: "course-oral-pathology",
+				enrolledAt: "2026-08-08T14:22:00.000Z",
+				source: "purchase"
+			},
+			{
+				id: "enr-4",
+				userId: "user-3",
+				courseId: "course-oral-pathology",
+				enrolledAt: "2026-08-19T08:31:00.000Z",
+				source: "purchase"
+			},
+			{
+				id: "enr-5",
+				userId: "user-4",
+				courseId: "course-pharmacology",
+				enrolledAt: "2026-08-21T19:05:00.000Z",
+				source: "purchase"
+			}
+		],
+		progress: [
+			{
+				userId: "user-student",
+				courseId: "course-oral-pathology",
+				lessonId: "les-op-1",
+				lastPositionSec: 1320,
+				watchedSec: 1320,
+				percent: 100,
+				completed: true,
+				updatedAt: daysAgoIso(5)
+			},
+			{
+				userId: "user-student",
+				courseId: "course-oral-pathology",
+				lessonId: "les-op-2",
+				lastPositionSec: 1560,
+				watchedSec: 1560,
+				percent: 100,
+				completed: true,
+				updatedAt: daysAgoIso(3)
+			},
+			{
+				userId: "user-student",
+				courseId: "course-oral-pathology",
+				lessonId: "les-op-3",
+				lastPositionSec: 768,
+				watchedSec: 768,
+				percent: 60,
+				completed: false,
+				updatedAt: daysAgoIso(0, 9)
+			},
+			{
+				userId: "user-student",
+				courseId: "course-radiology",
+				lessonId: "les-rad-1-1",
+				lastPositionSec: 960,
+				watchedSec: 960,
+				percent: 100,
+				completed: true,
+				updatedAt: "2026-05-20T17:00:00.000Z"
+			},
+			{
+				userId: "user-student",
+				courseId: "course-radiology",
+				lessonId: "les-rad-1-2",
+				lastPositionSec: 540,
+				watchedSec: 540,
+				percent: 45,
+				completed: false,
+				updatedAt: "2026-06-02T17:00:00.000Z"
+			},
+			{
+				userId: "user-2",
+				courseId: "course-oral-pathology",
+				lessonId: "les-op-1",
+				lastPositionSec: 1320,
+				watchedSec: 1320,
+				percent: 100,
+				completed: true,
+				updatedAt: daysAgoIso(2)
+			},
+			{
+				userId: "user-3",
+				courseId: "course-oral-pathology",
+				lessonId: "les-op-1",
+				lastPositionSec: 400,
+				watchedSec: 400,
+				percent: 32,
+				completed: false,
+				updatedAt: daysAgoIso(1)
+			}
+		],
+		attempts: [
+			{
+				id: "att-1",
+				userId: "user-student",
+				courseId: "course-oral-pathology",
+				lessonId: "les-op-1",
+				score: 100,
+				passed: true,
+				answers: [
+					1,
+					2,
+					1
+				],
+				takenAt: daysAgoIso(5, 19)
+			},
+			{
+				id: "att-2",
+				userId: "user-student",
+				courseId: "course-oral-pathology",
+				lessonId: "les-op-2",
+				score: 67,
+				passed: false,
+				answers: [
+					1,
+					0,
+					1
+				],
+				takenAt: daysAgoIso(3, 18)
+			},
+			{
+				id: "att-3",
+				userId: "user-student",
+				courseId: "course-oral-pathology",
+				lessonId: "les-op-2",
+				score: 100,
+				passed: true,
+				answers: [
+					1,
+					1,
+					1
+				],
+				takenAt: daysAgoIso(3, 19)
+			},
+			{
+				id: "att-4",
+				userId: "user-student",
+				courseId: "course-radiology",
+				lessonId: "les-rad-1-1",
+				score: 100,
+				passed: true,
+				answers: [
+					1,
+					1,
+					2
+				],
+				takenAt: "2026-05-20T18:00:00.000Z"
+			},
+			{
+				id: "att-5",
+				userId: "user-2",
+				courseId: "course-oral-pathology",
+				lessonId: "les-op-1",
+				score: 67,
+				passed: false,
+				answers: [
+					1,
+					2,
+					0
+				],
+				takenAt: daysAgoIso(2, 20)
+			}
+		],
+		bookmarks: [{
+			userId: "user-student",
+			courseId: "course-oral-pathology",
+			lessonId: "les-op-3",
+			createdAt: daysAgoIso(1, 20)
+		}, {
+			userId: "user-student",
+			courseId: "course-oral-pathology",
+			lessonId: "les-op-5",
+			createdAt: daysAgoIso(2, 21)
+		}],
+		payments: [
+			{
+				id: "pay-1",
+				txnId: "DEMO-8F31A2",
+				userId: "user-student",
+				courseId: "course-oral-pathology",
+				amount: 1499,
+				method: "Demo Card",
+				status: "success",
+				createdAt: "2026-08-05T10:12:00.000Z"
+			},
+			{
+				id: "pay-2",
+				txnId: "DEMO-2B77C4",
+				userId: "user-student",
+				courseId: "course-radiology",
+				amount: 899,
+				method: "Demo Card",
+				status: "success",
+				createdAt: "2025-11-14T10:12:00.000Z"
+			},
+			{
+				id: "pay-3",
+				txnId: "DEMO-9C10D5",
+				userId: "user-2",
+				courseId: "course-oral-pathology",
+				amount: 1499,
+				method: "Demo Wallet",
+				status: "success",
+				createdAt: "2026-08-08T14:22:00.000Z"
+			},
+			{
+				id: "pay-4",
+				txnId: "DEMO-4A55E1",
+				userId: "user-3",
+				courseId: "course-oral-pathology",
+				amount: 1499,
+				method: "Demo Card",
+				status: "success",
+				createdAt: "2026-08-19T08:31:00.000Z"
+			},
+			{
+				id: "pay-5",
+				txnId: "DEMO-77B0F9",
+				userId: "user-4",
+				courseId: "course-pharmacology",
+				amount: 999,
+				method: "Demo Wallet",
+				status: "success",
+				createdAt: "2026-08-21T19:05:00.000Z"
+			},
+			{
+				id: "pay-6",
+				txnId: "DEMO-31EE02",
+				userId: "user-4",
+				courseId: "course-oral-pathology",
+				amount: 1499,
+				method: "Demo Card",
+				status: "pending",
+				createdAt: daysAgoIso(1, 12)
+			},
+			{
+				id: "pay-7",
+				txnId: "DEMO-55AB13",
+				userId: "user-3",
+				courseId: "course-pharmacology",
+				amount: 999,
+				method: "Demo Card",
+				status: "failed",
+				createdAt: daysAgoIso(4, 15)
+			}
+		],
+		announcements: [{
+			id: "ann-1",
+			courseId: "course-oral-pathology",
+			title: "Clinical Revision section is now live",
+			body: "Both case-based lessons are published with slides and quizzes. Work through the cases before the practical exam.",
+			createdAt: daysAgoIso(2, 11)
+		}, {
+			id: "ann-2",
+			courseId: null,
+			title: "Access dates are fixed per course",
+			body: "Every course closes for all students on the same date, whenever you bought it. Check the closing date on your dashboard.",
+			createdAt: daysAgoIso(6, 10)
+		}],
+		activity: {
+			"user-student": streakDays,
+			"user-2": [toDateKey(/* @__PURE__ */ new Date(Date.now() - 1728e5))],
+			"user-3": [toDateKey(/* @__PURE__ */ new Date(Date.now() - 864e5))],
+			"user-4": []
+		},
+		readAnnouncements: {},
+		sessionUserId: null
+	};
+}
+var STORAGE_KEY = "dsh.state.v4";
+var StoreContext = (0, import_react.createContext)(null);
+var uid = (prefix) => `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
+function AppStoreProvider({ children }) {
+	const [state, setInternal] = (0, import_react.useState)(() => buildSeedState());
+	const [hydrated, setHydrated] = (0, import_react.useState)(false);
+	const loaded = (0, import_react.useRef)(false);
+	(0, import_react.useEffect)(() => {
+		try {
+			const raw = localStorage.getItem(STORAGE_KEY);
+			if (raw) setInternal(JSON.parse(raw));
+		} catch {}
+		loaded.current = true;
+		setHydrated(true);
+	}, []);
+	(0, import_react.useEffect)(() => {
+		if (!loaded.current || !hydrated) return;
+		try {
+			localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+		} catch {}
+	}, [state, hydrated]);
+	const setState = (0, import_react.useCallback)((updater) => {
+		setInternal((prev) => {
+			const next = updater(prev);
+			if (loaded.current) try {
+				localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+			} catch {}
+			return next;
+		});
+	}, []);
+	const user = (0, import_react.useMemo)(() => state.users.find((u) => u.id === state.sessionUserId) ?? null, [state.users, state.sessionUserId]);
+	const value = (0, import_react.useMemo)(() => {
+		const touchActivity = (prev, userId) => {
+			const key = toDateKey(/* @__PURE__ */ new Date());
+			const days = prev.activity[userId] ?? [];
+			if (days.includes(key)) return prev;
+			return {
+				...prev,
+				activity: {
+					...prev.activity,
+					[userId]: [...days, key]
+				}
+			};
+		};
+		return {
+			state,
+			hydrated,
+			user,
+			setState,
+			signIn(email, password) {
+				const found = state.users.find((u) => u.email.toLowerCase() === email.trim().toLowerCase() && u.password === password);
+				if (!found) return {
+					ok: false,
+					error: "No account matches that email and password."
+				};
+				setState((prev) => ({
+					...prev,
+					sessionUserId: found.id
+				}));
+				return { ok: true };
+			},
+			signUp(input) {
+				if (state.users.some((u) => u.email.toLowerCase() === input.email.trim().toLowerCase())) return {
+					ok: false,
+					error: "An account already exists with this email."
+				};
+				const newUser = {
+					id: uid("user"),
+					role: "student",
+					createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+					...input,
+					email: input.email.trim()
+				};
+				setState((prev) => ({
+					...prev,
+					users: [...prev.users, newUser],
+					activity: {
+						...prev.activity,
+						[newUser.id]: []
+					},
+					sessionUserId: newUser.id
+				}));
+				return { ok: true };
+			},
+			signOut() {
+				setState((prev) => ({
+					...prev,
+					sessionUserId: null
+				}));
+			},
+			enterDemo(role) {
+				const demo = state.users.find((u) => u.email === (role === "admin" ? "admin@demo.com" : "student@demo.com"));
+				if (demo) setState((prev) => ({
+					...prev,
+					sessionUserId: demo.id
+				}));
+			},
+			updateProfile(patch) {
+				if (!user) return;
+				setState((prev) => ({
+					...prev,
+					users: prev.users.map((u) => u.id === user.id ? {
+						...u,
+						...patch
+					} : u)
+				}));
+			},
+			resetDemo() {
+				const fresh = buildSeedState();
+				setInternal(fresh);
+			},
+			markActivity() {
+				if (!user) return;
+				setState((prev) => touchActivity(prev, user.id));
+			},
+			saveProgress({ courseId, lessonId, positionSec, percent, watchedSec }) {
+				if (!user) return;
+				setState((prev) => {
+					const existing = prev.progress.find((p) => p.userId === user.id && p.lessonId === lessonId);
+					const next = {
+						userId: user.id,
+						courseId,
+						lessonId,
+						lastPositionSec: Math.round(positionSec),
+						watchedSec: Math.max(existing?.watchedSec ?? 0, Math.round(watchedSec ?? positionSec)),
+						percent: Math.max(existing?.percent ?? 0, Math.min(100, Math.round(percent))),
+						completed: existing?.completed ?? false,
+						updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+					};
+					const progress = existing ? prev.progress.map((p) => p === existing ? next : p) : [...prev.progress, next];
+					let out = {
+						...prev,
+						progress
+					};
+					if ((next.watchedSec ?? 0) >= 600) out = touchActivity(out, user.id);
+					return out;
+				});
+			},
+			submitQuiz({ courseId, lessonId, answers, score, passed }) {
+				if (!user) return;
+				setState((prev) => {
+					const attempt = {
+						id: uid("att"),
+						userId: user.id,
+						courseId,
+						lessonId,
+						score,
+						passed,
+						answers,
+						takenAt: (/* @__PURE__ */ new Date()).toISOString()
+					};
+					const existing = prev.progress.find((p) => p.userId === user.id && p.lessonId === lessonId);
+					const progress = existing ? prev.progress.map((p) => p === existing ? {
+						...p,
+						completed: p.completed || passed,
+						percent: passed ? 100 : p.percent,
+						updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+					} : p) : [...prev.progress, {
+						userId: user.id,
+						courseId,
+						lessonId,
+						lastPositionSec: 0,
+						watchedSec: 0,
+						percent: passed ? 100 : 0,
+						completed: passed,
+						updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+					}];
+					let out = {
+						...prev,
+						attempts: [...prev.attempts, attempt],
+						progress
+					};
+					if (passed) out = touchActivity(out, user.id);
+					return out;
+				});
+			},
+			toggleBookmark(courseId, lessonId) {
+				if (!user) return;
+				setState((prev) => {
+					const exists = prev.bookmarks.some((b) => b.userId === user.id && b.lessonId === lessonId);
+					return {
+						...prev,
+						bookmarks: exists ? prev.bookmarks.filter((b) => !(b.userId === user.id && b.lessonId === lessonId)) : [...prev.bookmarks, {
+							userId: user.id,
+							courseId,
+							lessonId,
+							createdAt: (/* @__PURE__ */ new Date()).toISOString()
+						}]
+					};
+				});
+			},
+			recordPayment({ courseId, amount, txnId, status, method, userId }) {
+				const buyerId = userId ?? user?.id;
+				if (!buyerId) return;
+				const payment = {
+					id: uid("pay"),
+					txnId,
+					userId: buyerId,
+					courseId,
+					amount,
+					method,
+					status,
+					createdAt: (/* @__PURE__ */ new Date()).toISOString()
+				};
+				setState((prev) => {
+					const already = prev.enrollments.some((e) => e.userId === buyerId && e.courseId === courseId && !e.revoked);
+					return {
+						...prev,
+						payments: [payment, ...prev.payments],
+						enrollments: status === "success" && !already ? [...prev.enrollments, {
+							id: uid("enr"),
+							userId: buyerId,
+							courseId,
+							enrolledAt: (/* @__PURE__ */ new Date()).toISOString(),
+							source: "purchase"
+						}] : prev.enrollments
+					};
+				});
+			},
+			grantAccess(userId, courseId) {
+				setState((prev) => {
+					const existing = prev.enrollments.find((e) => e.userId === userId && e.courseId === courseId);
+					if (existing) return {
+						...prev,
+						enrollments: prev.enrollments.map((e) => e === existing ? {
+							...e,
+							revoked: false
+						} : e)
+					};
+					return {
+						...prev,
+						enrollments: [...prev.enrollments, {
+							id: uid("enr"),
+							userId,
+							courseId,
+							enrolledAt: (/* @__PURE__ */ new Date()).toISOString(),
+							source: "granted"
+						}]
+					};
+				});
+			},
+			revokeAccess(userId, courseId) {
+				setState((prev) => ({
+					...prev,
+					enrollments: prev.enrollments.map((e) => e.userId === userId && e.courseId === courseId ? {
+						...e,
+						revoked: true
+					} : e)
+				}));
+			},
+			saveCourse(course) {
+				setState((prev) => ({
+					...prev,
+					courses: prev.courses.some((c) => c.id === course.id) ? prev.courses.map((c) => c.id === course.id ? course : c) : [...prev.courses, course]
+				}));
+			},
+			setPublishState(courseId, publishState) {
+				setState((prev) => ({
+					...prev,
+					courses: prev.courses.map((c) => c.id === courseId ? {
+						...c,
+						publishState
+					} : c)
+				}));
+			},
+			publishAnnouncement({ courseId, title, body }) {
+				const announcement = {
+					id: uid("ann"),
+					courseId,
+					title,
+					body,
+					createdAt: (/* @__PURE__ */ new Date()).toISOString()
+				};
+				setState((prev) => ({
+					...prev,
+					announcements: [announcement, ...prev.announcements]
+				}));
+			},
+			deleteAnnouncement(id) {
+				setState((prev) => ({
+					...prev,
+					announcements: prev.announcements.filter((a) => a.id !== id)
+				}));
+			}
+		};
+	}, [
+		state,
+		hydrated,
+		user,
+		setState
+	]);
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(StoreContext.Provider, {
+		value,
+		children
+	});
+}
+function useStore() {
+	const ctx = (0, import_react.useContext)(StoreContext);
+	if (!ctx) throw new Error("useStore must be used inside AppStoreProvider");
+	return ctx;
+}
+//#endregion
+export { courseStatus as a, formatDate as c, formatPrice as d, isAccessActive as f, useStore as g, uid as h, courseStats as i, formatDateTime as l, toDateKey as m, brand as n, daysRemaining as o, statusLabel as p, courseLessons as r, formatClock as s, AppStoreProvider as t, formatDuration as u };
