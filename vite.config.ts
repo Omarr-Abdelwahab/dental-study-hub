@@ -7,6 +7,10 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
+  // Lovable uses Cloudflare for its own previews. Pin only Vercel CI builds so
+  // production emits Vercel's Build Output API layout without changing the
+  // local/Lovable preview target.
+  nitro: process.env.VERCEL ? { preset: "vercel" } : undefined,
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
