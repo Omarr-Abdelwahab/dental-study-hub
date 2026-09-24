@@ -2,6 +2,10 @@
   "name": "dental-study-hub",
   "private": true,
   "version": "0.1.0",
+  "packageManager": "npm@10.9.2",
+  "engines": {
+    "node": "22.x"
+  },
   "workspaces": ["frontend"],
   "scripts": {
     "dev": "npm run dev --workspace @dental-study-hub/frontend --",
