@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { CalendarDays, Mail, Phone, RotateCcw, School, ShieldCheck, UserRound } from "lucide-react";
+import { CalendarDays, Mail, Phone, School, ShieldCheck, UserRound } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
@@ -14,8 +14,10 @@ import { formatDate } from "@/lib/format";
 export const Route = createFileRoute("/profile")({ component: ProfilePage });
 
 function ProfilePage() {
-  const { user, updateProfile, resetDemo } = useStore();
+  const { user, updateProfile, sendPasswordReset } = useStore();
   const [key, setKey] = useState(0);
+  const [saving, setSaving] = useState(false);
+  const [sendingReset, setSendingReset] = useState(false);
   useEffect(() => setKey((value) => value + 1), [user?.id]);
 
   if (!user) {
@@ -32,16 +34,22 @@ function ProfilePage() {
     );
   }
 
-  const save = (event: FormEvent<HTMLFormElement>) => {
+  const save = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    updateProfile({
-      name: String(data.get("name")),
-      phone: String(data.get("phone")),
-      university: String(data.get("university")),
-      academicYear: String(data.get("academicYear")),
-    });
-    toast.success("Profile updated.");
+    setSaving(true);
+    try {
+      const result = await updateProfile({
+        name: String(data.get("name")),
+        phone: String(data.get("phone")),
+        university: String(data.get("university")),
+        academicYear: String(data.get("academicYear")),
+      });
+      if (result.ok) toast.success("Profile updated.");
+      else toast.error(result.error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -83,21 +91,18 @@ function ProfilePage() {
                   Used across your learning dashboard.
                 </p>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  resetDemo();
-                  toast.success("All demo data was reset.");
-                }}
-              >
-                <RotateCcw /> Reset demo
-              </Button>
             </div>
             <form key={key} onSubmit={save} className="mt-7 grid gap-5 sm:grid-cols-2">
               <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="name">Full name</Label>
-                <Input id="name" name="name" defaultValue={user.name} required />
+                <Input
+                  id="name"
+                  name="name"
+                  defaultValue={user.name}
+                  minLength={2}
+                  maxLength={120}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
@@ -105,11 +110,17 @@ function ProfilePage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone</Label>
-                <Input id="phone" name="phone" defaultValue={user.phone} required />
+                <Input id="phone" name="phone" defaultValue={user.phone} maxLength={40} required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="university">University</Label>
-                <Input id="university" name="university" defaultValue={user.university} required />
+                <Input
+                  id="university"
+                  name="university"
+                  defaultValue={user.university}
+                  maxLength={160}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="academicYear">Academic year</Label>
@@ -117,19 +128,47 @@ function ProfilePage() {
                   id="academicYear"
                   name="academicYear"
                   defaultValue={user.academicYear}
+                  maxLength={80}
                   required
                 />
               </div>
               <div className="sm:col-span-2">
-                <Button type="submit">Save changes</Button>
+                <Button type="submit" disabled={saving}>
+                  {saving ? "Saving…" : "Save changes"}
+                </Button>
               </div>
             </form>
             <div className="mt-8 flex gap-3 rounded-xl border border-primary/20 bg-accent/60 p-4">
               <ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" />
               <p className="text-sm leading-6 text-accent-foreground">
-                This is a browser-only prototype. Production accounts would use secure
-                authentication and never store passwords in front-end state.
+                Your account uses secure authentication. Password recovery is handled through a
+                verified email link, and passwords are never stored in the browser.
               </p>
+            </div>
+            <div className="mt-5 flex flex-col items-start justify-between gap-3 rounded-xl border p-4 sm:flex-row sm:items-center">
+              <div>
+                <p className="font-bold text-navy">Change your password</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  We will email a secure, single-use recovery link to {user.email}.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={sendingReset}
+                onClick={async () => {
+                  setSendingReset(true);
+                  try {
+                    const result = await sendPasswordReset(user.email);
+                    if (result.ok) toast.success("Password reset email sent.");
+                    else toast.error(result.error);
+                  } finally {
+                    setSendingReset(false);
+                  }
+                }}
+              >
+                {sendingReset ? "Sending…" : "Email reset link"}
+              </Button>
             </div>
           </div>
         </div>

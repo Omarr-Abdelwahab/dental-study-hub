@@ -86,14 +86,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: brand.name },
       { property: "og:description", content: brand.tagline },
       { property: "og:type", content: "website" },
+      ...(brand.siteUrl
+        ? [{ property: "og:image", content: `${brand.siteUrl.replace(/\/$/, "")}/og.png` }]
+        : []),
       { name: "twitter:card", content: "summary_large_image" },
+      ...(brand.siteUrl
+        ? [{ name: "twitter:image", content: `${brand.siteUrl.replace(/\/$/, "")}/og.png` }]
+        : []),
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+      { rel: "icon", href: "/denta-help-logo.png", type: "image/png" },
     ],
   }),
   shellComponent: RootShell,

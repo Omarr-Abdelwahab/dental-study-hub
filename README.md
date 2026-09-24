@@ -1,27 +1,33 @@
-# Dental Study Hub
+# Denta Help
 
-The project is organized as an npm monorepo with independent frontend and backend workspaces.
+Production-oriented online dental education platform built with TanStack Start and Supabase.
 
 ```text
 dental-study-hub/
-├── frontend/  TanStack Start web application
-└── backend/   API workspace (framework to be selected)
+├── frontend/  Web application
+└── supabase/  Database schema, policies, and transactional functions
 ```
 
-## Frontend
+## Run locally
 
-Run the existing application from the repository root:
+1. Apply the migration in `supabase/migrations` to a Supabase project.
+2. Copy `.env.example` to `.env.local` and configure every value.
+3. Follow `supabase/README.md` to promote the first administrator.
+4. Install and run the app:
 
 ```bash
 npm install
 npm run dev
 ```
 
-The root `build`, `lint`, `typecheck`, and `check` commands currently target the frontend.
+## Quality checks
 
-## Backend
+```bash
+npm run typecheck
+npm run lint
+npm run build
+```
 
-The backend folder is deliberately framework-neutral. Its runtime, database, authentication, and
-deployment architecture will be selected before application code is added.
-
-When Vercel deployment is configured again, set the project's **Root Directory** to `frontend`.
+The application includes email/password authentication and recovery, durable learning progress,
+role-based authorization, a protected course-content model, InstaPay purchase requests, and
+transactional administrator approval.

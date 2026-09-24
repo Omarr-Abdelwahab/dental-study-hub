@@ -4,7 +4,6 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  password: string;
   phone: string;
   university: string;
   academicYear: string;
@@ -16,8 +15,10 @@ export interface QuizQuestion {
   id: string;
   text: string;
   choices: string[];
-  correctIndex: number;
-  explanation: string;
+  /** Only present in the administrator payload or a graded-attempt response. */
+  correctIndex?: number;
+  /** Only disclosed after an attempt has been graded. */
+  explanation?: string;
 }
 
 export interface Lesson {
@@ -111,6 +112,9 @@ export interface Payment {
   method: string;
   status: PaymentStatus;
   createdAt: string;
+  reviewedAt?: string | null;
+  reviewedBy?: string | null;
+  rejectionReason?: string | null;
 }
 
 export interface Announcement {

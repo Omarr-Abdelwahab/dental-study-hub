@@ -22,6 +22,7 @@ import {
   Search,
 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 import { AppHeader } from "@/components/app-shell";
 import { LessonQuiz } from "@/components/lesson-quiz";
@@ -33,6 +34,7 @@ import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { brand } from "@/config/brand";
 import {
   courseLessons,
   courseStats,
@@ -59,7 +61,7 @@ export const Route = createFileRoute("/learn/$courseId/$lessonId")({
 
 function LessonPage() {
   const { courseId, lessonId } = Route.useParams();
-  const { state, user, enterDemo, saveProgress, toggleBookmark } = useStore();
+  const { state, user, saveProgress, toggleBookmark } = useStore();
   const course = getCourse(state, courseId);
   const lesson = course ? findLesson(course, lessonId) : undefined;
   const [search, setSearch] = useState("");
@@ -72,14 +74,14 @@ function LessonPage() {
   const canUseMaterials = Boolean(activeAccess && user);
 
   const handleProgress = useCallback(
-    (positionSec: number, percent: number) => {
+    (positionSec: number, percent: number, watchedDeltaSec: number) => {
       if (!canUseMaterials || user?.role !== "student") return;
       saveProgress({
         courseId,
         lessonId,
         positionSec,
         percent,
-        watchedSec: positionSec,
+        watchedDeltaSec,
       });
     },
     [canUseMaterials, courseId, lessonId, saveProgress, user?.role],
@@ -130,8 +132,10 @@ function LessonPage() {
             </p>
             <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
               {!user ? (
-                <Button onClick={() => enterDemo("student")}>
-                  <GraduationCap /> Enter student demo
+                <Button asChild>
+                  <Link to="/auth">
+                    <GraduationCap /> Sign in to enroll
+                  </Link>
                 </Button>
               ) : !expired ? (
                 <Button asChild>
@@ -273,7 +277,10 @@ function LessonPage() {
               {user?.role === "student" && activeAccess && (
                 <Button
                   variant={bookmarked ? "default" : "outline"}
-                  onClick={() => toggleBookmark(course.id, lesson.id)}
+                  onClick={async () => {
+                    const result = await toggleBookmark(course.id, lesson.id);
+                    if (!result.ok) toast.error(result.error);
+                  }}
                   className="shrink-0"
                 >
                   <Bookmark className={bookmarked ? "fill-current" : ""} />
@@ -350,6 +357,9 @@ function LessonPage() {
                     <iframe
                       src={lesson.pdfUrl}
                       title={`${lesson.title} slides`}
+                      sandbox="allow-same-origin"
+                      referrerPolicy="no-referrer"
+                      loading="lazy"
                       className="h-[68vh] min-h-[520px] w-full bg-muted"
                     />
                   </div>
@@ -386,12 +396,12 @@ function LessonPage() {
                   <div>
                     <h2 className="text-xl font-extrabold text-navy">Stuck on this topic?</h2>
                     <p className="mt-2 max-w-2xl leading-7 text-muted-foreground">
-                      Send the lesson title and your question to the course support team. This demo
-                      opens your email app with the topic already included.
+                      Send the lesson title and your question to the course support team. Your email
+                      will open with the topic already included.
                     </p>
                     <Button asChild className="mt-5">
                       <a
-                        href={`mailto:support@dentalstudyhub.example?subject=Question about ${encodeURIComponent(lesson.title)}`}
+                        href={`mailto:${brand.supportEmail}?subject=Question about ${encodeURIComponent(lesson.title)}`}
                       >
                         <MessageCircle /> Ask about this lesson
                       </a>

@@ -2,8 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
   BookOpen,
-  GraduationCap,
   LockKeyhole,
+  MailCheck,
   ShieldCheck,
   UserRoundCheck,
 } from "lucide-react";
@@ -21,20 +21,19 @@ import { useStore } from "@/lib/use-store";
 export const Route = createFileRoute("/auth")({ component: AuthPage });
 
 function AuthPage() {
-  const { signIn, signUp, enterDemo } = useStore();
+  const { signIn, signUp, sendPasswordReset, backendReady } = useStore();
   const navigate = useNavigate();
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [forgot, setForgot] = useState(false);
 
-  const goDemo = (role: "student" | "admin") => {
-    enterDemo(role);
-    void navigate({ to: role === "admin" ? "/admin" : "/dashboard" });
-  };
-
-  const submitSignIn = (event: FormEvent<HTMLFormElement>) => {
+  const submitSignIn = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
+    setBusy(true);
     const data = new FormData(event.currentTarget);
-    const result = signIn(String(data.get("email")), String(data.get("password")));
+    const result = await signIn(String(data.get("email")), String(data.get("password")));
+    setBusy(false);
     if (!result.ok) {
       setError(result.error ?? "Could not sign in.");
       return;
@@ -42,24 +41,51 @@ function AuthPage() {
     void navigate({ to: "/dashboard" });
   };
 
-  const submitSignUp = (event: FormEvent<HTMLFormElement>) => {
+  const submitSignUp = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
+    setBusy(true);
     const data = new FormData(event.currentTarget);
-    const result = signUp({
+    const password = String(data.get("password"));
+    if (password !== String(data.get("confirmPassword"))) {
+      setBusy(false);
+      setError("Passwords do not match.");
+      return;
+    }
+    const result = await signUp({
       name: String(data.get("name")),
       email: String(data.get("email")),
-      password: String(data.get("password")),
+      password,
       phone: String(data.get("phone")),
       university: String(data.get("university")),
       academicYear: String(data.get("academicYear")),
     });
+    setBusy(false);
     if (!result.ok) {
       setError(result.error ?? "Could not create the account.");
       return;
     }
-    toast.success("Your demo account is ready.");
+    if (result.requiresVerification) {
+      toast.success("Check your email to verify your account, then sign in.");
+      return;
+    }
+    toast.success("Your account is ready.");
     void navigate({ to: "/dashboard" });
+  };
+
+  const submitReset = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError("");
+    setBusy(true);
+    const data = new FormData(event.currentTarget);
+    const result = await sendPasswordReset(String(data.get("email")));
+    setBusy(false);
+    if (!result.ok) {
+      setError(result.error ?? "Could not send the reset email.");
+      return;
+    }
+    toast.success("If that address has an account, a reset link is on its way.");
+    setForgot(false);
   };
 
   return (
@@ -75,14 +101,14 @@ function AuthPage() {
             Pick up exactly where you stopped.
           </h1>
           <p className="mt-5 text-lg leading-8 text-white/68">
-            Your courses, watched lessons, quiz attempts, bookmarks and streak are saved in one
-            focused dashboard.
+            Your courses, watched lessons, quiz attempts, bookmarks and streak are securely saved in
+            one focused dashboard.
           </p>
           <div className="mt-10 grid gap-4">
             {[
               [BookOpen, "Resume videos from your last saved position"],
               [UserRoundCheck, "Track completion through mandatory quizzes"],
-              [ShieldCheck, "See every course closing date before paying"],
+              [ShieldCheck, "Protected accounts and admin-reviewed enrollment"],
             ].map(([Icon, text]) => {
               const FeatureIcon = Icon as typeof BookOpen;
               return (
@@ -99,7 +125,9 @@ function AuthPage() {
             })}
           </div>
         </div>
-        <p className="relative text-xs text-white/38">Interactive prototype · No real payment</p>
+        <p className="relative text-xs text-white/38">
+          Secure learning accounts · Manual InstaPay verification
+        </p>
       </section>
 
       <section className="flex items-center justify-center px-4 py-10 sm:px-8">
@@ -119,125 +147,171 @@ function AuthPage() {
               </Link>
             </Button>
           </div>
-          <h2 className="text-3xl font-extrabold tracking-[-0.035em] text-navy">Welcome back</h2>
+          <h2 className="text-3xl font-extrabold tracking-[-0.035em] text-navy">
+            {forgot ? "Reset your password" : "Welcome back"}
+          </h2>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            Sign in normally or jump straight into either side of the demo.
+            {forgot
+              ? "Enter your email and we will send a secure password reset link."
+              : "Sign in to continue learning or create your student account."}
           </p>
 
-          <div className="mt-6 grid grid-cols-2 gap-3">
-            <Button variant="outline" className="h-11" onClick={() => goDemo("student")}>
-              <GraduationCap /> Student demo
-            </Button>
-            <Button variant="outline" className="h-11" onClick={() => goDemo("admin")}>
-              <ShieldCheck /> Admin demo
-            </Button>
-          </div>
-
-          <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
-            <div className="h-px flex-1 bg-border" /> or use an account{" "}
-            <div className="h-px flex-1 bg-border" />
-          </div>
-
+          {!backendReady && (
+            <Alert variant="destructive" className="mt-5">
+              <AlertDescription>
+                Account services need to be configured by the site owner before sign-in can be used.
+              </AlertDescription>
+            </Alert>
+          )}
           {error && (
-            <Alert variant="destructive" className="mb-4">
+            <Alert variant="destructive" className="mt-5">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
 
-          <Tabs defaultValue="signin" onValueChange={() => setError("")}>
-            <TabsList className="grid h-11 w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign in</TabsTrigger>
-              <TabsTrigger value="signup">Create account</TabsTrigger>
-            </TabsList>
-            <TabsContent value="signin" className="mt-5">
-              <form onSubmit={submitSignIn} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signin-email">Email address</Label>
-                  <Input
-                    id="signin-email"
-                    name="email"
-                    type="email"
-                    defaultValue="student@demo.com"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="signin-password">Password</Label>
-                    <button
-                      type="button"
-                      onClick={() => toast.info("For the demo, use demo1234.")}
-                      className="text-xs font-bold text-primary hover:underline"
-                    >
-                      Forgot password?
-                    </button>
-                  </div>
-                  <Input
-                    id="signin-password"
-                    name="password"
-                    type="password"
-                    defaultValue="demo1234"
-                    required
-                  />
-                </div>
-                <Button type="submit" className="h-11 w-full">
-                  <LockKeyhole /> Sign in
-                </Button>
-              </form>
-            </TabsContent>
-            <TabsContent value="signup" className="mt-5">
-              <form onSubmit={submitSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signup-name">Full name</Label>
-                  <Input id="signup-name" name="name" placeholder="Your full name" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email address</Label>
-                  <Input
-                    id="signup-email"
-                    name="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    required
-                  />
-                </div>
-                <div className="grid gap-4 sm:grid-cols-2">
+          {forgot ? (
+            <form onSubmit={submitReset} className="mt-6 space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="reset-email">Email address</Label>
+                <Input id="reset-email" name="email" type="email" autoComplete="email" required />
+              </div>
+              <Button type="submit" className="h-11 w-full" disabled={busy || !backendReady}>
+                <MailCheck /> {busy ? "Sending…" : "Send reset link"}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => {
+                  setForgot(false);
+                  setError("");
+                }}
+              >
+                Back to sign in
+              </Button>
+            </form>
+          ) : (
+            <Tabs defaultValue="signin" onValueChange={() => setError("")} className="mt-6">
+              <TabsList className="grid h-11 w-full grid-cols-2">
+                <TabsTrigger value="signin">Sign in</TabsTrigger>
+                <TabsTrigger value="signup">Create account</TabsTrigger>
+              </TabsList>
+              <TabsContent value="signin" className="mt-5">
+                <form onSubmit={submitSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-phone">Phone</Label>
-                    <Input id="signup-phone" name="phone" placeholder="+20..." required />
+                    <Label htmlFor="signin-email">Email address</Label>
+                    <Input
+                      id="signin-email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-year">Academic year</Label>
-                    <Input id="signup-year" name="academicYear" placeholder="3rd year" required />
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="signin-password">Password</Label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setForgot(true);
+                          setError("");
+                        }}
+                        className="text-xs font-bold text-primary hover:underline"
+                      >
+                        Forgot password?
+                      </button>
+                    </div>
+                    <Input
+                      id="signin-password"
+                      name="password"
+                      type="password"
+                      autoComplete="current-password"
+                      required
+                    />
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-university">University</Label>
-                  <Input
-                    id="signup-university"
-                    name="university"
-                    placeholder="Your university"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">Password</Label>
-                  <Input
-                    id="signup-password"
-                    name="password"
-                    type="password"
-                    minLength={6}
-                    required
-                  />
-                </div>
-                <Button type="submit" className="h-11 w-full">
-                  Create student account
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
+                  <Button type="submit" className="h-11 w-full" disabled={busy || !backendReady}>
+                    <LockKeyhole /> {busy ? "Signing in…" : "Sign in"}
+                  </Button>
+                </form>
+              </TabsContent>
+              <TabsContent value="signup" className="mt-5">
+                <form onSubmit={submitSignUp} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-name">Full name</Label>
+                    <Input
+                      id="signup-name"
+                      name="name"
+                      autoComplete="name"
+                      minLength={2}
+                      maxLength={120}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-email">Email address</Label>
+                    <Input
+                      id="signup-email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-phone">Phone</Label>
+                      <Input
+                        id="signup-phone"
+                        name="phone"
+                        type="tel"
+                        autoComplete="tel"
+                        maxLength={40}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-year">Academic year</Label>
+                      <Input id="signup-year" name="academicYear" maxLength={80} required />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-university">University</Label>
+                    <Input id="signup-university" name="university" maxLength={160} required />
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-password">Password</Label>
+                      <Input
+                        id="signup-password"
+                        name="password"
+                        type="password"
+                        minLength={8}
+                        autoComplete="new-password"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-confirm">Confirm</Label>
+                      <Input
+                        id="signup-confirm"
+                        name="confirmPassword"
+                        type="password"
+                        minLength={8}
+                        autoComplete="new-password"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <Button type="submit" className="h-11 w-full" disabled={busy || !backendReady}>
+                    {busy ? "Creating account…" : "Create student account"}
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+          )}
           <p className="mt-6 text-center text-xs leading-5 text-muted-foreground">
-            This prototype stores demo data only in this browser.
+            By creating an account, you agree to the Terms of Use and Privacy Policy.
           </p>
         </div>
       </section>

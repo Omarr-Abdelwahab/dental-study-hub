@@ -43,7 +43,7 @@ import type { User } from "@/lib/types";
 export const Route = createFileRoute("/dashboard")({ component: StudentDashboard });
 
 function StudentDashboard() {
-  const { user, enterDemo } = useStore();
+  const { user } = useStore();
 
   if (!user || user.role !== "student") {
     return (
@@ -54,12 +54,12 @@ function StudentDashboard() {
             <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-accent text-accent-foreground">
               <GraduationCap className="size-6" />
             </span>
-            <h1 className="mt-5 text-3xl font-extrabold text-navy">Open the student demo</h1>
+            <h1 className="mt-5 text-3xl font-extrabold text-navy">Sign in to My Learning</h1>
             <p className="mt-3 leading-7 text-muted-foreground">
-              See the enrolled courses, saved playback, quizzes, bookmarks and six-day streak.
+              Access your enrolled courses, saved playback, quizzes, bookmarks and study streak.
             </p>
-            <Button onClick={() => enterDemo("student")} className="mt-7 h-11">
-              Enter Student Demo <ArrowRight />
+            <Button asChild className="mt-7 h-11">
+              <Link to="/auth">Sign in or create an account</Link>
             </Button>
           </div>
         </div>
@@ -105,6 +105,9 @@ function StudentDashboardContent({ user }: { user: User }) {
       .filter((attempt) => attempt.userId === user.id)
       .sort((a, b) => b.takenAt.localeCompare(a.takenAt))
       .slice(0, 3);
+    const pendingPurchases = state.payments.filter(
+      (payment) => payment.userId === user.id && payment.status === "pending",
+    );
 
     return {
       activeCourses,
@@ -117,6 +120,7 @@ function StudentDashboardContent({ user }: { user: User }) {
       announcements,
       bookmarks,
       recentAttempts,
+      pendingPurchases,
     };
   }, [state, user.id]);
 
@@ -131,6 +135,7 @@ function StudentDashboardContent({ user }: { user: User }) {
     announcements,
     bookmarks,
     recentAttempts,
+    pendingPurchases,
   } = view;
 
   return (
@@ -155,6 +160,23 @@ function StudentDashboardContent({ user }: { user: User }) {
             </Link>
           </Button>
         </div>
+
+        {pendingPurchases.length > 0 && (
+          <section className="mt-7 rounded-2xl border border-warning/25 bg-warning/8 p-5">
+            <div className="flex items-start gap-3">
+              <Clock3 className="mt-0.5 size-5 shrink-0 text-warning" />
+              <div>
+                <h2 className="font-extrabold text-navy">InstaPay verification pending</h2>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                  {pendingPurchases.length === 1
+                    ? "Your course request is waiting for administrator confirmation."
+                    : `${pendingPurchases.length} course requests are waiting for administrator confirmation.`}{" "}
+                  Access appears here automatically after approval.
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
 
         <div className="mt-8 grid gap-5 xl:grid-cols-[1.55fr_.75fr]">
           {continueCourse && continueLesson ? (

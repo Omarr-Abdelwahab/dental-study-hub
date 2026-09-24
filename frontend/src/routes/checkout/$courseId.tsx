@@ -3,42 +3,38 @@ import {
   ArrowLeft,
   CalendarClock,
   Check,
-  CheckCircle2,
   Clock3,
-  CreditCard,
-  GraduationCap,
-  LoaderCircle,
+  Copy,
+  Landmark,
   LockKeyhole,
   ShieldCheck,
   TriangleAlert,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
-
 import { AppHeader, BrandMark } from "@/components/app-shell";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { daysRemaining, formatDate, formatPrice, courseStatus } from "@/lib/format";
-import { createPayment, type PaymentResult } from "@/lib/payment-service";
-import { getCourse } from "@/lib/selectors";
+import { brand } from "@/config/brand";
+import { courseStatus, daysRemaining, formatDate, formatPrice } from "@/lib/format";
+import { getCourse, isEnrolled } from "@/lib/selectors";
 import { useStore } from "@/lib/use-store";
-import type { PaymentStatus } from "@/lib/types";
 
 export const Route = createFileRoute("/checkout/$courseId")({ component: CheckoutPage });
 
 function CheckoutPage() {
   const { courseId } = Route.useParams();
-  const { state, user, enterDemo, recordPayment } = useStore();
+  const { state, user, requestPurchase } = useStore();
   const course = getCourse(state, courseId);
   const [agreed, setAgreed] = useState(false);
-  const [simulation, setSimulation] = useState<PaymentStatus>("success");
   const [processing, setProcessing] = useState(false);
-  const [result, setResult] = useState<PaymentResult | null>(null);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
-  if (!course) {
+  if (!course)
     return (
       <div className="min-h-screen bg-background">
         <AppHeader />
@@ -50,9 +46,7 @@ function CheckoutPage() {
         </div>
       </div>
     );
-  }
-
-  if (courseStatus(course) !== "open") {
+  if (courseStatus(course) !== "open")
     return (
       <div className="min-h-screen bg-background">
         <AppHeader />
@@ -70,94 +64,40 @@ function CheckoutPage() {
         </div>
       </div>
     );
-  }
-
-  const pay = async () => {
-    if (!user || user.role !== "student" || !agreed) return;
-    setProcessing(true);
-    setResult(null);
-    try {
-      const payment = await createPayment({
-        courseId: course.id,
-        userId: user.id,
-        amount: course.price,
-        currency: "EGP",
-        simulate: simulation,
-      });
-      recordPayment({
-        courseId: course.id,
-        amount: course.price,
-        txnId: payment.txnId,
-        status: payment.status,
-        method: payment.method,
-      });
-      setResult(payment);
-      if (payment.status === "success")
-        toast.success("Demo payment approved. Course access is active.");
-      else if (payment.status === "pending") toast.warning("Demo payment is pending.");
-      else toast.error("Demo payment failed. Try the success scenario.");
-    } finally {
-      setProcessing(false);
-    }
-  };
-
-  if (!user || user.role !== "student") {
+  if (!user || user.role !== "student")
     return (
       <div className="min-h-screen bg-secondary/40">
         <AppHeader />
         <div className="container-page grid min-h-[calc(100vh-108px)] place-items-center py-12">
           <div className="w-full max-w-lg rounded-3xl border bg-card p-7 text-center shadow-lift sm:p-9">
             <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-accent text-accent-foreground">
-              <LockKeyhole className="size-6" />
+              <LockKeyhole />
             </span>
             <h1 className="mt-5 text-2xl font-extrabold text-navy">Sign in before checkout</h1>
             <p className="mt-2 leading-6 text-muted-foreground">
-              Your purchase needs a student account so the course can appear in My Learning.
+              Your request must be linked to your student account before the administrator can
+              verify it.
             </p>
-            <div className="mt-7 grid gap-3 sm:grid-cols-2">
-              <Button onClick={() => enterDemo("student")} className="h-11">
-                <GraduationCap /> Use student demo
-              </Button>
-              <Button variant="outline" asChild className="h-11">
-                <Link to="/auth">Sign in normally</Link>
-              </Button>
-            </div>
+            <Button asChild className="mt-7 h-11 w-full">
+              <Link to="/auth">Sign in or create an account</Link>
+            </Button>
           </div>
         </div>
       </div>
     );
-  }
 
-  if (result?.status === "success") {
+  if (isEnrolled(state, user.id, course.id)) {
     return (
       <div className="min-h-screen bg-secondary/40">
         <AppHeader />
         <div className="container-page grid min-h-[calc(100vh-108px)] place-items-center py-12">
-          <div className="w-full max-w-xl rounded-3xl border bg-card p-7 text-center shadow-lift sm:p-10">
-            <span className="mx-auto grid size-16 place-items-center rounded-full bg-success/12 text-success">
-              <CheckCircle2 className="size-8" />
+          <div className="w-full max-w-lg rounded-3xl border bg-card p-8 text-center shadow-lift">
+            <span className="mx-auto grid size-14 place-items-center rounded-full bg-success/12 text-success">
+              <Check />
             </span>
-            <p className="mt-6 text-xs font-extrabold uppercase tracking-[0.18em] text-success">
-              Enrollment activated
-            </p>
-            <h1 className="mt-2 text-3xl font-extrabold text-navy">
-              You are in, {user.name.split(" ")[0]}.
-            </h1>
-            <p className="mt-3 leading-7 text-muted-foreground">
-              {course.title} is now in your dashboard. Access remains available until{" "}
-              <strong className="text-navy">{formatDate(course.accessCloseAt)}</strong>.
-            </p>
-            <div className="mt-6 rounded-xl bg-muted p-4 text-left text-sm">
-              <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground">Demo transaction</span>
-                <span className="font-bold text-navy">{result.txnId}</span>
-              </div>
-              <div className="mt-2 flex justify-between gap-4">
-                <span className="text-muted-foreground">Amount</span>
-                <span className="font-bold text-navy">{formatPrice(course.price)}</span>
-              </div>
-            </div>
-            <Button size="lg" asChild className="mt-7 h-12 w-full">
+            <h1 className="mt-5 text-2xl font-extrabold text-navy">You already have access</h1>
+            <p className="mt-2 text-muted-foreground">This course is active in My Learning.</p>
+            <Button asChild className="mt-7 w-full">
               <Link to="/dashboard">Open My Learning</Link>
             </Button>
           </div>
@@ -166,13 +106,71 @@ function CheckoutPage() {
     );
   }
 
+  const existing = state.payments.find(
+    (item) => item.userId === user.id && item.courseId === course.id && item.status === "pending",
+  );
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!agreed || !brand.instaPayAddress) return;
+    setProcessing(true);
+    setError("");
+    const data = new FormData(event.currentTarget);
+    const result = await requestPurchase({
+      courseId: course.id,
+      transferReference: String(data.get("reference")),
+    });
+    setProcessing(false);
+    if (!result.ok) {
+      setError(result.error ?? "Could not submit your request.");
+      return;
+    }
+    setSubmitted(true);
+    toast.success("Transfer submitted for administrator review.");
+  };
+
+  if (submitted || existing)
+    return (
+      <div className="min-h-screen bg-secondary/40">
+        <AppHeader />
+        <div className="container-page grid min-h-[calc(100vh-108px)] place-items-center py-12">
+          <div className="w-full max-w-xl rounded-3xl border bg-card p-7 text-center shadow-lift sm:p-10">
+            <span className="mx-auto grid size-16 place-items-center rounded-full bg-warning/12 text-warning">
+              <Clock3 className="size-8" />
+            </span>
+            <p className="mt-6 text-xs font-extrabold uppercase tracking-[0.18em] text-warning">
+              Verification pending
+            </p>
+            <h1 className="mt-2 text-3xl font-extrabold text-navy">We received your request.</h1>
+            <p className="mt-3 leading-7 text-muted-foreground">
+              An administrator will match your InstaPay transfer and activate{" "}
+              <strong className="text-navy">{course.title}</strong>. It will appear in My Learning
+              after approval.
+            </p>
+            <div className="mt-6 rounded-xl bg-muted p-4 text-left text-sm">
+              <div className="flex justify-between gap-4">
+                <span className="text-muted-foreground">Transfer reference</span>
+                <span className="font-bold text-navy">{existing?.txnId ?? "Submitted"}</span>
+              </div>
+              <div className="mt-2 flex justify-between gap-4">
+                <span className="text-muted-foreground">Amount</span>
+                <span className="font-bold text-navy">{formatPrice(course.price)}</span>
+              </div>
+            </div>
+            <Button asChild className="mt-7 h-12 w-full">
+              <Link to="/dashboard">Return to My Learning</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+
   return (
     <div className="min-h-screen bg-secondary/40">
       <div className="border-b bg-background">
         <div className="container-page flex h-17 items-center justify-between">
           <BrandMark />
           <span className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground">
-            <ShieldCheck className="size-4 text-success" /> Demo checkout
+            <ShieldCheck className="size-4 text-success" /> Secure request
           </span>
         </div>
       </div>
@@ -185,136 +183,127 @@ function CheckoutPage() {
         <div className="mt-5 grid gap-7 lg:grid-cols-[1fr_390px]">
           <section className="rounded-2xl border bg-card p-6 shadow-card sm:p-8">
             <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-primary">
-              Step 1 of 1
+              InstaPay transfer
             </p>
-            <h1 className="mt-2 text-3xl font-extrabold text-navy">Confirm your enrollment</h1>
+            <h1 className="mt-2 text-3xl font-extrabold text-navy">Request course access</h1>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              This payment screen is simulated. It will not ask for or charge a real card.
+              Transfer the exact amount below, then submit the transaction reference. Access remains
+              locked until an administrator confirms the transfer.
             </p>
-
-            <div className="mt-7 rounded-xl border bg-secondary/35 p-4">
-              <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
-                Student
-              </p>
-              <p className="mt-1 font-extrabold text-navy">{user.name}</p>
-              <p className="mt-0.5 text-sm text-muted-foreground">{user.email}</p>
-            </div>
-
-            <div className="mt-7">
-              <Label className="text-base font-extrabold text-navy">Choose demo outcome</Label>
-              <RadioGroup
-                value={simulation}
-                onValueChange={(value) => {
-                  setSimulation(value as PaymentStatus);
-                  setResult(null);
-                }}
-                className="mt-3 grid gap-3 sm:grid-cols-3"
-              >
-                {(
-                  [
-                    ["success", "Approved"],
-                    ["pending", "Pending"],
-                    ["failed", "Declined"],
-                  ] as const
-                ).map(([value, label]) => (
-                  <Label
-                    key={value}
-                    htmlFor={`payment-${value}`}
-                    className="flex cursor-pointer items-center gap-3 rounded-xl border bg-card p-4 hover:bg-muted/40"
-                  >
-                    <RadioGroupItem id={`payment-${value}`} value={value} />
-                    <span className="font-bold">{label}</span>
-                  </Label>
-                ))}
-              </RadioGroup>
-            </div>
-
-            <Label
-              htmlFor="access-agreement"
-              className="mt-7 flex cursor-pointer items-start gap-3 rounded-xl border border-primary/20 bg-accent/55 p-4"
-            >
-              <Checkbox
-                id="access-agreement"
-                checked={agreed}
-                onCheckedChange={(checked) => setAgreed(checked === true)}
-                className="mt-0.5"
-              />
-              <span className="text-sm font-medium leading-6 text-accent-foreground">
-                I understand that access closes for every student on{" "}
-                <strong>{formatDate(course.accessCloseAt)}</strong>, regardless of purchase date.
-              </span>
-            </Label>
-
-            {result && (
-              <Alert
-                variant={result.status === "failed" ? "destructive" : "default"}
-                className="mt-5"
-              >
-                <TriangleAlert className="size-4" />
-                <AlertTitle>
-                  {result.status === "pending" ? "Payment pending" : "Payment declined"}
-                </AlertTitle>
-                <AlertDescription>{result.message}</AlertDescription>
+            {!brand.instaPayAddress && (
+              <Alert variant="destructive" className="mt-6">
+                <AlertTitle>InstaPay details unavailable</AlertTitle>
+                <AlertDescription>
+                  Please contact support. The site owner must configure the receiving InstaPay
+                  address.
+                </AlertDescription>
               </Alert>
             )}
-
-            <Button
-              onClick={() => void pay()}
-              disabled={!agreed || processing}
-              size="lg"
-              className="mt-7 h-12 w-full text-base"
-            >
-              {processing ? (
-                <>
-                  <LoaderCircle className="animate-spin" /> Processing demo payment…
-                </>
-              ) : (
-                <>
-                  <CreditCard /> Pay {formatPrice(course.price)}
-                </>
+            <div className="mt-7 rounded-2xl border-2 border-primary/20 bg-accent/45 p-5">
+              <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                Send exactly
+              </p>
+              <p className="mt-1 text-3xl font-extrabold text-navy">{formatPrice(course.price)}</p>
+              <div className="mt-5 flex items-center justify-between gap-4 rounded-xl bg-background p-4">
+                <div>
+                  <p className="text-xs font-bold text-muted-foreground">InstaPay number / IPA</p>
+                  <p className="mt-1 break-all font-extrabold text-navy">
+                    {brand.instaPayAddress || "Not configured"}
+                  </p>
+                </div>
+                {brand.instaPayAddress && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(brand.instaPayAddress);
+                        toast.success("InstaPay address copied.");
+                      } catch {
+                        toast.error(
+                          "Could not copy automatically. Please copy the address manually.",
+                        );
+                      }
+                    }}
+                    aria-label="Copy InstaPay address"
+                  >
+                    <Copy />
+                  </Button>
+                )}
+              </div>
+            </div>
+            <form onSubmit={submit} className="mt-7 space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="reference">InstaPay transaction reference</Label>
+                <Input
+                  id="reference"
+                  name="reference"
+                  placeholder="Enter the reference shown in InstaPay"
+                  minLength={4}
+                  maxLength={100}
+                  required
+                />
+                <p className="text-xs text-muted-foreground">
+                  This lets the administrator match your transfer. Each reference can only be
+                  submitted once on the website.
+                </p>
+              </div>
+              <Label
+                htmlFor="access-agreement"
+                className="flex cursor-pointer items-start gap-3 rounded-xl border border-primary/20 bg-accent/55 p-4"
+              >
+                <Checkbox
+                  id="access-agreement"
+                  checked={agreed}
+                  onCheckedChange={(checked) => setAgreed(checked === true)}
+                  className="mt-0.5"
+                />
+                <span className="text-sm font-medium leading-6 text-accent-foreground">
+                  I sent the exact amount and understand that access closes for everyone on{" "}
+                  <strong>{formatDate(course.accessCloseAt)}</strong>.
+                </span>
+              </Label>
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
               )}
-            </Button>
+              <Button
+                type="submit"
+                size="lg"
+                className="h-12 w-full"
+                disabled={!agreed || processing || !brand.instaPayAddress}
+              >
+                <Landmark /> {processing ? "Submitting…" : "Submit for verification"}
+              </Button>
+            </form>
           </section>
-
-          <aside className="h-fit rounded-2xl border bg-card p-6 shadow-card lg:sticky lg:top-8">
+          <aside className="h-fit rounded-2xl border bg-card p-6 shadow-card">
             <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
               Order summary
             </p>
-            <div className="mt-4 flex gap-4">
-              <img src={course.thumbnail} alt="" className="size-20 rounded-xl object-cover" />
-              <div>
-                <p className="font-extrabold leading-5 text-navy">{course.title}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{course.level}</p>
-              </div>
-            </div>
-            <div className="mt-6 grid gap-3 border-y py-5 text-sm">
-              <div className="flex items-center gap-3">
-                <CalendarClock className="size-4 text-primary" />
-                <div>
-                  <p className="font-bold text-navy">Access closes</p>
-                  <p className="text-muted-foreground">{formatDate(course.accessCloseAt)}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Clock3 className="size-4 text-primary" />
-                <div>
-                  <p className="font-bold text-navy">Time remaining</p>
-                  <p className="text-muted-foreground">
-                    {Math.max(0, daysRemaining(course.accessCloseAt))} days
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Check className="size-4 text-success" />
-                <div>
-                  <p className="font-bold text-navy">Payment type</p>
-                  <p className="text-muted-foreground">One time · no renewal</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center justify-between pt-5">
-              <span className="font-bold text-muted-foreground">Total</span>
+            <h2 className="mt-3 text-xl font-extrabold text-navy">{course.title}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {course.subject} · {course.level}
+            </p>
+            <div className="my-5 border-t" />
+            <div className="flex items-center justify-between text-lg">
+              <span className="font-bold text-navy">Total</span>
               <span className="text-2xl font-extrabold text-navy">{formatPrice(course.price)}</span>
+            </div>
+            <div className="mt-6 grid gap-3 text-sm text-muted-foreground">
+              <span className="flex items-start gap-2">
+                <CalendarClock className="mt-0.5 size-4 text-primary" /> Access closes{" "}
+                {formatDate(course.accessCloseAt)}
+              </span>
+              <span className="flex items-start gap-2">
+                <Clock3 className="mt-0.5 size-4 text-primary" />{" "}
+                {daysRemaining(course.accessCloseAt)} days of course access remain
+              </span>
+              <span className="flex items-start gap-2">
+                <Check className="mt-0.5 size-4 text-success" /> One course, no recurring charge
+              </span>
             </div>
           </aside>
         </div>

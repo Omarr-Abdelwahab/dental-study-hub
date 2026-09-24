@@ -2,14 +2,11 @@
   "name": "dental-study-hub",
   "private": true,
   "version": "0.1.0",
-  "workspaces": [
-    "frontend",
-    "backend"
-  ],
+  "workspaces": ["frontend"],
   "scripts": {
-    "dev": "npm run dev --workspace @dental-study-hub/frontend",
+    "dev": "npm run dev --workspace @dental-study-hub/frontend --",
     "build": "npm run build --workspace @dental-study-hub/frontend",
-    "preview": "npm run preview --workspace @dental-study-hub/frontend",
+    "preview": "npm run preview --workspace @dental-study-hub/frontend --",
     "lint": "npm run lint --workspace @dental-study-hub/frontend",
     "format": "npm run format --workspace @dental-study-hub/frontend",
     "typecheck": "npm run typecheck --workspace @dental-study-hub/frontend",

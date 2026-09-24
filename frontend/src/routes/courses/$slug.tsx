@@ -191,6 +191,8 @@ function CourseDetailsPage() {
                   className="h-full w-full"
                   src={`https://www.youtube.com/embed/${preview.youtubeId}?rel=0`}
                   title={`${preview.title} free preview`}
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  loading="lazy"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />

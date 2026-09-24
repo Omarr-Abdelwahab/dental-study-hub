@@ -1,15 +1,14 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
-  BookOpen,
   ChevronDown,
   LayoutDashboard,
   LogOut,
   Menu,
-  RotateCcw,
   ShieldCheck,
   UserRound,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import { toast } from "sonner";
 
 import { brand } from "@/config/brand";
 import { useStore } from "@/lib/use-store";
@@ -34,15 +33,13 @@ import {
 export function BrandMark({ light = false }: { light?: boolean }) {
   return (
     <Link to="/" className="inline-flex items-center gap-2.5" aria-label={`${brand.name} home`}>
-      <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-sm">
-        <BookOpen className="size-4.5" strokeWidth={2.2} />
-      </span>
+      <img src="/denta-help-logo.png" alt="" width={40} height={40} className="size-10 object-contain" />
       <span className={light ? "text-white" : "text-navy"}>
         <span className="block text-[15px] font-extrabold leading-none tracking-[-0.03em]">
-          Dental Study
+          Denta
         </span>
         <span className="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.22em] text-primary">
-          Hub
+          Help
         </span>
       </span>
     </Link>
@@ -66,36 +63,19 @@ function NavLinks({ mobile = false }: { mobile?: boolean }) {
 }
 
 export function AppHeader() {
-  const { user, enterDemo, signOut, resetDemo } = useStore();
+  const { user, signOut } = useStore();
   const navigate = useNavigate();
-
-  const enter = (role: "student" | "admin") => {
-    enterDemo(role);
-    void navigate({ to: role === "admin" ? "/admin" : "/dashboard" });
+  const handleSignOut = async () => {
+    const result = await signOut();
+    if (result.ok) void navigate({ to: "/" });
+    else toast.error(result.error);
   };
 
   return (
     <>
       <div className="border-b border-white/10 bg-navy text-navy-foreground">
-        <div className="container-page flex min-h-9 items-center justify-between gap-3 py-1.5 text-[11px] sm:text-xs">
-          <p className="truncate text-white/72">
-            Interactive prototype — no real payments are processed.
-          </p>
-          <div className="flex shrink-0 items-center gap-1">
-            <button
-              onClick={() => enter("student")}
-              className="rounded-md px-2 py-1 font-bold text-white/85 transition hover:bg-white/10 hover:text-white"
-            >
-              Student demo
-            </button>
-            <span className="text-white/25">/</span>
-            <button
-              onClick={() => enter("admin")}
-              className="rounded-md px-2 py-1 font-bold text-white/85 transition hover:bg-white/10 hover:text-white"
-            >
-              Admin demo
-            </button>
-          </div>
+        <div className="container-page flex min-h-9 items-center justify-center py-1.5 text-[11px] sm:text-xs">
+          <p className="text-white/72">Course purchases are verified securely through InstaPay.</p>
         </div>
       </div>
       <header className="sticky top-0 z-40 border-b bg-background/94 backdrop-blur supports-[backdrop-filter]:bg-background/86">
@@ -136,16 +116,7 @@ export function AppHeader() {
                         <UserRound /> Profile
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={resetDemo}>
-                      <RotateCcw /> Reset demo data
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => {
-                        signOut();
-                        void navigate({ to: "/" });
-                      }}
-                    >
+                    <DropdownMenuItem onClick={() => void handleSignOut()}>
                       <LogOut /> Sign out
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -200,10 +171,7 @@ export function AppHeader() {
                       </Link>
                     </SheetClose>
                     <button
-                      onClick={() => {
-                        signOut();
-                        void navigate({ to: "/" });
-                      }}
+                      onClick={() => void handleSignOut()}
                       className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left font-semibold text-destructive hover:bg-destructive/5"
                     >
                       <LogOut className="size-4" /> Sign out
@@ -239,8 +207,8 @@ export function AppFooter() {
         <div className="max-w-sm">
           <BrandMark light />
           <p className="mt-4 text-sm leading-6 text-white/65">
-            Structured video lessons, focused slides and honest progress tracking for university
-            dental students.
+            Clear dental lessons, focused study materials and honest progress tracking for
+            university students.
           </p>
         </div>
         <div>
@@ -263,14 +231,18 @@ export function AppFooter() {
             <a href={`mailto:${brand.supportEmail}`} className="hover:text-white">
               Contact support
             </a>
-            <span>Privacy policy</span>
-            <span>Terms of use</span>
+            <Link to="/privacy" className="hover:text-white">
+              Privacy policy
+            </Link>
+            <Link to="/terms" className="hover:text-white">
+              Terms of use
+            </Link>
           </div>
         </div>
       </div>
       <div className="border-t border-white/10">
         <div className="container-page flex flex-col gap-2 py-5 text-xs text-white/50 sm:flex-row sm:items-center sm:justify-between">
-          <span>© 2026 {brand.name}. Demo experience.</span>
+          <span>© 2026 {brand.name}. All rights reserved.</span>
           <span className="inline-flex items-center gap-1.5">
             <ShieldCheck className="size-3.5" /> Supplementary learning, not accredited education.
           </span>

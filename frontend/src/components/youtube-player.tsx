@@ -10,11 +10,12 @@ export function YouTubePlayer({
 }: {
   videoId: string;
   startAt?: number;
-  onProgress?: (positionSec: number, percent: number) => void;
+  onProgress?: (positionSec: number, percent: number, watchedDeltaSec: number) => void;
 }) {
   const mountRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YouTubePlayerHandle | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const playingSinceRef = useRef<number | null>(null);
   const progressCallbackRef = useRef(onProgress);
   const startAtRef = useRef(startAt);
   const [ready, setReady] = useState(false);
@@ -40,10 +41,19 @@ export function YouTubePlayer({
       if (!player || !progressCallbackRef.current) return;
       const position = player.getCurrentTime() || 0;
       const duration = player.getDuration() || 0;
-      progressCallbackRef.current(position, duration ? (position / duration) * 100 : 0);
+      const now = performance.now();
+      const watchedDeltaSec =
+        playingSinceRef.current !== null ? Math.max(0, (now - playingSinceRef.current) / 1000) : 0;
+      if (playingSinceRef.current !== null) playingSinceRef.current = now;
+      progressCallbackRef.current(
+        position,
+        duration ? (position / duration) * 100 : 0,
+        watchedDeltaSec,
+      );
     };
     const startTracking = () => {
       clearTracking();
+      playingSinceRef.current = performance.now();
       intervalRef.current = setInterval(report, 10_000);
     };
     void loadYouTubeApi()
@@ -66,6 +76,7 @@ export function YouTubePlayer({
               if (data === youtube.PlayerState.PLAYING) startTracking();
               else {
                 report();
+                playingSinceRef.current = null;
                 clearTracking();
               }
             },
@@ -79,6 +90,7 @@ export function YouTubePlayer({
     return () => {
       cancelled = true;
       report();
+      playingSinceRef.current = null;
       clearTracking();
       try {
         playerRef.current?.destroy();

@@ -14,6 +14,8 @@ interface QuizResult {
   score: number;
   passed: boolean;
   answers: number[];
+  correctIndexes: number[];
+  explanations: string[];
 }
 
 export function LessonQuiz({
@@ -28,6 +30,7 @@ export function LessonQuiz({
   const { state, user, submitQuiz } = useStore();
   const [answers, setAnswers] = useState<number[]>(() => lesson.quiz.map(() => -1));
   const [result, setResult] = useState<QuizResult | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     setAnswers(lesson.quiz.map(() => -1));
@@ -61,18 +64,25 @@ export function LessonQuiz({
     );
   }
 
-  const submit = () => {
+  const submit = async () => {
     if (!user || !complete) return;
-    const correct = lesson.quiz.reduce(
-      (count, question, index) => count + (answers[index] === question.correctIndex ? 1 : 0),
-      0,
-    );
-    const score = Math.round((correct / lesson.quiz.length) * 100);
-    const passed = score >= 70;
-    const next = { score, passed, answers: [...answers] };
-    submitQuiz({ courseId, lessonId: lesson.id, answers: next.answers, score, passed });
+    setSubmitting(true);
+    const response = await submitQuiz({ courseId, lessonId: lesson.id, answers: [...answers] });
+    setSubmitting(false);
+    if (!response.ok || !response.evaluation) {
+      toast.error(response.error ?? "The quiz could not be graded. Please try again.");
+      return;
+    }
+    const { attempt, correctIndexes, explanations } = response.evaluation;
+    const next = {
+      score: attempt.score,
+      passed: attempt.passed,
+      answers: attempt.answers,
+      correctIndexes,
+      explanations,
+    };
     setResult(next);
-    if (passed) toast.success("Quiz passed. Lesson marked complete.");
+    if (attempt.passed) toast.success("Quiz passed. Lesson marked complete.");
     else toast.error("Not quite. Review the explanations and try again.");
   };
 
@@ -150,9 +160,11 @@ export function LessonQuiz({
                 className="mt-4 gap-2.5"
               >
                 {question.choices.map((choice, choiceIndex) => {
-                  const correct = result && choiceIndex === question.correctIndex;
+                  const correct = result && choiceIndex === result.correctIndexes[questionIndex];
                   const wrong =
-                    result && choiceIndex === chosen && choiceIndex !== question.correctIndex;
+                    result &&
+                    choiceIndex === chosen &&
+                    choiceIndex !== result.correctIndexes[questionIndex];
                   return (
                     <Label
                       key={choice}
@@ -179,7 +191,9 @@ export function LessonQuiz({
               {result && (
                 <div className="mt-4 rounded-xl bg-muted/65 p-4 text-sm leading-6">
                   <span className="font-extrabold text-navy">Why: </span>
-                  <span className="text-muted-foreground">{question.explanation}</span>
+                  <span className="text-muted-foreground">
+                    {result.explanations[questionIndex] || "Review the lesson and try again."}
+                  </span>
                 </div>
               )}
             </fieldset>
@@ -191,8 +205,8 @@ export function LessonQuiz({
           <RotateCcw /> Retake quiz
         </Button>
       ) : (
-        <Button onClick={submit} disabled={!complete} size="lg" className="mt-6">
-          Submit answers
+        <Button onClick={submit} disabled={!complete || submitting} size="lg" className="mt-6">
+          {submitting ? "Grading…" : "Submit answers"}
         </Button>
       )}
     </div>

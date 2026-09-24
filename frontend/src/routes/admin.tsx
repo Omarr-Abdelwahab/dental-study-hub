@@ -18,12 +18,12 @@ import {
   Menu,
   Pencil,
   Plus,
-  RotateCcw,
   Search,
   Send,
   Settings2,
   ShieldCheck,
   TrendingUp,
+  Trash2,
   UserRoundCheck,
   Users,
   X,
@@ -73,8 +73,9 @@ import {
   isEnrolled,
 } from "@/lib/selectors";
 import { createId } from "@/lib/id";
+import type { ActionResult } from "@/lib/store-context";
 import { useStore } from "@/lib/use-store";
-import type { Course, PublishState, User } from "@/lib/types";
+import type { Course, Lesson, PublishState, QuizQuestion, Section, User } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin")({ component: AdminPage });
@@ -90,7 +91,7 @@ const navigation: { id: AdminTab; label: string; icon: typeof LayoutDashboard }[
 ];
 
 function AdminPage() {
-  const { user, enterDemo } = useStore();
+  const { user } = useStore();
 
   if (!user || user.role !== "admin") {
     return (
@@ -99,13 +100,14 @@ function AdminPage() {
           <span className="mx-auto grid size-16 place-items-center rounded-2xl bg-accent text-accent-foreground">
             <ShieldCheck className="size-7" />
           </span>
-          <h1 className="mt-5 text-3xl font-extrabold text-navy">Open the admin demo</h1>
+          <h1 className="mt-5 text-3xl font-extrabold text-navy">Administrator access required</h1>
           <p className="mt-3 leading-7 text-muted-foreground">
-            Manage courses, students, access, payments and announcements using the seeded demo.
+            Sign in with an administrator account to manage courses, students, access, payments and
+            announcements.
           </p>
           <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button onClick={() => enterDemo("admin")}>
-              Enter Admin Demo <ChevronRight />
+            <Button asChild>
+              <Link to="/auth">Sign in</Link>
             </Button>
             <Button variant="outline" asChild>
               <Link to="/">Return home</Link>
@@ -123,7 +125,7 @@ function AdminWorkspace({ user }: { user: User }) {
   const {
     state,
     signOut,
-    resetDemo,
+    reviewPayment,
     saveCourse,
     setPublishState,
     grantAccess,
@@ -134,6 +136,7 @@ function AdminWorkspace({ user }: { user: User }) {
   const [tab, setTab] = useState<AdminTab>("overview");
   const [courseEditor, setCourseEditor] = useState<Course | null>(null);
   const [managedStudent, setManagedStudent] = useState<User | null>(null);
+  const [rejectedPaymentId, setRejectedPaymentId] = useState<string | null>(null);
   const [courseQuery, setCourseQuery] = useState("");
   const [studentQuery, setStudentQuery] = useState("");
 
@@ -233,8 +236,9 @@ function AdminWorkspace({ user }: { user: User }) {
           </div>
         </div>
         <button
-          onClick={() => {
-            signOut();
+          onClick={async () => {
+            const result = await signOut();
+            if (!result.ok) toast.error(result.error);
           }}
           className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold text-white/55 hover:bg-white/7 hover:text-white"
         >
@@ -274,16 +278,6 @@ function AdminWorkspace({ user }: { user: User }) {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  resetDemo();
-                  toast.success("Demo data reset.");
-                }}
-              >
-                <RotateCcw /> <span className="hidden sm:inline">Reset demo</span>
-              </Button>
               <Button variant="outline" size="sm" asChild>
                 <Link to="/">
                   <Eye /> <span className="hidden sm:inline">View site</span>
@@ -388,11 +382,12 @@ function AdminWorkspace({ user }: { user: User }) {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => {
+                              onClick={async () => {
                                 const next: PublishState =
                                   course.publishState === "published" ? "draft" : "published";
-                                setPublishState(course.id, next);
-                                toast.success(`Course set to ${next}.`);
+                                const result = await setPublishState(course.id, next);
+                                if (result.ok) toast.success(`Course set to ${next}.`);
+                                else toast.error(result.error);
                               }}
                             >
                               {course.publishState === "published" ? "Unpublish" : "Publish"}
@@ -503,8 +498,8 @@ function AdminWorkspace({ user }: { user: User }) {
             <section>
               <PageHeading
                 eyebrow="Transactions"
-                title="Payments"
-                description="Simulated payment records for the prototype."
+                title="InstaPay requests"
+                description="Verify each transfer before granting course access. Approval is atomic and cannot be repeated."
               />
               <div className="mt-7 overflow-hidden rounded-2xl border bg-card shadow-card">
                 <Table>
@@ -517,6 +512,7 @@ function AdminWorkspace({ user }: { user: User }) {
                       <TableHead>Method</TableHead>
                       <TableHead>Date</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Review</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -545,6 +541,32 @@ function AdminWorkspace({ user }: { user: User }) {
                           <TableCell>
                             <PaymentBadge status={payment.status} />
                           </TableCell>
+                          <TableCell className="text-right">
+                            {payment.status === "pending" ? (
+                              <div className="flex justify-end gap-2">
+                                <Button
+                                  size="sm"
+                                  onClick={async () => {
+                                    const result = await reviewPayment(payment.id, true);
+                                    if (result.ok)
+                                      toast.success("Transfer approved and access activated.");
+                                    else toast.error(result.error);
+                                  }}
+                                >
+                                  <Check /> Approve
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => setRejectedPaymentId(payment.id)}
+                                >
+                                  <X /> Reject
+                                </Button>
+                              </div>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">Reviewed</span>
+                            )}
+                          </TableCell>
                         </TableRow>
                       );
                     })}
@@ -568,10 +590,12 @@ function AdminWorkspace({ user }: { user: User }) {
       <CourseEditor
         course={courseEditor}
         onClose={() => setCourseEditor(null)}
-        onSave={(course) => {
-          saveCourse(course);
-          setCourseEditor(null);
-          toast.success("Course saved.");
+        onSave={async (course) => {
+          const result = await saveCourse(course);
+          if (result.ok) {
+            setCourseEditor(null);
+            toast.success("Course saved.");
+          } else toast.error(result.error);
         }}
       />
       <AccessManager
@@ -579,13 +603,27 @@ function AdminWorkspace({ user }: { user: User }) {
         courses={state.courses}
         isEnrolled={(courseId) => isEnrolled(state, managedStudent?.id ?? null, courseId)}
         onClose={() => setManagedStudent(null)}
-        onGrant={(studentId, courseId) => {
-          grantAccess(studentId, courseId);
-          toast.success("Course access granted.");
+        onGrant={async (studentId, courseId) => {
+          const result = await grantAccess(studentId, courseId);
+          if (result.ok) toast.success("Course access granted.");
+          else toast.error(result.error);
         }}
-        onRevoke={(studentId, courseId) => {
-          revokeAccess(studentId, courseId);
-          toast.success("Course access revoked.");
+        onRevoke={async (studentId, courseId) => {
+          const result = await revokeAccess(studentId, courseId);
+          if (result.ok) toast.success("Course access revoked.");
+          else toast.error(result.error);
+        }}
+      />
+      <RejectPaymentDialog
+        paymentId={rejectedPaymentId}
+        onClose={() => setRejectedPaymentId(null)}
+        onConfirm={async (paymentId, reason) => {
+          const result = await reviewPayment(paymentId, false, reason);
+          if (result.ok) {
+            setRejectedPaymentId(null);
+            toast.success("Transfer request rejected.");
+          } else toast.error(result.error);
+          return result;
         }}
       />
     </div>
@@ -613,7 +651,7 @@ function Overview({
     {
       label: "Total revenue",
       value: formatPrice(totalRevenue),
-      note: "Successful demo payments",
+      note: "Approved InstaPay transfers",
       icon: CircleDollarSign,
       tone: "bg-success/10 text-success",
     },
@@ -780,6 +818,312 @@ function PaymentBadge({ status }: { status: "success" | "pending" | "failed" }) 
   );
 }
 
+function CurriculumEditor({
+  sections,
+  onChange,
+}: {
+  sections: Section[];
+  onChange: (sections: Section[]) => void;
+}) {
+  const updateSection = (sectionId: string, update: (section: Section) => Section) =>
+    onChange(sections.map((section) => (section.id === sectionId ? update(section) : section)));
+  const updateLesson = (sectionId: string, lessonId: string, patch: Partial<Lesson>) =>
+    updateSection(sectionId, (section) => ({
+      ...section,
+      lessons: section.lessons.map((lesson) =>
+        lesson.id === lessonId ? { ...lesson, ...patch } : lesson,
+      ),
+    }));
+  const updateQuestion = (
+    sectionId: string,
+    lesson: Lesson,
+    questionId: string,
+    patch: Partial<QuizQuestion>,
+  ) =>
+    updateLesson(sectionId, lesson.id, {
+      quiz: lesson.quiz.map((question) =>
+        question.id === questionId ? { ...question, ...patch } : question,
+      ),
+    });
+
+  return (
+    <div className="space-y-5">
+      {sections.map((section, sectionIndex) => (
+        <div key={section.id} className="rounded-xl border p-4">
+          <div className="flex items-end gap-3">
+            <div className="flex-1 space-y-2">
+              <Label htmlFor={`section-${section.id}`}>Section {sectionIndex + 1}</Label>
+              <Input
+                id={`section-${section.id}`}
+                value={section.title}
+                onChange={(event) =>
+                  updateSection(section.id, (current) => ({
+                    ...current,
+                    title: event.target.value,
+                  }))
+                }
+              />
+            </div>
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              aria-label="Delete section"
+              onClick={() => onChange(sections.filter((item) => item.id !== section.id))}
+            >
+              <Trash2 />
+            </Button>
+          </div>
+
+          <div className="mt-4 space-y-4">
+            {section.lessons.map((lesson, lessonIndex) => (
+              <div key={lesson.id} className="rounded-xl bg-muted/45 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-extrabold text-navy">Lesson {lessonIndex + 1}</p>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    aria-label="Delete lesson"
+                    onClick={() =>
+                      updateSection(section.id, (current) => ({
+                        ...current,
+                        lessons: current.lessons.filter((item) => item.id !== lesson.id),
+                      }))
+                    }
+                  >
+                    <Trash2 />
+                  </Button>
+                </div>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <LabeledInput
+                    label="Lesson title"
+                    value={lesson.title}
+                    onChange={(value) => updateLesson(section.id, lesson.id, { title: value })}
+                  />
+                  <LabeledInput
+                    label="Duration (minutes)"
+                    type="number"
+                    value={String(lesson.durationMin)}
+                    onChange={(value) =>
+                      updateLesson(section.id, lesson.id, { durationMin: Number(value) })
+                    }
+                  />
+                  <LabeledInput
+                    label="YouTube video ID"
+                    value={lesson.youtubeId}
+                    onChange={(value) => updateLesson(section.id, lesson.id, { youtubeId: value })}
+                  />
+                  <LabeledInput
+                    label="PDF URL (HTTPS or local path)"
+                    value={lesson.pdfUrl ?? ""}
+                    onChange={(value) =>
+                      updateLesson(section.id, lesson.id, { pdfUrl: value || null })
+                    }
+                  />
+                  <LabeledInput
+                    label="PDF file name"
+                    value={lesson.pdfName ?? ""}
+                    onChange={(value) =>
+                      updateLesson(section.id, lesson.id, { pdfName: value || null })
+                    }
+                  />
+                </div>
+                <div className="mt-3 space-y-2">
+                  <Label>Description</Label>
+                  <Textarea
+                    value={lesson.description}
+                    onChange={(event) =>
+                      updateLesson(section.id, lesson.id, { description: event.target.value })
+                    }
+                  />
+                </div>
+                <div className="mt-3 flex flex-wrap gap-5">
+                  {(
+                    [
+                      ["published", "Published"],
+                      ["isPreview", "Free preview"],
+                      ["allowDownload", "Allow PDF download"],
+                    ] as const
+                  ).map(([field, label]) => (
+                    <Label key={field} className="flex items-center gap-2 text-xs font-bold">
+                      <Switch
+                        checked={lesson[field]}
+                        onCheckedChange={(checked) =>
+                          updateLesson(section.id, lesson.id, { [field]: checked })
+                        }
+                      />
+                      {label}
+                    </Label>
+                  ))}
+                </div>
+
+                <div className="mt-5 border-t pt-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-extrabold text-navy">Quiz questions</p>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        updateLesson(section.id, lesson.id, {
+                          quiz: [
+                            ...lesson.quiz,
+                            {
+                              id: createId("question"),
+                              text: "New question",
+                              choices: ["First choice", "Second choice"],
+                              correctIndex: 0,
+                              explanation: "Explain why this answer is correct.",
+                            },
+                          ],
+                        })
+                      }
+                    >
+                      <Plus /> Add question
+                    </Button>
+                  </div>
+                  <div className="mt-3 space-y-3">
+                    {lesson.quiz.map((question, questionIndex) => (
+                      <div key={question.id} className="rounded-lg border bg-card p-3">
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs font-bold text-primary">
+                            Question {questionIndex + 1}
+                          </p>
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            aria-label="Delete question"
+                            onClick={() =>
+                              updateLesson(section.id, lesson.id, {
+                                quiz: lesson.quiz.filter((item) => item.id !== question.id),
+                              })
+                            }
+                          >
+                            <Trash2 />
+                          </Button>
+                        </div>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <LabeledInput
+                            label="Question"
+                            value={question.text}
+                            onChange={(value) =>
+                              updateQuestion(section.id, lesson, question.id, { text: value })
+                            }
+                          />
+                          <LabeledInput
+                            label="Explanation"
+                            value={question.explanation ?? ""}
+                            onChange={(value) =>
+                              updateQuestion(section.id, lesson, question.id, {
+                                explanation: value,
+                              })
+                            }
+                          />
+                          <div className="space-y-2">
+                            <Label>Choices (one per line)</Label>
+                            <Textarea
+                              value={question.choices.join("\n")}
+                              onChange={(event) =>
+                                updateQuestion(section.id, lesson, question.id, {
+                                  choices: event.target.value.split("\n"),
+                                })
+                              }
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Correct choice</Label>
+                            <Select
+                              value={String(question.correctIndex ?? 0)}
+                              onValueChange={(value) =>
+                                updateQuestion(section.id, lesson, question.id, {
+                                  correctIndex: Number(value),
+                                })
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {question.choices.map((choice, index) => (
+                                  <SelectItem key={`${question.id}-${index}`} value={String(index)}>
+                                    {index + 1}. {choice || "Empty choice"}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-4"
+            onClick={() =>
+              updateSection(section.id, (current) => ({
+                ...current,
+                lessons: [
+                  ...current.lessons,
+                  {
+                    id: createId("lesson"),
+                    title: "New lesson",
+                    description: "Add a concise lesson description.",
+                    durationMin: 15,
+                    youtubeId: "",
+                    pdfUrl: null,
+                    pdfName: null,
+                    allowDownload: false,
+                    isPreview: false,
+                    published: false,
+                    quiz: [],
+                  },
+                ],
+              }))
+            }
+          >
+            <Plus /> Add lesson
+          </Button>
+        </div>
+      ))}
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() =>
+          onChange([...sections, { id: createId("section"), title: "New section", lessons: [] }])
+        }
+      >
+        <Plus /> Add section
+      </Button>
+    </div>
+  );
+}
+
+function LabeledInput({
+  label,
+  value,
+  onChange,
+  type = "text",
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  type?: string;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <Input type={type} value={value} onChange={(event) => onChange(event.target.value)} />
+    </div>
+  );
+}
+
 function CourseEditor({
   course,
   onClose,
@@ -787,9 +1131,10 @@ function CourseEditor({
 }: {
   course: Course | null;
   onClose: () => void;
-  onSave: (course: Course) => void;
+  onSave: (course: Course) => Promise<void>;
 }) {
   const [draft, setDraft] = useState<Course | null>(course);
+  const [saving, setSaving] = useState(false);
   useEffect(() => setDraft(course), [course]);
   if (!draft) return <Dialog open={false} />;
 
@@ -808,7 +1153,7 @@ function CourseEditor({
       <DialogContent className="max-h-[92vh] max-w-4xl overflow-hidden p-0">
         <DialogHeader className="border-b p-6 pb-5">
           <DialogTitle className="text-2xl text-navy">Edit course</DialogTitle>
-          <DialogDescription>Changes are saved to local demo data.</DialogDescription>
+          <DialogDescription>Changes are saved to the live course catalog.</DialogDescription>
         </DialogHeader>
         <Tabs defaultValue="details" className="min-h-0">
           <div className="border-b px-6">
@@ -827,6 +1172,14 @@ function CourseEditor({
                     id="course-title"
                     value={draft.title}
                     onChange={(event) => patch({ title: event.target.value })}
+                  />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="course-slug">URL slug</Label>
+                  <Input
+                    id="course-slug"
+                    value={draft.slug}
+                    onChange={(event) => patch({ slug: event.target.value.toLowerCase() })}
                   />
                 </div>
                 <div className="space-y-2">
@@ -860,6 +1213,23 @@ function CourseEditor({
                     rows={5}
                     value={draft.description}
                     onChange={(event) => patch({ description: event.target.value })}
+                  />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="course-outcomes">Learning outcomes (one per line)</Label>
+                  <Textarea
+                    id="course-outcomes"
+                    rows={4}
+                    value={draft.outcomes.join("\n")}
+                    onChange={(event) => patch({ outcomes: event.target.value.split("\n") })}
+                  />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="course-thumbnail">Thumbnail URL (HTTPS or local path)</Label>
+                  <Input
+                    id="course-thumbnail"
+                    value={draft.thumbnail}
+                    onChange={(event) => patch({ thumbnail: event.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
@@ -936,124 +1306,10 @@ function CourseEditor({
               </div>
             </TabsContent>
             <TabsContent value="curriculum" className="mt-0">
-              {draft.sections.length ? (
-                <div className="space-y-4">
-                  {draft.sections.map((section, sectionIndex) => (
-                    <div key={section.id} className="rounded-xl border">
-                      <div className="border-b bg-muted/35 px-4 py-3">
-                        <p className="text-xs font-bold uppercase tracking-wide text-primary">
-                          Section {sectionIndex + 1}
-                        </p>
-                        <p className="font-extrabold text-navy">{section.title}</p>
-                      </div>
-                      <div className="divide-y">
-                        {section.lessons.map((lesson) => (
-                          <div
-                            key={lesson.id}
-                            className="grid gap-4 p-4 sm:grid-cols-[1fr_auto_auto_auto] sm:items-center"
-                          >
-                            <div>
-                              <p className="font-bold text-navy">{lesson.title}</p>
-                              <p className="mt-1 text-xs text-muted-foreground">
-                                {lesson.durationMin} min · {lesson.quiz.length} questions
-                              </p>
-                            </div>
-                            <Label className="flex items-center gap-2 text-xs font-bold">
-                              <Switch
-                                checked={lesson.published}
-                                onCheckedChange={(checked) =>
-                                  setDraft((current) =>
-                                    current
-                                      ? {
-                                          ...current,
-                                          sections: current.sections.map((candidate) =>
-                                            candidate.id === section.id
-                                              ? {
-                                                  ...candidate,
-                                                  lessons: candidate.lessons.map((item) =>
-                                                    item.id === lesson.id
-                                                      ? { ...item, published: checked }
-                                                      : item,
-                                                  ),
-                                                }
-                                              : candidate,
-                                          ),
-                                        }
-                                      : current,
-                                  )
-                                }
-                              />{" "}
-                              Published
-                            </Label>
-                            <Label className="flex items-center gap-2 text-xs font-bold">
-                              <Switch
-                                checked={lesson.allowDownload}
-                                onCheckedChange={(checked) =>
-                                  setDraft((current) =>
-                                    current
-                                      ? {
-                                          ...current,
-                                          sections: current.sections.map((candidate) =>
-                                            candidate.id === section.id
-                                              ? {
-                                                  ...candidate,
-                                                  lessons: candidate.lessons.map((item) =>
-                                                    item.id === lesson.id
-                                                      ? { ...item, allowDownload: checked }
-                                                      : item,
-                                                  ),
-                                                }
-                                              : candidate,
-                                          ),
-                                        }
-                                      : current,
-                                  )
-                                }
-                              />{" "}
-                              Download
-                            </Label>
-                            <Label className="flex items-center gap-2 text-xs font-bold">
-                              <Switch
-                                checked={lesson.isPreview}
-                                onCheckedChange={(checked) =>
-                                  setDraft((current) =>
-                                    current
-                                      ? {
-                                          ...current,
-                                          sections: current.sections.map((candidate) =>
-                                            candidate.id === section.id
-                                              ? {
-                                                  ...candidate,
-                                                  lessons: candidate.lessons.map((item) =>
-                                                    item.id === lesson.id
-                                                      ? { ...item, isPreview: checked }
-                                                      : item,
-                                                  ),
-                                                }
-                                              : candidate,
-                                          ),
-                                        }
-                                      : current,
-                                  )
-                                }
-                              />{" "}
-                              Preview
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="rounded-xl border border-dashed p-10 text-center">
-                  <BookOpen className="mx-auto size-8 text-muted-foreground" />
-                  <h3 className="mt-3 font-extrabold text-navy">No lessons yet</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    The production editor would add sections, videos, PDFs and quiz questions here.
-                  </p>
-                </div>
-              )}
+              <CurriculumEditor
+                sections={draft.sections}
+                onChange={(sections) => patch({ sections })}
+              />
             </TabsContent>
           </div>
         </Tabs>
@@ -1061,8 +1317,18 @@ function CourseEditor({
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={() => onSave(draft)}>
-            <Check /> Save course
+          <Button
+            disabled={saving}
+            onClick={async () => {
+              setSaving(true);
+              try {
+                await onSave(draft);
+              } finally {
+                setSaving(false);
+              }
+            }}
+          >
+            <Check /> {saving ? "Saving…" : "Save course"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -1082,8 +1348,8 @@ function AccessManager({
   courses: Course[];
   isEnrolled: (courseId: string) => boolean;
   onClose: () => void;
-  onGrant: (studentId: string, courseId: string) => void;
-  onRevoke: (studentId: string, courseId: string) => void;
+  onGrant: (studentId: string, courseId: string) => Promise<void>;
+  onRevoke: (studentId: string, courseId: string) => Promise<void>;
 }) {
   return (
     <Dialog
@@ -1146,20 +1412,33 @@ function Announcements({
 }: {
   courses: Course[];
   announcements: ReturnType<typeof useStore>["state"]["announcements"];
-  onPublish: (input: { courseId: string | null; title: string; body: string }) => void;
-  onDelete: (id: string) => void;
+  onPublish: (input: {
+    courseId: string | null;
+    title: string;
+    body: string;
+  }) => Promise<ActionResult>;
+  onDelete: (id: string) => Promise<ActionResult>;
 }) {
   const [audience, setAudience] = useState("all");
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const [publishing, setPublishing] = useState(false);
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    onPublish({
-      courseId: audience === "all" ? null : audience,
-      title: String(data.get("title")),
-      body: String(data.get("body")),
-    });
-    event.currentTarget.reset();
-    toast.success("Announcement published.");
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    setPublishing(true);
+    try {
+      const result = await onPublish({
+        courseId: audience === "all" ? null : audience,
+        title: String(data.get("title")),
+        body: String(data.get("body")),
+      });
+      if (result.ok) {
+        form.reset();
+        toast.success("Announcement published.");
+      } else toast.error(result.error);
+    } finally {
+      setPublishing(false);
+    }
   };
   return (
     <section>
@@ -1206,8 +1485,8 @@ function Announcements({
               placeholder="Write the announcement…"
             />
           </div>
-          <Button type="submit" className="mt-5 w-full">
-            <Send /> Publish announcement
+          <Button type="submit" disabled={publishing} className="mt-5 w-full">
+            <Send /> {publishing ? "Publishing…" : "Publish announcement"}
           </Button>
         </form>
         <div className="rounded-2xl border bg-card shadow-card">
@@ -1237,7 +1516,10 @@ function Announcements({
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => onDelete(announcement.id)}
+                    onClick={async () => {
+                      const result = await onDelete(announcement.id);
+                      if (!result.ok) toast.error(result.error);
+                    }}
                     aria-label="Delete announcement"
                   >
                     <X />
@@ -1249,5 +1531,57 @@ function Announcements({
         </div>
       </div>
     </section>
+  );
+}
+
+function RejectPaymentDialog({
+  paymentId,
+  onClose,
+  onConfirm,
+}: {
+  paymentId: string | null;
+  onClose: () => void;
+  onConfirm: (paymentId: string, reason?: string) => Promise<ActionResult>;
+}) {
+  const [submitting, setSubmitting] = useState(false);
+
+  return (
+    <Dialog open={Boolean(paymentId)} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-md">
+        <form
+          onSubmit={async (event) => {
+            event.preventDefault();
+            if (!paymentId) return;
+            const reason = String(new FormData(event.currentTarget).get("reason") ?? "").trim();
+            setSubmitting(true);
+            try {
+              await onConfirm(paymentId, reason || undefined);
+            } finally {
+              setSubmitting(false);
+            }
+          }}
+        >
+          <DialogHeader>
+            <DialogTitle className="text-navy">Reject transfer request?</DialogTitle>
+            <DialogDescription>
+              The student will not receive course access. You can include an explanation for the
+              audit record.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="my-5 space-y-2">
+            <Label htmlFor="rejection-reason">Reason (optional)</Label>
+            <Textarea id="rejection-reason" name="reason" maxLength={500} rows={4} />
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onClose} disabled={submitting}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="destructive" disabled={submitting}>
+              {submitting ? "Rejecting…" : "Reject request"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
