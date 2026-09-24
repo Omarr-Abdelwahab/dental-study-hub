@@ -19,7 +19,11 @@ export default tseslint.config(
       "react-refresh": reactRefresh,
     },
     rules: {
-      ...reactHooks.configs.recommended.rules,
+      // Keep the stable Hooks correctness checks. The v7 recommended preset
+      // also enables React Compiler diagnostics, which require a separate
+      // compiler-adoption pass and are not part of this project's lint policy.
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn",
       "no-restricted-imports": [
         "error",
         {
