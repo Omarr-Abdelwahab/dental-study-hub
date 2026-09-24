@@ -62,12 +62,8 @@ function HomePage() {
                 asChild
                 className="h-12 border-white/20 bg-white/5 px-6 text-base text-white hover:bg-white/10 hover:text-white"
               >
-                <Link
-                  to="/courses/$slug"
-                  params={{ slug: "oral-pathology-essentials" }}
-                  hash="preview"
-                >
-                  <Play /> Watch free preview
+                <Link to="/free-snippets">
+                  <Play /> Watch free snippets
                 </Link>
               </Button>
             </div>
@@ -304,8 +300,8 @@ function HomePage() {
               See the teaching style, curriculum and course dates before deciding.
             </p>
             <Button size="lg" variant="secondary" asChild className="mt-7">
-              <Link to="/courses">
-                Browse all courses <ArrowRight />
+              <Link to="/free-snippets">
+                Watch free snippets <ArrowRight />
               </Link>
             </Button>
           </div>

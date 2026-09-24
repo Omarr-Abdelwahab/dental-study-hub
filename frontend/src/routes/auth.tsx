@@ -159,7 +159,9 @@ function AuthPage() {
           {!backendReady && (
             <Alert variant="destructive" className="mt-5">
               <AlertDescription>
-                Account services need to be configured by the site owner before sign-in can be used.
+                Student registration is temporarily unavailable because the secure account database
+                is not connected. Once connected, anyone can create and use an account without
+                administrator approval.
               </AlertDescription>
             </Alert>
           )}

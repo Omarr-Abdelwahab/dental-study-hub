@@ -4,15 +4,18 @@ import pharmacologyImg from "@/assets/course-pharmacology.jpg";
 import radiologyImg from "@/assets/course-radiology.jpg";
 import type { AppState, Course, Lesson, Section } from "./types";
 
-const PREVIEW_VIDEO_ID = "M7lc1UVf-VE";
+const ORAL_PATHOLOGY_PREVIEW_ID = "18LzMsmxRMLavUvezyMRfyJNRFPspmHFV";
+const DENTAL_ANATOMY_PREVIEW_ID = "1DsnnNtvcVYqch0AG7s0lJNm5oLmipbMz";
+const PHARMACOLOGY_PREVIEW_ID = "1iwn_3-lJ5c8aRhYJdI1-y7ZbvXgWl0Jw";
+const RADIOLOGY_PREVIEW_ID = "1L7BPD0R5u5JEXrpKA-5kjC7CxnIVscYN";
 
-function previewLesson(id: string, title: string, description: string): Lesson {
+function previewLesson(id: string, title: string, description: string, videoId: string): Lesson {
   return {
     id,
     title,
     description,
     durationMin: 12,
-    youtubeId: PREVIEW_VIDEO_ID,
+    youtubeId: videoId,
     pdfUrl: null,
     pdfName: null,
     allowDownload: false,
@@ -57,6 +60,7 @@ export const starterCourses: Course[] = [
           "preview-oral-pathology-lesson",
           "How to approach an oral pathology case",
           "A short preview of the course's structured clinical reasoning method.",
+          ORAL_PATHOLOGY_PREVIEW_ID,
         ),
       ),
     ],
@@ -90,6 +94,7 @@ export const starterCourses: Course[] = [
           "preview-dental-anatomy-lesson",
           "Reading tooth morphology",
           "See how the course breaks down practical tooth identification.",
+          DENTAL_ANATOMY_PREVIEW_ID,
         ),
       ),
     ],
@@ -123,6 +128,7 @@ export const starterCourses: Course[] = [
           "preview-pharmacology-lesson",
           "Safe prescribing in dentistry",
           "A preview of the course's clinical prescribing framework.",
+          PHARMACOLOGY_PREVIEW_ID,
         ),
       ),
     ],
@@ -156,6 +162,7 @@ export const starterCourses: Course[] = [
           "preview-radiology-lesson",
           "A systematic radiograph reading routine",
           "Preview the repeatable sequence used throughout the course.",
+          RADIOLOGY_PREVIEW_ID,
         ),
       ),
     ],

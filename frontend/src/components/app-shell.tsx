@@ -1,12 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import {
-  ChevronDown,
-  LayoutDashboard,
-  LogOut,
-  Menu,
-  ShieldCheck,
-  UserRound,
-} from "lucide-react";
+import { ChevronDown, LayoutDashboard, LogOut, Menu, ShieldCheck, UserRound } from "lucide-react";
 import type { ReactNode } from "react";
 import { toast } from "sonner";
 
@@ -33,7 +26,13 @@ import {
 export function BrandMark({ light = false }: { light?: boolean }) {
   return (
     <Link to="/" className="inline-flex items-center gap-2.5" aria-label={`${brand.name} home`}>
-      <img src="/denta-help-logo.png" alt="" width={40} height={40} className="size-10 object-contain" />
+      <img
+        src="/denta-help-logo.png"
+        alt=""
+        width={40}
+        height={40}
+        className="size-10 rounded-lg object-cover"
+      />
       <span className={light ? "text-white" : "text-navy"}>
         <span className="block text-[15px] font-extrabold leading-none tracking-[-0.03em]">
           Denta
@@ -54,6 +53,9 @@ function NavLinks({ mobile = false }: { mobile?: boolean }) {
     <>
       <Link to="/courses" className={cls} activeProps={{ className: `${cls} text-navy` }}>
         Courses
+      </Link>
+      <Link to="/free-snippets" className={cls} activeProps={{ className: `${cls} text-navy` }}>
+        Free snippets
       </Link>
       <a href="/#how-it-works" className={cls}>
         How it works
@@ -216,6 +218,9 @@ export function AppFooter() {
           <div className="mt-4 grid gap-2.5 text-sm text-white/68">
             <Link to="/courses" className="hover:text-white">
               Browse courses
+            </Link>
+            <Link to="/free-snippets" className="hover:text-white">
+              Free snippets
             </Link>
             <Link to="/auth" className="hover:text-white">
               Student sign in

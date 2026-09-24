@@ -1,6 +1,7 @@
 import { LoaderCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
+import { getVideoEmbedUrl, getVideoSourceUrl, isGoogleDriveSource } from "@/lib/video-source";
 import { loadYouTubeApi, type YouTubePlayerHandle } from "@/lib/youtube-api";
 
 export function YouTubePlayer({
@@ -24,7 +25,14 @@ export function YouTubePlayer({
   progressCallbackRef.current = onProgress;
   startAtRef.current = startAt;
 
+  const isDriveVideo = isGoogleDriveSource(videoId);
+
   useEffect(() => {
+    if (isDriveVideo) {
+      setReady(true);
+      return;
+    }
+
     if (!mountRef.current) return;
     let cancelled = false;
     setReady(false);
@@ -99,7 +107,20 @@ export function YouTubePlayer({
       }
       playerRef.current = null;
     };
-  }, [videoId]);
+  }, [isDriveVideo, videoId]);
+
+  if (isDriveVideo) {
+    return (
+      <div className="relative aspect-video overflow-hidden rounded-2xl bg-black">
+        <video
+          controls
+          preload="metadata"
+          className="h-full w-full bg-black object-contain"
+          src={getVideoSourceUrl(videoId)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="relative aspect-video overflow-hidden rounded-2xl bg-black">

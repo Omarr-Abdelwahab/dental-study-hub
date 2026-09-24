@@ -38,6 +38,7 @@ import {
   lastActivityInCourse,
 } from "@/lib/selectors";
 import { useStore } from "@/lib/use-store";
+import { getVideoEmbedUrl, getVideoSourceUrl, isGoogleDriveSource } from "@/lib/video-source";
 
 export const Route = createFileRoute("/courses/$slug")({ component: CourseDetailsPage });
 
@@ -187,15 +188,24 @@ function CourseDetailsPage() {
           <div className="container-page grid items-center gap-8 lg:grid-cols-[1.05fr_.95fr]">
             <div className="overflow-hidden rounded-2xl bg-black shadow-lift">
               <div className="aspect-video">
-                <iframe
-                  className="h-full w-full"
-                  src={`https://www.youtube.com/embed/${preview.youtubeId}?rel=0`}
-                  title={`${preview.title} free preview`}
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  loading="lazy"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
+                {isGoogleDriveSource(preview.youtubeId) ? (
+                  <video
+                    controls
+                    preload="metadata"
+                    className="h-full w-full bg-black object-contain"
+                    src={getVideoSourceUrl(preview.youtubeId)}
+                  />
+                ) : (
+                  <iframe
+                    className="h-full w-full"
+                    src={getVideoEmbedUrl(preview.youtubeId)}
+                    title={`${preview.title} free preview`}
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                )}
               </div>
             </div>
             <div>
