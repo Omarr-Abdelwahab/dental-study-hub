@@ -6,6 +6,7 @@ import {
   Check,
   CheckCircle2,
   Clock3,
+  FileText,
   FileQuestion,
   LockKeyhole,
   Play,
@@ -172,7 +173,7 @@ function CourseDetailsPage() {
                   <CheckCircle2 className="size-4 text-success" /> All published lessons included
                 </span>
                 <span className="flex items-center gap-2">
-                  <CheckCircle2 className="size-4 text-success" /> Slides and mandatory quizzes
+                  <CheckCircle2 className="size-4 text-success" /> Slides and lesson materials
                 </span>
                 <span className="flex items-center gap-2">
                   <ShieldCheck className="size-4 text-success" /> No recurring charge
@@ -186,37 +187,68 @@ function CourseDetailsPage() {
       {preview && (
         <section id="preview" className="py-16 sm:py-20">
           <div className="container-page grid items-center gap-8 lg:grid-cols-[1.05fr_.95fr]">
-            <div className="overflow-hidden rounded-2xl bg-black shadow-lift">
-              <div className="aspect-video">
-                {isGoogleDriveSource(preview.youtubeId) ? (
-                  <video
-                    controls
-                    preload="metadata"
-                    className="h-full w-full bg-black object-contain"
-                    src={getVideoSourceUrl(preview.youtubeId)}
-                  />
-                ) : (
-                  <iframe
-                    className="h-full w-full"
-                    src={getVideoEmbedUrl(preview.youtubeId)}
-                    title={`${preview.title} free preview`}
-                    referrerPolicy="strict-origin-when-cross-origin"
-                    loading="lazy"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                )}
+            {preview.youtubeId ? (
+              <div className="overflow-hidden rounded-2xl bg-black shadow-lift">
+                <div className="aspect-video">
+                  {isGoogleDriveSource(preview.youtubeId) ? (
+                    <video
+                      controls
+                      preload="metadata"
+                      className="h-full w-full bg-black object-contain"
+                      src={getVideoSourceUrl(preview.youtubeId)}
+                    />
+                  ) : (
+                    <iframe
+                      className="h-full w-full"
+                      src={getVideoEmbedUrl(preview.youtubeId)}
+                      title={`${preview.title} free preview`}
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      loading="lazy"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  )}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="group relative aspect-video overflow-hidden rounded-3xl bg-navy shadow-lift">
+                <img
+                  src={course.thumbnail}
+                  alt=""
+                  className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.025]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/65 to-navy/10" />
+                <div className="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
+                  <span className="grid size-11 place-items-center rounded-xl bg-white/12 text-primary backdrop-blur">
+                    <FileText className="size-5" />
+                  </span>
+                  <p className="mt-3 text-lg font-extrabold">Clinical slide guide</p>
+                  <p className="mt-1 text-sm text-white/70">Preview the lesson before enrolling.</p>
+                  <Button asChild className="mt-4">
+                    <Link
+                      to="/learn/$courseId/$lessonId"
+                      params={{ courseId: course.id, lessonId: preview.id }}
+                    >
+                      Preview slides <ArrowRight />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            )}
             <div>
               <Badge
                 variant="outline"
                 className="gap-1.5 border-primary/25 bg-accent text-accent-foreground"
               >
-                <Play className="size-3.5" /> Free lesson
+                {preview.youtubeId ? (
+                  <Play className="size-3.5" />
+                ) : (
+                  <FileText className="size-3.5" />
+                )}
+                Free preview
               </Badge>
               <h2 className="mt-4 text-3xl font-extrabold text-navy">
-                Try the teaching style first
+                {preview.youtubeId ? "Try the teaching style first" : "Preview the course slides"}
               </h2>
               <h3 className="mt-4 text-lg font-bold text-navy">{preview.title}</h3>
               <p className="mt-2 leading-7 text-muted-foreground">{preview.description}</p>
@@ -273,7 +305,8 @@ function CourseDetailsPage() {
                           <div className="min-w-0">
                             <p className="font-bold text-navy">{lesson.title}</p>
                             <p className="mt-0.5 text-xs text-muted-foreground">
-                              {lesson.durationMin} min · Quiz included
+                              {lesson.durationMin} min ·{" "}
+                              {lesson.quiz.length ? "Quiz included" : "Slides included"}
                             </p>
                           </div>
                         </div>

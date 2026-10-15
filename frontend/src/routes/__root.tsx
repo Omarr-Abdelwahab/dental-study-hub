@@ -83,9 +83,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: `${brand.name} | Dental courses made clear` },
       { name: "description", content: brand.tagline },
       { name: "author", content: brand.name },
+      { name: "robots", content: "index, follow, max-image-preview:large" },
+      { name: "theme-color", content: "#173f67" },
       { property: "og:title", content: brand.name },
       { property: "og:description", content: brand.tagline },
       { property: "og:type", content: "website" },
+      ...(brand.siteUrl ? [{ property: "og:url", content: brand.siteUrl }] : []),
       ...(brand.siteUrl
         ? [{ property: "og:image", content: `${brand.siteUrl.replace(/\/$/, "")}/og.png` }]
         : []),
@@ -100,6 +103,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", href: "/denta-help-logo.png", type: "image/png" },
+      { rel: "apple-touch-icon", href: "/denta-help-logo.png" },
+      { rel: "manifest", href: "/site.webmanifest" },
     ],
   }),
   shellComponent: RootShell,

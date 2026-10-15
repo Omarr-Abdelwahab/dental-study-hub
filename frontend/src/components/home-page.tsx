@@ -1,0 +1,178 @@
+import { Link } from "@tanstack/react-router";
+import { ArrowRight, BookOpen, Check, Clock3, FileText, Play, ShieldCheck } from "lucide-react";
+
+import { PublicPage, SectionHeading } from "@/components/app-shell";
+import { CourseCard } from "@/components/course-card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { visibleCourses } from "@/lib/selectors";
+import { useStore } from "@/lib/use-store";
+
+const learningSteps = [
+  {
+    icon: BookOpen,
+    title: "Choose a topic",
+    text: "See exactly what each clinical guide covers before you begin.",
+  },
+  {
+    icon: FileText,
+    title: "Preview the slides",
+    text: "Open the complete presentation and check that it fits your study needs.",
+  },
+  {
+    icon: Check,
+    title: "Study at your pace",
+    text: "Move through one clear slide at a time and resume whenever you need.",
+  },
+];
+
+export function CompactHomePage() {
+  const { state } = useStore();
+  const courses = visibleCourses(state);
+  const featuredCourses = [...courses].reverse().slice(0, 3);
+
+  return (
+    <PublicPage>
+      <section className="relative overflow-hidden bg-navy text-white">
+        <div className="pointer-events-none absolute -left-24 top-12 size-72 rounded-full bg-primary/14 blur-3xl" />
+        <div className="pointer-events-none absolute -right-20 bottom-0 size-80 rounded-full bg-primary/16 blur-3xl" />
+        <div className="container-page relative flex min-h-[500px] items-center justify-center py-14 sm:py-16">
+          <div className="mx-auto max-w-3xl text-center">
+            <Badge className="border border-white/12 bg-white/8 px-3 py-1.5 text-white shadow-none">
+              Dental courses built around your syllabus
+            </Badge>
+            <h1 className="mt-5 text-4xl font-extrabold leading-[1.06] tracking-[-0.05em] sm:text-5xl lg:text-[3.55rem]">
+              Study less randomly. <span className="text-primary">Walk into the exam ready.</span>
+            </h1>
+            <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-white/72 sm:text-lg">
+              Focused clinical slide guides organized around the topics you study at university.
+              Preview every course before you decide.
+            </p>
+            <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+              <Button size="lg" asChild className="h-12 px-6 text-base">
+                <Link to="/courses">
+                  Explore courses <ArrowRight />
+                </Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                asChild
+                className="h-12 border-white/20 bg-white/5 px-6 text-base text-white hover:bg-white/10 hover:text-white"
+              >
+                <Link to="/free-snippets">
+                  <Play /> Watch free snippets
+                </Link>
+              </Button>
+            </div>
+            <ul
+              className="mt-7 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-white/68"
+              aria-label="Course benefits"
+            >
+              <li className="flex items-center gap-2">
+                <Check className="size-4 text-primary" /> Free slide previews
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="size-4 text-primary" /> Clear access dates
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="size-4 text-primary" /> Progress saved
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-14 sm:py-16">
+        <div className="container-page">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <SectionHeading
+              eyebrow="Popular courses"
+              title="Start with the subject you need"
+              description="Preview the curriculum and access details before you decide."
+            />
+            <Button variant="ghost" asChild className="self-start text-navy sm:self-auto">
+              <Link to="/courses">
+                View all courses <ArrowRight />
+              </Link>
+            </Button>
+          </div>
+          {courses.length > 0 ? (
+            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {featuredCourses.map((course) => (
+                <CourseCard key={course.id} course={course} />
+              ))}
+            </div>
+          ) : (
+            <div className="mt-8 rounded-2xl border bg-card p-8 text-center">
+              <p className="font-bold text-navy">New courses are being prepared.</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Try a free lesson in the meantime.
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section id="how-it-works" className="border-y bg-secondary/45 py-14 sm:py-16">
+        <div className="container-page grid gap-9 lg:grid-cols-[.72fr_1.28fr] lg:items-center">
+          <div>
+            <SectionHeading
+              eyebrow="A simpler study flow"
+              title="Everything you need. Nothing to hunt for."
+              description="Move through every clinical guide in one clear, distraction-free path."
+            />
+            <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
+              <span className="inline-flex items-center gap-2">
+                <Clock3 className="size-4 text-primary" /> Resume anytime
+              </span>
+              <span className="inline-flex items-center gap-2">
+                <FileText className="size-4 text-primary" /> Slides included
+              </span>
+              <span className="inline-flex items-center gap-2">
+                <ShieldCheck className="size-4 text-primary" /> No subscription
+              </span>
+            </div>
+          </div>
+          <ol className="grid gap-3 sm:grid-cols-3">
+            {learningSteps.map(({ icon: Icon, title, text }, index) => (
+              <li key={title} className="rounded-2xl border bg-card p-5 shadow-card">
+                <div className="flex items-center justify-between">
+                  <span className="grid size-10 place-items-center rounded-xl bg-accent text-accent-foreground">
+                    <Icon className="size-5" />
+                  </span>
+                  <span className="text-xs font-extrabold text-muted-foreground">0{index + 1}</span>
+                </div>
+                <h3 className="mt-5 font-extrabold text-navy">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section className="py-14 sm:py-16">
+        <div className="container-page">
+          <div className="flex flex-col items-start justify-between gap-6 rounded-3xl bg-navy px-6 py-8 text-white shadow-lift sm:flex-row sm:items-center sm:px-9">
+            <div>
+              <p className="text-xs font-extrabold uppercase tracking-[0.17em] text-primary">
+                Not ready to choose?
+              </p>
+              <h2 className="mt-2 text-2xl font-extrabold sm:text-3xl">
+                Start with a free preview.
+              </h2>
+              <p className="mt-2 text-sm text-white/65 sm:text-base">
+                Review the public slides and teaching snippets before choosing a course.
+              </p>
+            </div>
+            <Button size="lg" asChild className="shrink-0">
+              <Link to="/free-snippets">
+                Watch free snippets <ArrowRight />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+    </PublicPage>
+  );
+}

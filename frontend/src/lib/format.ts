@@ -2,6 +2,7 @@ import { brand } from "@/config/brand";
 import type { Course, CourseStatus } from "./types";
 
 export function formatPrice(amount: number) {
+  if (amount <= 0) return "Price coming soon";
   return `${brand.currency} ${amount.toLocaleString("en-US")}`;
 }
 

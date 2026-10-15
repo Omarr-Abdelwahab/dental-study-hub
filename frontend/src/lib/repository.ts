@@ -1,7 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { toPublicCourse, toStudentCourse } from "./course-payload";
-import { buildCatalogState, starterCourses } from "./seed";
+import {
+  buildCatalogState,
+  bundledCatalogCourses,
+  placeholderCourseIds,
+  starterCourses,
+} from "./seed";
 import {
   parseCourse,
   parseFullCourse,
@@ -168,10 +173,17 @@ export class SupabaseAppRepository implements AppRepository {
     const base = emptyCatalog();
     const catalog = await this.client.from("course_catalog").select("payload");
     fail(catalog.error);
-    const publicCourses = (catalog.data ?? []).map((row) => parseCourse(row.payload));
+    const publicCourses = (catalog.data ?? [])
+      .map((row) => parseCourse(row.payload))
+      .filter((course) => !placeholderCourseIds.has(course.id));
     // Once a backend is configured, its catalog is authoritative. Falling back per course would
     // accidentally make an unpublished starter course public again.
-    const catalogCourses = publicCourses;
+    const catalogCourses = [...publicCourses];
+    for (const course of bundledCatalogCourses) {
+      if (!catalogCourses.some((item) => item.id === course.id)) {
+        catalogCourses.push(structuredClone(course));
+      }
+    }
     if (!userId) return { ...base, courses: catalogCourses };
 
     const [
@@ -219,7 +231,9 @@ export class SupabaseAppRepository implements AppRepository {
     const currentProfile = (profiles.data ?? []).find((row) => row.id === userId);
     let remoteCourses = (
       currentProfile?.role === "admin" ? (courses.data ?? []) : (studentCourses.data ?? [])
-    ).map((row) => parseCourse(row.payload));
+    )
+      .map((row) => parseCourse(row.payload))
+      .filter((course) => !placeholderCourseIds.has(course.id));
     if (
       currentProfile?.role === "admin" &&
       starterCourses.length > 0 &&

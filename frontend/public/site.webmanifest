@@ -1,0 +1,17 @@
+{
+  "name": "Denta Help",
+  "short_name": "Denta Help",
+  "description": "Dental courses made clear for university students",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#173f67",
+  "icons": [
+    {
+      "src": "/denta-help-logo.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

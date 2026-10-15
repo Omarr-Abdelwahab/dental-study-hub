@@ -38,6 +38,7 @@ function CoursesPage() {
           />
           <div className="mt-8 flex flex-col gap-3 rounded-2xl border bg-card p-3 shadow-card md:flex-row md:items-center">
             <label className="relative flex-1">
+              <span className="sr-only">Search courses</span>
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={query}
@@ -46,12 +47,17 @@ function CoursesPage() {
                 className="h-11 border-0 bg-muted/65 pl-10 shadow-none"
               />
             </label>
-            <div className="flex items-center gap-1 overflow-x-auto">
+            <div
+              className="flex items-center gap-1 overflow-x-auto"
+              role="group"
+              aria-label="Filter courses by availability"
+            >
               <SlidersHorizontal className="mx-2 size-4 shrink-0 text-muted-foreground" />
               {(["all", "open", "upcoming", "closed"] as const).map((item) => (
                 <button
                   key={item}
                   onClick={() => setFilter(item)}
+                  aria-pressed={filter === item}
                   className={`rounded-lg px-3 py-2 text-sm font-bold capitalize transition ${
                     filter === item
                       ? "bg-navy text-white"
@@ -67,7 +73,7 @@ function CoursesPage() {
       </section>
       <section className="py-14 sm:py-18">
         <div className="container-page">
-          <p className="mb-6 text-sm font-semibold text-muted-foreground">
+          <p className="mb-6 text-sm font-semibold text-muted-foreground" aria-live="polite">
             {courses.length} {courses.length === 1 ? "course" : "courses"} found
           </p>
           {courses.length ? (

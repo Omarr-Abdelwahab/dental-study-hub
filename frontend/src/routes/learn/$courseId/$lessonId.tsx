@@ -10,7 +10,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
-  Download,
   FileText,
   GraduationCap,
   HelpCircle,
@@ -25,6 +24,7 @@ import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppHeader } from "@/components/app-shell";
+import { CourseSlideViewer } from "@/components/course-slide-viewer";
 import { LessonQuiz } from "@/components/lesson-quiz";
 import { YouTubePlayer } from "@/components/youtube-player";
 import { Badge } from "@/components/ui/badge";
@@ -71,7 +71,7 @@ function LessonPage() {
     user?.role === "admin" || Boolean(course && enrolled && isAccessActive(course));
   const previewMode = Boolean(lesson?.isPreview && !activeAccess);
   const canView = activeAccess || previewMode;
-  const canUseMaterials = Boolean(activeAccess && user);
+  const canUseMaterials = Boolean((activeAccess && user) || previewMode);
 
   const handleProgress = useCallback(
     (positionSec: number, percent: number, watchedDeltaSec: number) => {
@@ -227,10 +227,10 @@ function LessonPage() {
               <div className="mb-5 flex flex-col gap-3 rounded-xl border border-primary/20 bg-accent/65 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="font-extrabold text-accent-foreground">
-                    You are watching a free preview
+                    You are viewing a free preview
                   </p>
                   <p className="mt-1 text-sm text-accent-foreground/72">
-                    Slides and quiz results are included after enrollment.
+                    Explore this lesson and its slides before enrollment.
                   </p>
                 </div>
                 <Button size="sm" asChild>
@@ -241,18 +241,39 @@ function LessonPage() {
               </div>
             )}
 
-            {saved && saved.lastPositionSec > 0 && (
+            {lesson.youtubeId && saved && saved.lastPositionSec > 0 && (
               <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
                 <PlayCircle className="size-4 text-primary" />
                 Resuming from {formatClock(saved.lastPositionSec)}
               </div>
             )}
-            <YouTubePlayer
-              key={lesson.id}
-              videoId={lesson.youtubeId}
-              startAt={saved?.lastPositionSec ?? 0}
-              onProgress={handleProgress}
-            />
+            {lesson.youtubeId ? (
+              <YouTubePlayer
+                key={lesson.id}
+                videoId={lesson.youtubeId}
+                startAt={saved?.lastPositionSec ?? 0}
+                onProgress={handleProgress}
+              />
+            ) : (
+              <div className="flex flex-col gap-5 rounded-3xl border border-primary/15 bg-gradient-to-br from-navy to-navy-muted p-6 text-white shadow-lift sm:flex-row sm:items-center sm:justify-between sm:p-8">
+                <div className="flex items-start gap-4">
+                  <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-white/10 text-primary">
+                    <FileText className="size-6" />
+                  </span>
+                  <div>
+                    <p className="text-xs font-extrabold uppercase tracking-[0.17em] text-primary">
+                      Clinical slide deck
+                    </p>
+                    <h2 className="mt-1.5 text-xl font-extrabold sm:text-2xl">
+                      Read, zoom and study at your pace
+                    </h2>
+                    <p className="mt-2 max-w-xl text-sm leading-6 text-white/70">
+                      The complete course presentation is ready below.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
@@ -289,18 +310,27 @@ function LessonPage() {
               )}
             </div>
 
-            <Tabs defaultValue="overview" className="mt-7">
+            <Tabs defaultValue={lesson.youtubeId ? "overview" : "slides"} className="mt-7">
               <div className="w-full overflow-x-auto rounded-xl bg-card shadow-card">
                 <TabsList className="h-auto min-w-max justify-start gap-1 rounded-xl bg-card p-1.5">
+                  {!lesson.youtubeId && (
+                    <TabsTrigger value="slides" className="gap-2 py-2">
+                      <FileText className="size-4" /> Slides
+                    </TabsTrigger>
+                  )}
                   <TabsTrigger value="overview" className="gap-2 py-2">
                     <BookOpen className="size-4" /> Overview
                   </TabsTrigger>
-                  <TabsTrigger value="slides" className="gap-2 py-2">
-                    <FileText className="size-4" /> Slides
-                  </TabsTrigger>
-                  <TabsTrigger value="quiz" className="gap-2 py-2">
-                    <CheckCircle2 className="size-4" /> Quiz
-                  </TabsTrigger>
+                  {lesson.youtubeId && (
+                    <TabsTrigger value="slides" className="gap-2 py-2">
+                      <FileText className="size-4" /> Slides
+                    </TabsTrigger>
+                  )}
+                  {lesson.quiz.length > 0 && (
+                    <TabsTrigger value="quiz" className="gap-2 py-2">
+                      <CheckCircle2 className="size-4" /> Quiz
+                    </TabsTrigger>
+                  )}
                   <TabsTrigger value="support" className="gap-2 py-2">
                     <MessageCircle className="size-4" /> Support
                   </TabsTrigger>
@@ -329,7 +359,9 @@ function LessonPage() {
                   <div className="rounded-xl bg-muted/65 p-4">
                     <CheckCircle2 className="size-4 text-primary" />
                     <p className="mt-2 text-xs font-bold text-muted-foreground">Completion</p>
-                    <p className="mt-1 font-extrabold text-navy">Pass the quiz</p>
+                    <p className="mt-1 font-extrabold text-navy">
+                      {lesson.quiz.length ? "Pass the quiz" : "Review the slides"}
+                    </p>
                   </div>
                 </div>
               </TabsContent>
@@ -338,31 +370,7 @@ function LessonPage() {
                 {!canUseMaterials ? (
                   <LockedMaterial text="Enroll in the course to view the lesson slides." />
                 ) : lesson.pdfUrl ? (
-                  <div className="overflow-hidden rounded-2xl border bg-card shadow-card">
-                    <div className="flex items-center justify-between gap-4 border-b p-4">
-                      <div className="min-w-0">
-                        <p className="truncate font-extrabold text-navy">
-                          {lesson.pdfName ?? "Lesson slides"}
-                        </p>
-                        <p className="text-xs text-muted-foreground">View inside the platform</p>
-                      </div>
-                      {lesson.allowDownload && (
-                        <Button variant="outline" size="sm" asChild>
-                          <a href={lesson.pdfUrl} download={lesson.pdfName ?? true}>
-                            <Download /> Download
-                          </a>
-                        </Button>
-                      )}
-                    </div>
-                    <iframe
-                      src={lesson.pdfUrl}
-                      title={`${lesson.title} slides`}
-                      sandbox="allow-same-origin"
-                      referrerPolicy="no-referrer"
-                      loading="lazy"
-                      className="h-[68vh] min-h-[520px] w-full bg-muted"
-                    />
-                  </div>
+                  <CourseSlideViewer pdfUrl={lesson.pdfUrl} title={lesson.title} />
                 ) : (
                   <div className="rounded-2xl border border-dashed bg-card p-10 text-center">
                     <FileText className="mx-auto size-8 text-muted-foreground" />
@@ -374,16 +382,18 @@ function LessonPage() {
                 )}
               </TabsContent>
 
-              <TabsContent
-                value="quiz"
-                className="mt-5 rounded-2xl border bg-card p-5 shadow-card sm:p-6"
-              >
-                <LessonQuiz
-                  courseId={course.id}
-                  lesson={lesson}
-                  enabled={canUseMaterials && user?.role === "student"}
-                />
-              </TabsContent>
+              {lesson.quiz.length > 0 && (
+                <TabsContent
+                  value="quiz"
+                  className="mt-5 rounded-2xl border bg-card p-5 shadow-card sm:p-6"
+                >
+                  <LessonQuiz
+                    courseId={course.id}
+                    lesson={lesson}
+                    enabled={canUseMaterials && user?.role === "student"}
+                  />
+                </TabsContent>
+              )}
 
               <TabsContent
                 value="support"
@@ -535,8 +545,10 @@ function Curriculum({
                             <Check className="size-3.5" />
                           ) : unavailable ? (
                             <LockKeyhole className="size-3" />
-                          ) : (
+                          ) : lesson.youtubeId ? (
                             <PlayCircle className="size-3.5" />
+                          ) : (
+                            <FileText className="size-3.5" />
                           )}
                         </span>
                         <span className="min-w-0 flex-1">
