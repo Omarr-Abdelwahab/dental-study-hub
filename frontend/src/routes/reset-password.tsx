@@ -11,7 +11,7 @@ import { useStore } from "@/lib/use-store";
 
 export const Route = createFileRoute("/reset-password")({ component: ResetPasswordPage });
 function ResetPasswordPage() {
-  const { updatePassword, backendReady } = useStore();
+  const { updatePassword, backendReady, user } = useStore();
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -32,7 +32,7 @@ function ResetPasswordPage() {
       return;
     }
     toast.success("Password updated. You can now continue securely.");
-    void navigate({ to: "/dashboard" });
+    void navigate({ to: user?.role === "admin" ? "/admin" : "/dashboard" });
   };
   return (
     <PublicPage>

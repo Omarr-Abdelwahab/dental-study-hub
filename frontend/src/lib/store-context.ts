@@ -14,6 +14,7 @@ export interface ActionResult {
   ok: boolean;
   error?: string;
   requiresVerification?: boolean;
+  role?: User["role"];
 }
 export interface QuizActionResult extends ActionResult {
   evaluation?: QuizEvaluation;

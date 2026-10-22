@@ -1,6 +1,5 @@
-import crownPrepImg from "@/assets/course-full-veneer-crown-prep.jpg";
 import { freeSnippets } from "@/content/free-snippets";
-import type { AppState, Course, Lesson, Section } from "./types";
+import type { AppState, Course, Lesson, QuizQuestion, Section } from "./types";
 
 const ORAL_PATHOLOGY_PREVIEW_ID = "18LzMsmxRMLavUvezyMRfyJNRFPspmHFV";
 const DENTAL_ANATOMY_PREVIEW_ID = "1DsnnNtvcVYqch0AG7s0lJNm5oLmipbMz";
@@ -52,6 +51,7 @@ function slideLesson({
   pdfUrl,
   pages,
   durationMin,
+  quiz = [],
 }: {
   id: string;
   title: string;
@@ -59,6 +59,7 @@ function slideLesson({
   pdfUrl: string;
   pages: number;
   durationMin?: number;
+  quiz?: QuizQuestion[];
 }): Lesson {
   return {
     id,
@@ -71,7 +72,7 @@ function slideLesson({
     allowDownload: false,
     isPreview: false,
     published: true,
-    quiz: [],
+    quiz,
   };
 }
 
@@ -228,11 +229,11 @@ const catalogCourses: Course[] = [
       "Relate reduction and finish-line design to restorative materials",
       "Evaluate clearance, retention, resistance, and ceramic-supporting form",
     ],
-    price: 0,
-    thumbnail: crownPrepImg,
-    salesOpenAt: "2026-11-01T00:00:00.000Z",
+    price: 1,
+    thumbnail: "/course-thumbnails/fixed-prosthodontics.jpeg",
+    salesOpenAt: "2026-10-01T00:00:00.000Z",
     salesCloseAt: "2027-06-15T23:59:59.000Z",
-    accessOpenAt: "2026-11-01T00:00:00.000Z",
+    accessOpenAt: "2026-10-01T00:00:00.000Z",
     accessCloseAt: "2027-06-30T23:59:59.000Z",
     publishState: "published",
     sections: [
@@ -253,6 +254,47 @@ const catalogCourses: Course[] = [
             pdfUrl: "/slides/full-veneer-crown-prep.pdf",
             pages: 31,
             durationMin: 35,
+            quiz: [
+              {
+                id: "quiz-full-veneer-1",
+                text: "What is the correct amount of reduction on the occlusal surface for lower 6?",
+                choices: [
+                  "3 mm buccal and 2 mm lingual",
+                  "2 mm buccal and 1 mm lingual",
+                  "1 mm buccal and 2 mm lingual",
+                ],
+                correctIndex: 1,
+                explanation:
+                  "The correct reduction is 2 mm on the buccal functional cusp and 1 mm on the lingual cusp.",
+              },
+              {
+                id: "quiz-full-veneer-2",
+                text: "Which cusps are the functional cusps of the upper first molar?",
+                choices: ["Buccal cusps", "Palatal cusps"],
+                correctIndex: 1,
+                explanation: "The palatal cusps are the functional cusps of maxillary molars.",
+              },
+              {
+                id: "quiz-full-veneer-3",
+                text: "How should the contra-angle be moved during axial preparation?",
+                choices: ["At 45 degrees", "Parallel to the long axis of the tooth"],
+                correctIndex: 1,
+                explanation:
+                  "Keeping the contra-angle parallel to the tooth's long axis guides the axial preparation.",
+              },
+              {
+                id: "quiz-full-veneer-4",
+                text: "Where is the secondary plane located?",
+                choices: [
+                  "Middle third of the buccal surface",
+                  "Occlusal third of the lingual surface",
+                  "Occlusal third of the buccal surface",
+                ],
+                correctIndex: 2,
+                explanation:
+                  "The secondary plane is located on the occlusal third of the buccal surface.",
+              },
+            ],
           }),
           slideLesson({
             id: "lesson-veneered-crown-prep",
@@ -261,6 +303,37 @@ const catalogCourses: Course[] = [
               "Build a repeatable veneered-crown preparation workflow from depth orientation through axial reduction, finish-line refinement, and final quality checks.",
             pdfUrl: "/slides/veneered-crown-preparation.pdf",
             pages: 24,
+            quiz: [
+              {
+                id: "quiz-veneered-crown-1",
+                text: "Where is the extra layer of porcelain placed?",
+                choices: ["Buccal surface", "Palatal surface"],
+                correctIndex: 0,
+                explanation:
+                  "The extra porcelain layer is placed on the buccal surface for the veneered restoration.",
+              },
+              {
+                id: "quiz-veneered-crown-2",
+                text: "Which stone is used to open the contact?",
+                choices: ["Tapered with a round end", "Football or flame", "Needle"],
+                correctIndex: 2,
+                explanation: "A needle stone is used to open the proximal contact.",
+              },
+              {
+                id: "quiz-veneered-crown-3",
+                text: "What is the correct amount of reduction on the buccal surface?",
+                choices: ["1.5 mm", "0.5 mm", "3 mm"],
+                correctIndex: 0,
+                explanation: "The keyed buccal reduction is 1.5 mm.",
+              },
+              {
+                id: "quiz-veneered-crown-4",
+                text: "What is the correct amount of reduction on the palatal surface?",
+                choices: ["1.5 mm", "0.5 mm", "3 mm"],
+                correctIndex: 1,
+                explanation: "The keyed palatal reduction is 0.5 mm.",
+              },
+            ],
           }),
           slideLesson({
             id: "lesson-all-ceramic-crown-prep",
@@ -269,6 +342,36 @@ const catalogCourses: Course[] = [
               "Review material-aware reduction, rounded internal form, margin design, clearance, and the preparation features that support ceramic strength.",
             pdfUrl: "/slides/all-ceramic-crowns.pdf",
             pages: 19,
+            quiz: [
+              {
+                id: "quiz-all-ceramic-1",
+                text: "What is the correct amount of reduction on the incisal edge?",
+                choices: ["1 mm", "2 mm", "3 mm"],
+                correctIndex: 1,
+                explanation: "The keyed incisal-edge reduction is 2 mm.",
+              },
+              {
+                id: "quiz-all-ceramic-2",
+                text: "What is the correct amount of reduction on the palatal fossa?",
+                choices: ["1 mm", "2 mm", "3 mm"],
+                correctIndex: 0,
+                explanation: "The keyed palatal-fossa reduction is 1 mm.",
+              },
+              {
+                id: "quiz-all-ceramic-3",
+                text: "Where is the secondary plane prepared?",
+                choices: ["Cervical third", "Middle third", "Incisal third"],
+                correctIndex: 2,
+                explanation: "The secondary plane is prepared on the incisal third.",
+              },
+              {
+                id: "quiz-all-ceramic-4",
+                text: "Which stone is used to reduce the lingual fossa?",
+                choices: ["Tapered with a round end", "Football or flame", "Wheel"],
+                correctIndex: 1,
+                explanation: "A football or flame stone follows the contour of the lingual fossa.",
+              },
+            ],
           }),
         ],
       },
@@ -289,11 +392,11 @@ const catalogCourses: Course[] = [
       "Sequence posterior and anterior restorative procedures",
       "Evaluate cavity form, contacts, contour, finish, and function",
     ],
-    price: 0,
-    thumbnail: "/snippets/class-one-cavity.jpg",
-    salesOpenAt: "2026-11-01T00:00:00.000Z",
+    price: 1,
+    thumbnail: "/course-thumbnails/operative.jpeg",
+    salesOpenAt: "2026-10-01T00:00:00.000Z",
     salesCloseAt: "2027-06-15T23:59:59.000Z",
-    accessOpenAt: "2026-11-01T00:00:00.000Z",
+    accessOpenAt: "2026-10-01T00:00:00.000Z",
     accessCloseAt: "2027-06-30T23:59:59.000Z",
     publishState: "published",
     sections: [
@@ -313,6 +416,36 @@ const catalogCourses: Course[] = [
               "Review posterior cavity classification, outline form, caries access, resistance and retention concepts, proximal-box design, and final preparation checks.",
             pdfUrl: "/slides/class-i-ii-cavities.pdf",
             pages: 19,
+            quiz: [
+              {
+                id: "quiz-class-i-ii-cavities-1",
+                text: "What is the correct measurement of the gingival seat width?",
+                choices: ["1.5–2 mm", "2.5–3 mm", "1–1.5 mm"],
+                correctIndex: 0,
+                explanation: "The keyed gingival-seat width is 1.5–2 mm.",
+              },
+              {
+                id: "quiz-class-i-ii-cavities-2",
+                text: "What is the correct depth of the proximal box in a Class II cavity?",
+                choices: ["2 mm", "1.5 mm", "3 mm"],
+                correctIndex: 2,
+                explanation: "The keyed proximal-box depth is 3 mm.",
+              },
+              {
+                id: "quiz-class-i-ii-cavities-3",
+                text: "What is the correct depth of a Class I cavity?",
+                choices: ["0.5 mm", "1 mm", "1.5 mm"],
+                correctIndex: 2,
+                explanation: "The keyed Class I cavity depth is 1.5 mm.",
+              },
+              {
+                id: "quiz-class-i-ii-cavities-4",
+                text: "Which instrument is used to check whether the contact has been opened?",
+                choices: ["Ball burnisher", "Sharp explorer", "Double flat"],
+                correctIndex: 1,
+                explanation: "A sharp explorer is used to check that the contact has been opened.",
+              },
+            ],
           }),
           slideLesson({
             id: "lesson-class-i-ii-restoration",
@@ -321,6 +454,45 @@ const catalogCourses: Course[] = [
               "Organize the restorative phase from preparation review and isolation through material placement, proximal form, occlusal anatomy, finishing, and evaluation.",
             pdfUrl: "/slides/class-i-ii-restorations.pdf",
             pages: 21,
+            quiz: [
+              {
+                id: "quiz-class-i-ii-restoration-1",
+                text: "Which instrument is used to condense composite into the base of the cavity?",
+                choices: ["Sharp explorer", "Periodontal probe", "Ball burnisher"],
+                correctIndex: 2,
+                explanation: "A ball burnisher is used to adapt and condense the composite.",
+              },
+              {
+                id: "quiz-class-i-ii-restoration-2",
+                text: "How is composite cured?",
+                choices: ["High temperature", "Light curing", "Exposure to air"],
+                correctIndex: 1,
+                explanation: "Dental composite is polymerized using a curing light.",
+              },
+              {
+                id: "quiz-class-i-ii-restoration-3",
+                text: "Why should the marginal ridge be properly restored?",
+                choices: [
+                  "To improve esthetics and increase occlusal clearance",
+                  "To achieve proper proximal contact and prevent food impaction",
+                  "To reduce tooth sensitivity and improve retention",
+                ],
+                correctIndex: 1,
+                explanation:
+                  "A properly restored marginal ridge supports proximal contact and helps prevent food impaction.",
+              },
+              {
+                id: "quiz-class-i-ii-restoration-4",
+                text: "Why should composite be placed in increments in Class I and Class II restorations?",
+                choices: [
+                  "To reduce polymerization shrinkage stress",
+                  "To increase cavity depth",
+                  "To improve bonding to enamel only",
+                ],
+                correctIndex: 0,
+                explanation: "Incremental placement helps reduce polymerization shrinkage stress.",
+              },
+            ],
           }),
           slideLesson({
             id: "lesson-class-iii-v",
@@ -329,6 +501,38 @@ const catalogCourses: Course[] = [
               "Study conservative anterior and cervical access, outline, margin, and tissue-conscious preparation principles for Class III and V lesions.",
             pdfUrl: "/slides/class-iii-v-cavities.pdf",
             pages: 25,
+            quiz: [
+              {
+                id: "quiz-class-iii-v-1",
+                text: "Where is the correct position of a Class V cavity?",
+                choices: ["Occlusal or incisal third", "Middle third", "Cervical third"],
+                correctIndex: 2,
+                explanation: "Class V cavities are located in the cervical third of the tooth.",
+              },
+              {
+                id: "quiz-class-iii-v-2",
+                text: "What is the correct location of a Class III cavity?",
+                choices: ["Proximal and buccal", "Proximal and palatal", "Incisal"],
+                correctIndex: 1,
+                explanation:
+                  "The keyed answer is the proximal and palatal location, without involving the incisal angle.",
+              },
+              {
+                id: "quiz-class-iii-v-3",
+                text: "Class III and Class V cavities are usually found in patients with:",
+                choices: ["Bad oral hygiene", "Low caries index", "Good oral hygiene"],
+                correctIndex: 0,
+                explanation:
+                  "Poor oral hygiene increases plaque retention and the risk of these carious lesions.",
+              },
+              {
+                id: "quiz-class-iii-v-4",
+                text: "What is the correct depth of Class III and Class V cavities?",
+                choices: ["1 mm", "1.5 mm", "3 mm"],
+                correctIndex: 1,
+                explanation: "The keyed preparation depth is 1.5 mm.",
+              },
+            ],
           }),
           slideLesson({
             id: "lesson-class-iv",
@@ -337,6 +541,41 @@ const catalogCourses: Course[] = [
               "Follow Class IV assessment, cavity design, restorative sequencing, contour, finishing, and final evaluation in a clear clinical workflow.",
             pdfUrl: "/slides/class-iv-cavity-restoration.pdf",
             pages: 21,
+            quiz: [
+              {
+                id: "quiz-class-iv-1",
+                text: "What is the purpose of the index?",
+                choices: [
+                  "Build the buccal shell",
+                  "Build the proximal wall",
+                  "Build the palatal shell",
+                ],
+                correctIndex: 2,
+                explanation: "The index is used to establish the palatal shell first.",
+              },
+              {
+                id: "quiz-class-iv-2",
+                text: "Finishing and polishing should be done with:",
+                choices: ["Water", "Air", "A dry cotton roll"],
+                correctIndex: 0,
+                explanation: "Finishing and polishing should be performed with water cooling.",
+              },
+              {
+                id: "quiz-class-iv-3",
+                text: "The dentin shade of composite is:",
+                choices: ["Transparent", "Translucent", "Opaque"],
+                correctIndex: 2,
+                explanation:
+                  "Dentin composite is comparatively opaque to reproduce natural dentin.",
+              },
+              {
+                id: "quiz-class-iv-4",
+                text: "The enamel shade of composite is:",
+                choices: ["Transparent", "Translucent", "Opaque"],
+                correctIndex: 1,
+                explanation: "Enamel composite is translucent to reproduce natural enamel.",
+              },
+            ],
           }),
         ],
       },

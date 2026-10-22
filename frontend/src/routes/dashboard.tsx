@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import {
   ArrowRight,
   Bell,
@@ -13,10 +13,11 @@ import {
   LockKeyhole,
   Play,
   Trophy,
+  TriangleAlert,
 } from "lucide-react";
 import { useMemo } from "react";
 
-import { AppHeader } from "@/components/app-shell";
+import { AppHeader, FullPageLoading } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -43,9 +44,13 @@ import type { User } from "@/lib/types";
 export const Route = createFileRoute("/dashboard")({ component: StudentDashboard });
 
 function StudentDashboard() {
-  const { user } = useStore();
+  const { user, hydrated } = useStore();
 
-  if (!user || user.role !== "student") {
+  if (!hydrated) return <FullPageLoading />;
+
+  if (user?.role === "admin") return <Navigate to="/admin" replace />;
+
+  if (!user) {
     return (
       <div className="min-h-screen bg-secondary/35">
         <AppHeader />
@@ -108,6 +113,17 @@ function StudentDashboardContent({ user }: { user: User }) {
     const pendingPurchases = state.payments.filter(
       (payment) => payment.userId === user.id && payment.status === "pending",
     );
+    const rejectedPurchases = state.payments.filter(
+      (payment) =>
+        payment.userId === user.id &&
+        payment.status === "failed" &&
+        !state.payments.some(
+          (newer) =>
+            newer.userId === user.id &&
+            newer.courseId === payment.courseId &&
+            newer.createdAt > payment.createdAt,
+        ),
+    );
 
     return {
       activeCourses,
@@ -121,6 +137,7 @@ function StudentDashboardContent({ user }: { user: User }) {
       bookmarks,
       recentAttempts,
       pendingPurchases,
+      rejectedPurchases,
     };
   }, [state, user.id]);
 
@@ -136,6 +153,7 @@ function StudentDashboardContent({ user }: { user: User }) {
     bookmarks,
     recentAttempts,
     pendingPurchases,
+    rejectedPurchases,
   } = view;
 
   return (
@@ -177,6 +195,35 @@ function StudentDashboardContent({ user }: { user: User }) {
             </div>
           </section>
         )}
+
+        {rejectedPurchases.map((payment) => {
+          const course = state.courses.find((item) => item.id === payment.courseId);
+          if (!course) return null;
+          return (
+            <section
+              key={payment.id}
+              className="mt-4 rounded-2xl border border-destructive/25 bg-destructive/5 p-5"
+            >
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-start gap-3">
+                  <TriangleAlert className="mt-0.5 size-5 shrink-0 text-destructive" />
+                  <div>
+                    <h2 className="font-extrabold text-navy">Transfer needs your attention</h2>
+                    <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                      <strong className="text-navy">{course.title}:</strong>{" "}
+                      {payment.rejectionReason || "The transfer could not be verified."}
+                    </p>
+                  </div>
+                </div>
+                <Button variant="outline" asChild className="shrink-0">
+                  <Link to="/checkout/$courseId" params={{ courseId: course.id }}>
+                    Submit corrected reference
+                  </Link>
+                </Button>
+              </div>
+            </section>
+          );
+        })}
 
         <div className="mt-8 grid gap-5 xl:grid-cols-[1.55fr_.75fr]">
           {continueCourse && continueLesson ? (

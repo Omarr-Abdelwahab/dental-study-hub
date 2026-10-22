@@ -1,5 +1,15 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, BookOpen, Check, Clock3, FileText, Play, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  Check,
+  Clock3,
+  ExternalLink,
+  FileText,
+  MessageCircleHeart,
+  Play,
+  ShieldCheck,
+} from "lucide-react";
 
 import { PublicPage, SectionHeading } from "@/components/app-shell";
 import { CourseCard } from "@/components/course-card";
@@ -23,6 +33,29 @@ const learningSteps = [
     icon: Check,
     title: "Study at your pace",
     text: "Move through one clear slide at a time and resume whenever you need.",
+  },
+];
+
+const studentFeedback = [
+  {
+    image: "/student-feedback/clear-step-by-step.jpeg",
+    alt: "Student message saying the sessions were useful and explained clearly step by step",
+    highlight: "Clear, step-by-step teaching",
+  },
+  {
+    image: "/student-feedback/useful-and-enjoyable.jpeg",
+    alt: "Student message praising Dr Salma's useful and enjoyable teaching",
+    highlight: "Useful and enjoyable",
+  },
+  {
+    image: "/student-feedback/exam-support.jpeg",
+    alt: "Student message saying the course helped greatly before exams",
+    highlight: "Helpful before exams",
+  },
+  {
+    image: "/student-feedback/clinical-improvement.jpeg",
+    alt: "Student message explaining how the sessions connected concepts and corrected clinical mistakes",
+    highlight: "Theory connected to practice",
   },
 ];
 
@@ -129,6 +162,75 @@ export function CompactHomePage() {
               </p>
             </div>
           )}
+        </div>
+      </section>
+
+      <section className="relative overflow-hidden border-y bg-navy py-14 text-white sm:py-20">
+        <div className="pointer-events-none absolute -left-20 top-12 size-72 rounded-full bg-primary/12 blur-3xl" />
+        <div className="pointer-events-none absolute -right-24 bottom-0 size-80 rounded-full bg-brand-foreground/8 blur-3xl" />
+        <div className="container-page relative">
+          <div className="mx-auto max-w-2xl text-center">
+            <div className="mx-auto grid size-11 place-items-center rounded-2xl bg-white/10 text-brand-foreground ring-1 ring-white/10">
+              <MessageCircleHeart className="size-5" />
+            </div>
+            <p className="mt-4 text-xs font-extrabold uppercase tracking-[0.18em] text-brand-foreground">
+              Real student feedback
+            </p>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.035em] sm:text-4xl">
+              Explained clearly. Remembered when it matters.
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl leading-7 text-white/66">
+              Honest messages from dental students who studied with Denta Help and took that
+              confidence into their exams and clinical work.
+            </p>
+          </div>
+
+          <div className="mt-10 grid items-start gap-5 md:grid-cols-2">
+            {studentFeedback.map((feedback) => (
+              <figure
+                key={feedback.image}
+                className="group overflow-hidden rounded-2xl border border-white/12 bg-white/[0.07] p-3 shadow-2xl shadow-black/15 transition duration-300 hover:-translate-y-1 hover:border-primary/45 hover:bg-white/[0.1]"
+              >
+                <a
+                  href={feedback.image}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block overflow-hidden rounded-xl bg-[#f7f4ed] ring-1 ring-black/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-navy"
+                  aria-label={`Open full-size student feedback: ${feedback.highlight}`}
+                >
+                  <img
+                    src={feedback.image}
+                    alt={feedback.alt}
+                    loading="lazy"
+                    className="h-auto w-full transition duration-500 group-hover:scale-[1.01]"
+                  />
+                </a>
+                <figcaption className="flex items-center justify-between gap-4 px-2 pb-1 pt-4">
+                  <div>
+                    <p className="text-sm font-bold text-white">{feedback.highlight}</p>
+                    <p className="mt-0.5 text-xs text-white/50">
+                      Real message from a dental student
+                    </p>
+                  </div>
+                  <ExternalLink
+                    className="size-4 shrink-0 text-brand-foreground/65"
+                    aria-hidden="true"
+                  />
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+
+          <div className="mt-9 flex flex-col items-center justify-center gap-4 text-center sm:flex-row">
+            <p className="text-sm font-semibold text-white/72">
+              See the teaching style for yourself.
+            </p>
+            <Button asChild>
+              <Link to="/courses">
+                Explore the courses <ArrowRight />
+              </Link>
+            </Button>
+          </div>
         </div>
       </section>
 

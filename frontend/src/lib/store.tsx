@@ -5,7 +5,7 @@ import { createId } from "./id";
 import { SupabaseAppRepository } from "./repository";
 import { isBackendConfigured, supabase } from "./supabase";
 import { StoreContext, type ActionResult, type StoreValue } from "./store-context";
-import type { Announcement, AppState, Bookmark, LessonProgress } from "./types";
+import type { Announcement, AppState, Bookmark, LessonProgress, User } from "./types";
 import { parseFullCourse } from "./validation";
 
 function catalogState(): AppState {
@@ -29,7 +29,25 @@ function message(error: unknown) {
     const field = issue?.path.length ? `${issue.path.join(" → ")}: ` : "";
     return `${field}${issue?.message ?? "Please check the course details."}`;
   }
-  return error instanceof Error ? error.message : "Something went wrong. Please try again.";
+  const code =
+    typeof error === "object" && error !== null && "code" in error ? String(error.code) : "";
+  const raw = error instanceof Error ? error.message : "";
+  if (code === "over_email_send_rate_limit" || /email rate limit exceeded/i.test(raw))
+    return "Confirmation email limit reached. Please wait up to one hour before trying again, or contact support if you need immediate access.";
+  if (code === "over_request_rate_limit" || /request rate limit exceeded/i.test(raw))
+    return "Too many attempts were made. Please wait a few minutes before trying again.";
+  if (code === "email_address_not_authorized")
+    return "This email cannot receive confirmation messages until production email delivery is configured. Please contact support.";
+  if (/duplicate key.*idx_purchase_transfer_reference/i.test(raw))
+    return "That InstaPay reference has already been submitted. Check the reference and try again.";
+  if (/duplicate key.*idx_purchase_one_open_per_course/i.test(raw))
+    return "You already have an open or approved request for this course.";
+  if (/Too many purchase requests/i.test(raw))
+    return "Too many payment requests were submitted. Please wait an hour and try again.";
+  if (/Course enrollment is not open/i.test(raw)) return "Course enrollment is not currently open.";
+  if (/Invalid transfer reference/i.test(raw))
+    return "Enter the transaction reference exactly as it appears in InstaPay.";
+  return raw || "Something went wrong. Please try again.";
 }
 
 export function AppStoreProvider({ children }: { children: ReactNode }) {
@@ -122,13 +140,23 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       user,
       backendReady: isBackendConfigured,
       async signIn(email, password) {
-        return result(async () => {
-          const { error } = await requireBackend().auth.signInWithPassword({
+        try {
+          const backend = requireBackend();
+          const { data, error } = await backend.auth.signInWithPassword({
             email: email.trim(),
             password,
           });
           if (error) throw error;
-        });
+          const profile = await backend
+            .from("profiles")
+            .select("role")
+            .eq("id", data.user.id)
+            .single();
+          if (profile.error) throw profile.error;
+          return { ok: true, role: profile.data.role as User["role"] };
+        } catch (error) {
+          return { ok: false, error: message(error) };
+        }
       },
       async signUp(input) {
         try {

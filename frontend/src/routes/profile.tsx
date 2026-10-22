@@ -3,7 +3,7 @@ import { CalendarDays, Mail, Phone, School, ShieldCheck, UserRound } from "lucid
 import { useEffect, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
-import { PublicPage } from "@/components/app-shell";
+import { FullPageLoading, PublicPage } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,11 +14,13 @@ import { formatDate } from "@/lib/format";
 export const Route = createFileRoute("/profile")({ component: ProfilePage });
 
 function ProfilePage() {
-  const { user, updateProfile, sendPasswordReset } = useStore();
+  const { user, hydrated, updateProfile, sendPasswordReset } = useStore();
   const [key, setKey] = useState(0);
   const [saving, setSaving] = useState(false);
   const [sendingReset, setSendingReset] = useState(false);
   useEffect(() => setKey((value) => value + 1), [user?.id]);
+
+  if (!hydrated) return <FullPageLoading />;
 
   if (!user) {
     return (

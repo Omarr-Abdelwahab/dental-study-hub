@@ -1,5 +1,13 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ChevronDown, LayoutDashboard, LogOut, Menu, ShieldCheck, UserRound } from "lucide-react";
+import {
+  ChevronDown,
+  LayoutDashboard,
+  LoaderCircle,
+  LogOut,
+  Menu,
+  ShieldCheck,
+  UserRound,
+} from "lucide-react";
 import type { ReactNode } from "react";
 import { toast } from "sonner";
 
@@ -51,6 +59,14 @@ function NavLinks({ mobile = false }: { mobile?: boolean }) {
     : "text-sm font-semibold text-muted-foreground transition-colors hover:text-navy";
   return (
     <>
+      <Link
+        to="/"
+        className={cls}
+        activeOptions={{ exact: true }}
+        activeProps={{ className: `${cls} text-navy` }}
+      >
+        Home
+      </Link>
       <Link to="/courses" className={cls} activeProps={{ className: `${cls} text-navy` }}>
         Courses
       </Link>
@@ -161,7 +177,8 @@ export function AppHeader() {
                         to={user.role === "admin" ? "/admin" : "/dashboard"}
                         className="flex items-center gap-2 rounded-lg px-3 py-2.5 font-semibold text-navy hover:bg-accent"
                       >
-                        <LayoutDashboard className="size-4" /> Dashboard
+                        <LayoutDashboard className="size-4" />
+                        {user.role === "admin" ? "Admin" : "My learning"}
                       </Link>
                     </SheetClose>
                     <SheetClose asChild>
@@ -267,6 +284,17 @@ export function PublicPage({ children }: { children: ReactNode }) {
       <AppHeader />
       <main>{children}</main>
       <AppFooter />
+    </div>
+  );
+}
+
+export function FullPageLoading({ label = "Loading your account…" }: { label?: string }) {
+  return (
+    <div className="grid min-h-screen place-items-center bg-secondary/35 px-4" role="status">
+      <div className="flex items-center gap-3 rounded-2xl border bg-card px-5 py-4 font-semibold text-navy shadow-card">
+        <LoaderCircle className="size-5 animate-spin text-brand-foreground" aria-hidden="true" />
+        <span>{label}</span>
+      </div>
     </div>
   );
 }

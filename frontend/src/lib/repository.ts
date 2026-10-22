@@ -167,6 +167,100 @@ function fail(error: { message: string } | null) {
   if (error) throw new Error(error.message);
 }
 
+function withBundledCommerce(course: Course): Course {
+  const bundled = bundledCatalogCourses.find((item) => item.id === course.id);
+  if (!bundled) return course;
+
+  // These implemented courses ship with their approved marketing thumbnails. Apply them when
+  // older Supabase payloads still reference the original placeholder artwork.
+  const withCurrentThumbnail =
+    course.id === "course-fixed-prosthodontics" || course.id === "course-operative"
+      ? { ...course, thumbnail: bundled.thumbnail }
+      : course;
+
+  // A zero-price implemented course is an unsynced placeholder: purchase_requests rejects
+  // non-positive amounts. Once an administrator sets any real price, their catalog wins again.
+  if (course.price > 0) return withCurrentThumbnail;
+  return {
+    ...withCurrentThumbnail,
+    price: bundled.price,
+    salesOpenAt: bundled.salesOpenAt,
+    salesCloseAt: bundled.salesCloseAt,
+    accessOpenAt: bundled.accessOpenAt,
+    accessCloseAt: bundled.accessCloseAt,
+  };
+}
+
+function commerceMatches(left: Course, right: Course) {
+  return (
+    left.price === right.price &&
+    left.salesOpenAt === right.salesOpenAt &&
+    left.salesCloseAt === right.salesCloseAt &&
+    left.accessOpenAt === right.accessOpenAt &&
+    left.accessCloseAt === right.accessCloseAt
+  );
+}
+
+function withBundledAdminContent(course: Course): Course {
+  const bundled = bundledCatalogCourses.find((item) => item.id === course.id);
+  if (!bundled) return course;
+
+  const bundledLessons = new Map(
+    bundled.sections.flatMap((section) =>
+      section.lessons.map((lesson) => [lesson.id, lesson] as const),
+    ),
+  );
+
+  return {
+    ...course,
+    thumbnail: bundled.thumbnail,
+    sections: course.sections.map((section) => ({
+      ...section,
+      lessons: section.lessons.map((lesson) => {
+        const bundledLesson = bundledLessons.get(lesson.id);
+        return bundledLesson?.quiz.length
+          ? { ...lesson, quiz: structuredClone(bundledLesson.quiz) }
+          : lesson;
+      }),
+    })),
+  };
+}
+
+function withBundledStudentContent(course: Course): Course {
+  const bundled = bundledCatalogCourses.find((item) => item.id === course.id);
+  if (!bundled) return course;
+
+  const safeBundledLessons = new Map(
+    toStudentCourse(bundled).sections.flatMap((section) =>
+      section.lessons.map((lesson) => [lesson.id, lesson] as const),
+    ),
+  );
+
+  return {
+    ...course,
+    sections: course.sections.map((section) => ({
+      ...section,
+      lessons: section.lessons.map((lesson) => {
+        const bundledLesson = safeBundledLessons.get(lesson.id);
+        return bundledLesson?.quiz.length
+          ? { ...lesson, quiz: structuredClone(bundledLesson.quiz) }
+          : lesson;
+      }),
+    })),
+  };
+}
+
+function bundledAdminContentMatches(left: Course, right: Course) {
+  const quizSignature = (course: Course) =>
+    course.sections.flatMap((section) =>
+      section.lessons.map((lesson) => [lesson.id, lesson.quiz] as const),
+    );
+  return (
+    left.thumbnail === right.thumbnail &&
+    JSON.stringify(quizSignature(left)) === JSON.stringify(quizSignature(right))
+  );
+}
+
 export class SupabaseAppRepository implements AppRepository {
   constructor(private readonly client: SupabaseClient) {}
 
@@ -176,6 +270,7 @@ export class SupabaseAppRepository implements AppRepository {
     fail(catalog.error);
     const publicCourses = (catalog.data ?? [])
       .map((row) => parseCourse(row.payload))
+      .map(withBundledCommerce)
       .filter((course) => !placeholderCourseIds.has(course.id) && !retiredCourseIds.has(course.id));
     // Once a backend is configured, its catalog is authoritative. Falling back per course would
     // accidentally make an unpublished starter course public again.
@@ -236,6 +331,19 @@ export class SupabaseAppRepository implements AppRepository {
       .map((row) => parseCourse(row.payload))
       .filter((course) => !placeholderCourseIds.has(course.id) && !retiredCourseIds.has(course.id));
     if (currentProfile?.role === "admin" && starterCourses.length > 0) {
+      const catalogUpdates = remoteCourses
+        .map((course) => withBundledAdminContent(withBundledCommerce(course)))
+        .filter(
+          (course, index) =>
+            !commerceMatches(course, remoteCourses[index]!) ||
+            !bundledAdminContentMatches(course, remoteCourses[index]!),
+        );
+      if (catalogUpdates.length > 0) {
+        await Promise.all(catalogUpdates.map((course) => this.saveCourse(course)));
+        remoteCourses = remoteCourses.map((course) =>
+          withBundledAdminContent(withBundledCommerce(course)),
+        );
+      }
       const missingCourses = starterCourses.filter(
         (starterCourse) => !remoteCourses.some((course) => course.id === starterCourse.id),
       );
@@ -244,6 +352,10 @@ export class SupabaseAppRepository implements AppRepository {
         await Promise.all(initialCourses.map((course) => this.saveCourse(course)));
         remoteCourses = [...remoteCourses, ...initialCourses];
       }
+    } else {
+      remoteCourses = remoteCourses.map((course) =>
+        withBundledStudentContent(withBundledCommerce(course)),
+      );
     }
     const mergedCourses = catalogCourses.map(
       (course) => remoteCourses.find((item) => item.id === course.id) ?? course,

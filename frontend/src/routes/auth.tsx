@@ -38,7 +38,7 @@ function AuthPage() {
       setError(result.error ?? "Could not sign in.");
       return;
     }
-    void navigate({ to: "/dashboard" });
+    void navigate({ to: result.role === "admin" ? "/admin" : "/dashboard" });
   };
 
   const submitSignUp = async (event: FormEvent<HTMLFormElement>) => {

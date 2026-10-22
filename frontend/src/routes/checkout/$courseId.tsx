@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
   CalendarClock,
@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
-import { AppHeader, BrandMark } from "@/components/app-shell";
+import { AppHeader, BrandMark, FullPageLoading } from "@/components/app-shell";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -27,12 +27,15 @@ export const Route = createFileRoute("/checkout/$courseId")({ component: Checkou
 
 function CheckoutPage() {
   const { courseId } = Route.useParams();
-  const { state, user, requestPurchase } = useStore();
+  const { state, user, hydrated, requestPurchase } = useStore();
   const course = getCourse(state, courseId);
   const [agreed, setAgreed] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+
+  if (!hydrated) return <FullPageLoading label="Preparing checkout…" />;
+  if (user?.role === "admin") return <Navigate to="/admin" replace />;
 
   if (!course)
     return (
@@ -64,7 +67,7 @@ function CheckoutPage() {
         </div>
       </div>
     );
-  if (!user || user.role !== "student")
+  if (!user)
     return (
       <div className="min-h-screen bg-secondary/40">
         <AppHeader />
@@ -108,6 +111,9 @@ function CheckoutPage() {
 
   const existing = state.payments.find(
     (item) => item.userId === user.id && item.courseId === course.id && item.status === "pending",
+  );
+  const rejected = state.payments.find(
+    (item) => item.userId === user.id && item.courseId === course.id && item.status === "failed",
   );
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -199,6 +205,16 @@ function CheckoutPage() {
                 </AlertDescription>
               </Alert>
             )}
+            {rejected && (
+              <Alert variant="destructive" className="mt-6">
+                <TriangleAlert className="size-4" />
+                <AlertTitle>Your previous request was rejected</AlertTitle>
+                <AlertDescription>
+                  {rejected.rejectionReason ||
+                    "The transfer could not be verified. Check the transfer in InstaPay and submit its correct reference below."}
+                </AlertDescription>
+              </Alert>
+            )}
             <div className="mt-7 rounded-2xl border-2 border-primary/20 bg-accent/45 p-5">
               <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
                 Send exactly
@@ -242,6 +258,8 @@ function CheckoutPage() {
                   placeholder="Enter the reference shown in InstaPay"
                   minLength={4}
                   maxLength={100}
+                  autoComplete="off"
+                  spellCheck={false}
                   required
                 />
                 <p className="text-xs text-muted-foreground">

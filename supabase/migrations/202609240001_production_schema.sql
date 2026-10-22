@@ -467,6 +467,10 @@ as $$
 declare v_request public.purchase_requests%rowtype;
 begin
   if not public.is_admin() then raise exception 'Administrator access required'; end if;
+  if p_approve is null then raise exception 'Review decision is required'; end if;
+  if not p_approve and char_length(coalesce(trim(p_reason), '')) < 3 then
+    raise exception 'A rejection reason is required';
+  end if;
   select * into v_request from public.purchase_requests where id = p_request_id for update;
   if not found then raise exception 'Purchase request not found'; end if;
   if v_request.status <> 'pending' then raise exception 'Purchase request was already reviewed'; end if;

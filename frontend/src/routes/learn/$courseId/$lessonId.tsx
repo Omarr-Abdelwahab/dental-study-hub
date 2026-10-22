@@ -23,7 +23,7 @@ import {
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-import { AppHeader } from "@/components/app-shell";
+import { AppHeader, FullPageLoading } from "@/components/app-shell";
 import { CourseSlideViewer } from "@/components/course-slide-viewer";
 import { LessonQuiz } from "@/components/lesson-quiz";
 import { YouTubePlayer } from "@/components/youtube-player";
@@ -61,7 +61,7 @@ export const Route = createFileRoute("/learn/$courseId/$lessonId")({
 
 function LessonPage() {
   const { courseId, lessonId } = Route.useParams();
-  const { state, user, saveProgress, toggleBookmark } = useStore();
+  const { state, user, hydrated, saveProgress, toggleBookmark } = useStore();
   const course = getCourse(state, courseId);
   const lesson = course ? findLesson(course, lessonId) : undefined;
   const [search, setSearch] = useState("");
@@ -86,6 +86,8 @@ function LessonPage() {
     },
     [canUseMaterials, courseId, lessonId, saveProgress, user?.role],
   );
+
+  if (!hydrated) return <FullPageLoading label="Loading lesson access…" />;
 
   if (!course || !lesson) {
     return (

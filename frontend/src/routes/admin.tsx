@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import {
   ArrowUpRight,
   BookOpen,
@@ -28,7 +28,7 @@ import {
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { toast } from "sonner";
 
-import { BrandMark } from "@/components/app-shell";
+import { BrandMark, FullPageLoading } from "@/components/app-shell";
 import { CourseStatusBadge } from "@/components/course-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -75,6 +75,7 @@ import { useStore } from "@/lib/use-store";
 import type {
   Course,
   Lesson,
+  Payment,
   PaymentStatus,
   PublishState,
   QuizQuestion,
@@ -98,9 +99,12 @@ const navigation: { id: AdminTab; label: string; icon: typeof LayoutDashboard }[
 ];
 
 function AdminPage() {
-  const { user } = useStore();
+  const { user, hydrated } = useStore();
 
-  if (!user || user.role !== "admin") {
+  if (!hydrated) return <FullPageLoading label="Checking administrator access…" />;
+  if (user?.role === "student") return <Navigate to="/dashboard" replace />;
+
+  if (!user) {
     return (
       <div className="grid min-h-screen place-items-center bg-secondary/35 px-4">
         <div className="w-full max-w-lg rounded-3xl border bg-card p-8 text-center shadow-lift">
@@ -143,6 +147,7 @@ function AdminWorkspace({ user }: { user: User }) {
   const [tab, setTab] = useState<AdminTab>("overview");
   const [courseEditor, setCourseEditor] = useState<Course | null>(null);
   const [managedStudent, setManagedStudent] = useState<User | null>(null);
+  const [approvedPaymentId, setApprovedPaymentId] = useState<string | null>(null);
   const [rejectedPaymentId, setRejectedPaymentId] = useState<string | null>(null);
   const [courseQuery, setCourseQuery] = useState("");
   const [studentQuery, setStudentQuery] = useState("");
@@ -698,6 +703,11 @@ function AdminWorkspace({ user }: { user: User }) {
                             </TableCell>
                             <TableCell>
                               <PaymentBadge status={payment.status} />
+                              {payment.status === "failed" && payment.rejectionReason && (
+                                <p className="mt-1 max-w-52 text-xs leading-5 text-destructive">
+                                  {payment.rejectionReason}
+                                </p>
+                              )}
                             </TableCell>
                             <TableCell className="text-right">
                               {payment.status === "pending" ? (
@@ -705,17 +715,7 @@ function AdminWorkspace({ user }: { user: User }) {
                                   <Button
                                     size="sm"
                                     disabled={reviewingPaymentId === payment.id}
-                                    onClick={async () => {
-                                      setReviewingPaymentId(payment.id);
-                                      try {
-                                        const result = await reviewPayment(payment.id, true);
-                                        if (result.ok)
-                                          toast.success("Transfer approved and access activated.");
-                                        else toast.error(result.error);
-                                      } finally {
-                                        setReviewingPaymentId(null);
-                                      }
-                                    }}
+                                    onClick={() => setApprovedPaymentId(payment.id)}
                                   >
                                     <Check />
                                     {reviewingPaymentId === payment.id ? "Approving…" : "Approve"}
@@ -730,7 +730,20 @@ function AdminWorkspace({ user }: { user: User }) {
                                   </Button>
                                 </div>
                               ) : (
-                                <span className="text-xs text-muted-foreground">Reviewed</span>
+                                <div className="text-xs text-muted-foreground">
+                                  <p>
+                                    {payment.reviewedAt
+                                      ? formatDateTime(payment.reviewedAt)
+                                      : "Reviewed"}
+                                  </p>
+                                  {payment.reviewedBy && (
+                                    <p>
+                                      by{" "}
+                                      {state.users.find((item) => item.id === payment.reviewedBy)
+                                        ?.name ?? "administrator"}
+                                    </p>
+                                  )}
+                                </div>
                               )}
                             </TableCell>
                           </TableRow>
@@ -791,6 +804,34 @@ function AdminWorkspace({ user }: { user: User }) {
             toast.success("Transfer request rejected.");
           } else toast.error(result.error);
           return result;
+        }}
+      />
+      <ApprovePaymentDialog
+        payment={state.payments.find((payment) => payment.id === approvedPaymentId) ?? null}
+        student={state.users.find(
+          (student) =>
+            student.id ===
+            state.payments.find((payment) => payment.id === approvedPaymentId)?.userId,
+        )}
+        course={state.courses.find(
+          (course) =>
+            course.id ===
+            state.payments.find((payment) => payment.id === approvedPaymentId)?.courseId,
+        )}
+        submitting={reviewingPaymentId === approvedPaymentId}
+        onClose={() => setApprovedPaymentId(null)}
+        onConfirm={async () => {
+          if (!approvedPaymentId) return;
+          setReviewingPaymentId(approvedPaymentId);
+          try {
+            const result = await reviewPayment(approvedPaymentId, true);
+            if (result.ok) {
+              setApprovedPaymentId(null);
+              toast.success("Transfer approved and access activated.");
+            } else toast.error(result.error);
+          } finally {
+            setReviewingPaymentId(null);
+          }
         }}
       />
     </div>
@@ -1893,6 +1934,67 @@ function Announcements({
   );
 }
 
+function ApprovePaymentDialog({
+  payment,
+  student,
+  course,
+  submitting,
+  onClose,
+  onConfirm,
+}: {
+  payment: Payment | null;
+  student: User | undefined;
+  course: Course | undefined;
+  submitting: boolean;
+  onClose: () => void;
+  onConfirm: () => Promise<void>;
+}) {
+  return (
+    <Dialog open={Boolean(payment)} onOpenChange={(open) => !open && !submitting && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-navy">Confirm this transfer?</DialogTitle>
+          <DialogDescription>
+            Approving is final and immediately grants the student access to the course.
+          </DialogDescription>
+        </DialogHeader>
+        {payment && (
+          <dl className="my-2 grid gap-3 rounded-xl border bg-muted/35 p-4 text-sm">
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted-foreground">Reference</dt>
+              <dd className="break-all text-right font-mono font-bold text-navy">
+                {payment.txnId}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted-foreground">Student</dt>
+              <dd className="text-right font-bold text-navy">{student?.name ?? "Unknown"}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted-foreground">Course</dt>
+              <dd className="text-right font-bold text-navy">{course?.title ?? "Unknown"}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted-foreground">Exact amount</dt>
+              <dd className="text-right text-lg font-extrabold text-navy">
+                {formatPrice(payment.amount)}
+              </dd>
+            </div>
+          </dl>
+        )}
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={onClose} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button type="button" onClick={() => void onConfirm()} disabled={submitting}>
+            <Check /> {submitting ? "Approving…" : "I verified it — approve"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function RejectPaymentDialog({
   paymentId,
   onClose,
@@ -1923,13 +2025,20 @@ function RejectPaymentDialog({
           <DialogHeader>
             <DialogTitle className="text-navy">Reject transfer request?</DialogTitle>
             <DialogDescription>
-              The student will not receive course access. You can include an explanation for the
-              audit record.
+              The student will not receive course access. Add a clear explanation so they know what
+              to correct.
             </DialogDescription>
           </DialogHeader>
           <div className="my-5 space-y-2">
-            <Label htmlFor="rejection-reason">Reason (optional)</Label>
-            <Textarea id="rejection-reason" name="reason" maxLength={500} rows={4} />
+            <Label htmlFor="rejection-reason">Reason</Label>
+            <Textarea
+              id="rejection-reason"
+              name="reason"
+              minLength={3}
+              maxLength={500}
+              rows={4}
+              required
+            />
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose} disabled={submitting}>

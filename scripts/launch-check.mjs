@@ -5,23 +5,27 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 async function readEnvironment() {
-  let source = "";
-  try {
-    source = await readFile(path.join(root, ".env.local"), "utf8");
-  } catch {
-    // Deployment environments can provide values without a local file.
-  }
-  const local = Object.fromEntries(
-    source
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter((line) => line && !line.startsWith("#") && line.includes("="))
-      .map((line) => {
-        const separator = line.indexOf("=");
-        return [line.slice(0, separator), line.slice(separator + 1).replace(/^['"]|['"]$/g, "")];
-      }),
-  );
-  return { ...local, ...process.env };
+  const read = async (filename) => {
+    try {
+      return await readFile(path.join(root, filename), "utf8");
+    } catch {
+      return "";
+    }
+  };
+  const parse = (source) =>
+    Object.fromEntries(
+      source
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line && !line.startsWith("#") && line.includes("="))
+        .map((line) => {
+          const separator = line.indexOf("=");
+          return [line.slice(0, separator), line.slice(separator + 1).replace(/^['"]|['"]$/g, "")];
+        }),
+    );
+  const defaults = parse(await read(".env"));
+  const local = parse(await read(".env.local"));
+  return { ...defaults, ...local, ...process.env };
 }
 
 const environment = await readEnvironment();
@@ -39,6 +43,7 @@ function requireValue(name, description) {
 const supabaseUrl = requireValue("VITE_SUPABASE_URL", "add the production Supabase project URL");
 requireValue("VITE_SUPABASE_PUBLISHABLE_KEY", "add the browser-safe Supabase publishable key");
 const siteUrl = requireValue("VITE_SITE_URL", "add the final HTTPS website origin");
+requireValue("VITE_INSTAPAY_ADDRESS", "add the real InstaPay number or payment address");
 requireValue("VITE_SUPPORT_EMAIL", "add a monitored support email address");
 requireValue("VITE_SUPPORT_PHONE", "add the real support phone number");
 
@@ -51,6 +56,8 @@ if (siteUrl && !/^https:\/\//i.test(siteUrl)) {
 
 const requiredFiles = [
   "supabase/migrations/202609240001_production_schema.sql",
+  "supabase/migrations/202610220001_instapay_review_hardening.sql",
+  "supabase/migrations/202610220002_open_test_enrollment.sql",
   "frontend/public/og.png",
   "frontend/public/denta-help-logo.png",
   "frontend/public/site.webmanifest",

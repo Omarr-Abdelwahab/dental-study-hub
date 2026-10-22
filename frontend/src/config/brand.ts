@@ -8,7 +8,7 @@ export const brand = {
   tagline: "Dental courses made clear for university students",
   supportEmail: import.meta.env["VITE_SUPPORT_EMAIL"] || "support@dentahelp.com",
   supportPhone: import.meta.env["VITE_SUPPORT_PHONE"] || "+20 100 000 0000",
-  instaPayAddress: import.meta.env["VITE_INSTAPAY_ADDRESS"] || "",
+  instaPayAddress: import.meta.env["VITE_INSTAPAY_ADDRESS"] || "+20 10 14842224",
   siteUrl: import.meta.env["VITE_SITE_URL"] || "",
   currency: "EGP",
   locale: "en-GB",

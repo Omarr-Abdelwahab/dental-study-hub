@@ -7,6 +7,44 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
+  vite: {
+    build: {
+      rolldownOptions: {
+        output: {
+          codeSplitting: {
+            groups: [
+              {
+                name: "supabase-vendor",
+                test: /node_modules[\\/]@supabase/,
+                priority: 30,
+              },
+              {
+                name: "router-vendor",
+                test: /node_modules[\\/]@tanstack/,
+                priority: 25,
+              },
+              {
+                name: "react-vendor",
+                test: /node_modules[\\/](?:react|react-dom)[\\/]/,
+                priority: 20,
+              },
+              {
+                name: "ui-vendor",
+                test: /node_modules[\\/](?:@radix-ui|lucide-react|sonner)[\\/]/,
+                priority: 15,
+              },
+              {
+                name: "vendor",
+                test: /node_modules/,
+                maxSize: 350 * 1024,
+                priority: 5,
+              },
+            ],
+          },
+        },
+      },
+    },
+  },
   // Lovable uses Cloudflare for its own previews. Pin only Vercel CI builds so
   // production emits Vercel's Build Output API layout without changing the
   // local/Lovable preview target.
