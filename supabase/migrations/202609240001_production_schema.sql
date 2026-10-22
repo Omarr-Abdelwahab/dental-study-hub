@@ -409,12 +409,16 @@ begin
   end if;
   if jsonb_typeof(p_answers) <> 'array' then raise exception 'Answers must be an array'; end if;
   if exists (
-    select 1 from public.quiz_attempts
-    where user_id = auth.uid() and lesson_id = p_lesson_id and taken_at > now() - interval '3 seconds'
+    select 1 from public.quiz_attempts qa
+    where qa.user_id = auth.uid()
+      and qa.lesson_id = p_lesson_id
+      and qa.taken_at > now() - interval '3 seconds'
   ) then raise exception 'Please wait before submitting the quiz again'; end if;
   if (
-    select count(*) from public.quiz_attempts
-    where user_id = auth.uid() and lesson_id = p_lesson_id and taken_at > now() - interval '1 hour'
+    select count(*) from public.quiz_attempts qa
+    where qa.user_id = auth.uid()
+      and qa.lesson_id = p_lesson_id
+      and qa.taken_at > now() - interval '1 hour'
   ) >= 10 then raise exception 'Quiz attempt limit reached. Please review the lesson and try again later'; end if;
 
   select l->'quiz' into v_quiz

@@ -115,6 +115,31 @@ try {
     /grant execute on function public\.submit_quiz_attempt/i,
     "students need permission to submit quizzes",
   );
+  assert.equal(
+    quizMigration.match(/qa\.taken_at\s*>/g)?.length,
+    2,
+    "quiz submission rate limits must qualify both taken_at references",
+  );
+  assert.doesNotMatch(
+    quizMigration,
+    /where\s+user_id\s*=.*\btaken_at\s*>/i,
+    "quiz submission must not use an ambiguous taken_at reference",
+  );
+
+  const quizTimestampHotfix = await readFile(
+    path.join(root, "supabase/migrations/202610220004_fix_quiz_taken_at_ambiguity.sql"),
+    "utf8",
+  );
+  assert.equal(
+    quizTimestampHotfix.match(/qa\.taken_at\s*>/g)?.length,
+    2,
+    "the existing-database hotfix must qualify both taken_at references",
+  );
+  assert.doesNotMatch(
+    quizTimestampHotfix,
+    /where\s+user_id\s*=.*\btaken_at\s*>/i,
+    "the existing-database hotfix must not reintroduce ambiguous SQL",
+  );
 
   const migration = await readFile(
     path.join(root, "supabase/migrations/202610220001_instapay_review_hardening.sql"),

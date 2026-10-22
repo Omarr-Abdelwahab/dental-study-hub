@@ -59,6 +59,7 @@ const requiredFiles = [
   "supabase/migrations/202610220001_instapay_review_hardening.sql",
   "supabase/migrations/202610220002_open_test_enrollment.sql",
   "supabase/migrations/202610220003_quiz_grading_feedback.sql",
+  "supabase/migrations/202610220004_fix_quiz_taken_at_ambiguity.sql",
   "frontend/public/og.png",
   "frontend/public/denta-help-logo.png",
   "frontend/public/site.webmanifest",
