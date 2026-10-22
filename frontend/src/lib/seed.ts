@@ -1,4 +1,5 @@
 import crownPrepImg from "@/assets/course-full-veneer-crown-prep.jpg";
+import { freeSnippets } from "@/content/free-snippets";
 import type { AppState, Course, Lesson, Section } from "./types";
 
 const ORAL_PATHOLOGY_PREVIEW_ID = "18LzMsmxRMLavUvezyMRfyJNRFPspmHFV";
@@ -26,66 +27,51 @@ function previewSection(id: string, lesson: Lesson): Section {
   return { id, title: "Course preview", lessons: [lesson] };
 }
 
-function slideCourse({
+function freeSnippetLessons(courseId: string): Lesson[] {
+  return freeSnippets
+    .filter((snippet) => snippet.courseId === courseId)
+    .map((snippet) => ({
+      id: `free-snippet-${snippet.id}`,
+      title: snippet.title,
+      description: snippet.description,
+      durationMin: 5,
+      youtubeId: snippet.driveFileId,
+      pdfUrl: null,
+      pdfName: null,
+      allowDownload: false,
+      isPreview: true,
+      published: true,
+      quiz: [],
+    }));
+}
+
+function slideLesson({
   id,
-  slug,
   title,
-  subject,
-  summary,
   description,
-  outcomes,
-  thumbnail,
   pdfUrl,
   pages,
+  durationMin,
 }: {
   id: string;
-  slug: string;
   title: string;
-  subject: string;
-  summary: string;
   description: string;
-  outcomes: string[];
-  thumbnail: string;
   pdfUrl: string;
   pages: number;
-}): Course {
+  durationMin?: number;
+}): Lesson {
   return {
     id,
-    slug,
     title,
-    subject,
-    level: "Clinical dental students",
-    summary,
     description,
-    outcomes,
-    price: 0,
-    thumbnail,
-    salesOpenAt: "2026-11-01T00:00:00.000Z",
-    salesCloseAt: "2027-06-15T23:59:59.000Z",
-    accessOpenAt: "2026-11-01T00:00:00.000Z",
-    accessCloseAt: "2027-06-30T23:59:59.000Z",
-    publishState: "published",
-    sections: [
-      {
-        id: `${id}-section`,
-        title,
-        lessons: [
-          {
-            id: `${id}-slides`,
-            title: `${title}: Clinical Slide Guide`,
-            description: `Work through the complete ${pages}-slide guide and use it as a structured practical-revision resource.`,
-            durationMin: Math.max(20, pages * 2),
-            youtubeId: "",
-            pdfUrl,
-            pdfName: `${title}.pdf`,
-            allowDownload: false,
-            isPreview: true,
-            published: true,
-            quiz: [],
-          },
-        ],
-      },
-    ],
+    durationMin: durationMin ?? Math.max(20, pages * 2),
+    youtubeId: "",
+    pdfUrl,
+    pdfName: `${title}.pdf`,
+    allowDownload: false,
+    isPreview: false,
+    published: true,
+    quiz: [],
   };
 }
 
@@ -228,19 +214,19 @@ const catalogCourses: Course[] = [
     ],
   },
   {
-    id: "course-full-veneer-crown-prep",
-    slug: "full-veneer-crown-preparation",
-    title: "Full Veneer Crown Preparation",
+    id: "course-fixed-prosthodontics",
+    slug: "fixed-prosthodontics",
+    title: "Fixed Prosthodontics",
     subject: "Fixed Prosthodontics",
     level: "Clinical dental students",
     summary:
-      "A focused visual guide to planning, performing, and evaluating a full veneer crown preparation.",
+      "Three focused crown-preparation guides organized into one practical fixed prosthodontics course.",
     description:
-      "A slide-based restorative dentistry course that organizes full veneer crown preparation into a clear clinical workflow. Review reduction, finish-line design, resistance and retention principles, and the checks used to assess a completed preparation.",
+      "Build a repeatable crown-preparation workflow across full veneer, veneered, and all-ceramic restorations. Each lesson combines a concise visual guide with practical reduction, margin, clearance, and evaluation checks.",
     outcomes: [
-      "Follow a structured full veneer crown-preparation sequence",
-      "Recognize reduction and finish-line requirements",
-      "Evaluate clearance, smoothness, retention, and resistance form",
+      "Sequence common crown preparations confidently",
+      "Relate reduction and finish-line design to restorative materials",
+      "Evaluate clearance, retention, resistance, and ceramic-supporting form",
     ],
     price: 0,
     thumbnail: crownPrepImg,
@@ -251,138 +237,116 @@ const catalogCourses: Course[] = [
     publishState: "published",
     sections: [
       {
-        id: "section-full-veneer-crown-prep",
-        title: "Full Veneer Crown Preparation",
+        id: "section-fixed-prosthodontics-free-snippets",
+        title: "Free Snippets",
+        lessons: freeSnippetLessons("course-fixed-prosthodontics"),
+      },
+      {
+        id: "section-fixed-prosthodontics-crown-preparation",
+        title: "Crown Preparation",
         lessons: [
-          {
-            id: "lesson-full-veneer-crown-prep-slides",
-            title: "Clinical Crown-Preparation Guide",
+          slideLesson({
+            id: "lesson-full-veneer-crown-prep",
+            title: "Full Veneer Crown Prep",
             description:
               "Work through the complete 31-slide visual guide, then use the preparation checks as a practical revision framework.",
-            durationMin: 35,
-            youtubeId: "",
             pdfUrl: "/slides/full-veneer-crown-prep.pdf",
-            pdfName: "Full Veneer Crown Preparation.pdf",
-            allowDownload: false,
-            isPreview: true,
-            published: true,
-            quiz: [],
-          },
+            pages: 31,
+            durationMin: 35,
+          }),
+          slideLesson({
+            id: "lesson-veneered-crown-prep",
+            title: "Veneered Crown Prep",
+            description:
+              "Build a repeatable veneered-crown preparation workflow from depth orientation through axial reduction, finish-line refinement, and final quality checks.",
+            pdfUrl: "/slides/veneered-crown-preparation.pdf",
+            pages: 24,
+          }),
+          slideLesson({
+            id: "lesson-all-ceramic-crown-prep",
+            title: "All Ceramic Crown Prep",
+            description:
+              "Review material-aware reduction, rounded internal form, margin design, clearance, and the preparation features that support ceramic strength.",
+            pdfUrl: "/slides/all-ceramic-crowns.pdf",
+            pages: 19,
+          }),
         ],
       },
     ],
   },
-  slideCourse({
-    id: "course-veneered-crown-prep",
-    slug: "veneered-crown-preparation",
-    title: "Veneered Crown Preparation",
-    subject: "Fixed Prosthodontics",
-    summary:
-      "A visual clinical guide to preparing teeth for veneered crowns with controlled reduction and finish-line design.",
-    description:
-      "Build a repeatable veneered-crown preparation workflow, from initial planning and depth orientation through axial reduction, finish-line refinement, and final quality checks.",
-    outcomes: [
-      "Sequence a veneered-crown preparation logically",
-      "Relate reduction requirements to restorative materials",
-      "Evaluate finish lines, clearance, and preparation form",
-    ],
-    thumbnail: "/snippets/molar-pre-reduction.jpg",
-    pdfUrl: "/slides/veneered-crown-preparation.pdf",
-    pages: 24,
-  }),
-  slideCourse({
-    id: "course-all-ceramic-crowns",
-    slug: "all-ceramic-crown-preparation",
-    title: "All-Ceramic Crown Preparation",
-    subject: "Fixed Prosthodontics",
-    summary:
-      "Preparation principles for predictable all-ceramic crowns, presented as a concise visual clinical workflow.",
-    description:
-      "Review the preparation features that support an all-ceramic restoration, including material-aware reduction, rounded internal form, margin design, clearance, and final assessment.",
-    outcomes: [
-      "Plan reduction for an all-ceramic restoration",
-      "Select and refine an appropriate margin design",
-      "Recognize preparation features that support ceramic strength",
-    ],
-    thumbnail: "/snippets/full-ceramic.jpg",
-    pdfUrl: "/slides/all-ceramic-crowns.pdf",
-    pages: 19,
-  }),
-  slideCourse({
-    id: "course-class-iv-cavity-restoration",
-    slug: "class-iv-cavity-preparation-restoration",
-    title: "Class IV Cavity Preparation and Restoration",
+  {
+    id: "course-operative",
+    slug: "operative",
+    title: "Operative",
     subject: "Operative Dentistry",
+    level: "Clinical dental students",
     summary:
-      "A step-by-step guide to Class IV cavity preparation, restorative planning, and anterior form recovery.",
+      "Four practical guides covering posterior, anterior, and cervical cavity preparation and restoration.",
     description:
-      "Follow a structured approach to Class IV cases, covering assessment, cavity design, restorative sequencing, contour, finishing, and the checks used to evaluate the final result.",
+      "Study the main operative cavity classes in a single structured course. Move from Class I and II preparation and restoration through Class III, IV, and V workflows with consistent clinical evaluation checks.",
     outcomes: [
-      "Plan a conservative Class IV cavity preparation",
-      "Sequence the restorative procedure clearly",
-      "Evaluate anterior contour, finish, and functional form",
+      "Differentiate the preparation goals of Classes I through V",
+      "Sequence posterior and anterior restorative procedures",
+      "Evaluate cavity form, contacts, contour, finish, and function",
     ],
+    price: 0,
     thumbnail: "/snippets/class-one-cavity.jpg",
-    pdfUrl: "/slides/class-iv-cavity-restoration.pdf",
-    pages: 21,
-  }),
-  slideCourse({
-    id: "course-class-i-ii-restorations",
-    slug: "class-i-ii-restorations",
-    title: "Class I and II Restorations",
-    subject: "Operative Dentistry",
-    summary:
-      "A practical visual guide to restoring posterior Class I and II cavities with controlled anatomy and contacts.",
-    description:
-      "Organize the restorative phase for Class I and II cases, from preparation review and isolation through material placement, proximal form, occlusal anatomy, finishing, and evaluation.",
-    outcomes: [
-      "Sequence Class I and II restorative procedures",
-      "Re-establish proximal contact and occlusal anatomy",
-      "Apply finishing and evaluation checks systematically",
+    salesOpenAt: "2026-11-01T00:00:00.000Z",
+    salesCloseAt: "2027-06-15T23:59:59.000Z",
+    accessOpenAt: "2026-11-01T00:00:00.000Z",
+    accessCloseAt: "2027-06-30T23:59:59.000Z",
+    publishState: "published",
+    sections: [
+      {
+        id: "section-operative-free-snippets",
+        title: "Free Snippets",
+        lessons: freeSnippetLessons("course-operative"),
+      },
+      {
+        id: "section-operative-cavity-workflows",
+        title: "Cavity Preparation and Restoration",
+        lessons: [
+          slideLesson({
+            id: "lesson-class-i-ii-cavities",
+            title: "Class I and II Cavities",
+            description:
+              "Review posterior cavity classification, outline form, caries access, resistance and retention concepts, proximal-box design, and final preparation checks.",
+            pdfUrl: "/slides/class-i-ii-cavities.pdf",
+            pages: 19,
+          }),
+          slideLesson({
+            id: "lesson-class-i-ii-restoration",
+            title: "Class I and II Restoration",
+            description:
+              "Organize the restorative phase from preparation review and isolation through material placement, proximal form, occlusal anatomy, finishing, and evaluation.",
+            pdfUrl: "/slides/class-i-ii-restorations.pdf",
+            pages: 21,
+          }),
+          slideLesson({
+            id: "lesson-class-iii-v",
+            title: "Class III and V",
+            description:
+              "Study conservative anterior and cervical access, outline, margin, and tissue-conscious preparation principles for Class III and V lesions.",
+            pdfUrl: "/slides/class-iii-v-cavities.pdf",
+            pages: 25,
+          }),
+          slideLesson({
+            id: "lesson-class-iv",
+            title: "Class IV",
+            description:
+              "Follow Class IV assessment, cavity design, restorative sequencing, contour, finishing, and final evaluation in a clear clinical workflow.",
+            pdfUrl: "/slides/class-iv-cavity-restoration.pdf",
+            pages: 21,
+          }),
+        ],
+      },
     ],
-    thumbnail: "/snippets/class-one-cavity.jpg",
-    pdfUrl: "/slides/class-i-ii-restorations.pdf",
-    pages: 21,
-  }),
-  slideCourse({
-    id: "course-class-i-ii-cavities",
-    slug: "class-i-ii-cavity-preparation",
-    title: "Class I and II Cavity Preparation",
-    subject: "Operative Dentistry",
-    summary:
-      "Core principles and practical steps for conservative Class I and II cavity preparation.",
-    description:
-      "Review posterior cavity classification, outline form, caries access, resistance and retention concepts, proximal-box design, and the final checks for a clean preparation.",
-    outcomes: [
-      "Differentiate Class I and Class II cavity designs",
-      "Apply conservative preparation principles",
-      "Assess outline, depth, walls, and proximal clearance",
-    ],
-    thumbnail: "/snippets/class-one-cavity.jpg",
-    pdfUrl: "/slides/class-i-ii-cavities.pdf",
-    pages: 19,
-  }),
-  slideCourse({
-    id: "course-class-iii-v-cavities",
-    slug: "class-iii-v-cavity-preparation",
-    title: "Class III and V Cavity Preparation",
-    subject: "Operative Dentistry",
-    summary:
-      "A visual guide to conservative anterior and cervical cavity preparations for Class III and V lesions.",
-    description:
-      "Study access, outline, margin, and tissue-conscious preparation principles for Class III and V cavities, with a practical framework for final preparation evaluation.",
-    outcomes: [
-      "Differentiate Class III and Class V preparation goals",
-      "Plan conservative access and margin placement",
-      "Evaluate preparation form while preserving tooth structure",
-    ],
-    thumbnail: "/snippets/premolar-index.jpg",
-    pdfUrl: "/slides/class-iii-v-cavities.pdf",
-    pages: 25,
-  }),
+  },
 ];
 
-const implementedCourseIds = new Set([
+const implementedCourseIds = new Set(["course-fixed-prosthodontics", "course-operative"]);
+
+export const retiredCourseIds = new Set([
   "course-full-veneer-crown-prep",
   "course-veneered-crown-prep",
   "course-all-ceramic-crowns",

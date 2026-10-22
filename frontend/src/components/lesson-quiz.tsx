@@ -143,7 +143,7 @@ export function LessonQuiz({
           return (
             <fieldset key={question.id} className="rounded-2xl border bg-card p-5">
               <legend className="sr-only">Question {questionIndex + 1}</legend>
-              <p className="text-xs font-extrabold uppercase tracking-wide text-primary">
+              <p className="text-xs font-extrabold uppercase tracking-wide text-brand-foreground">
                 Question {questionIndex + 1} of {lesson.quiz.length}
               </p>
               <h3 className="mt-2 font-extrabold leading-6 text-navy">{question.text}</h3>

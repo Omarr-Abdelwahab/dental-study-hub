@@ -38,7 +38,7 @@ function ResetPasswordPage() {
     <PublicPage>
       <section className="container-page grid min-h-[65vh] place-items-center py-16">
         <div className="w-full max-w-md rounded-3xl border bg-card p-7 shadow-lift sm:p-9">
-          <span className="grid size-12 place-items-center rounded-xl bg-accent text-primary">
+          <span className="grid size-12 place-items-center rounded-xl bg-accent text-brand-foreground">
             <KeyRound />
           </span>
           <h1 className="mt-5 text-3xl font-extrabold text-navy">Choose a new password</h1>

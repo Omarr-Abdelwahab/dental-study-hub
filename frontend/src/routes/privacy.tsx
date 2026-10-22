@@ -7,7 +7,9 @@ function PrivacyPage() {
   return (
     <PublicPage>
       <article className="container-page max-w-3xl py-16">
-        <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-primary">Legal</p>
+        <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-brand-foreground">
+          Legal
+        </p>
         <h1 className="mt-2 text-4xl font-extrabold text-navy">Privacy Policy</h1>
         <p className="mt-3 text-sm text-muted-foreground">Last updated 24 September 2026</p>
         <div className="mt-9 space-y-7 text-sm leading-7 text-muted-foreground">
@@ -47,7 +49,7 @@ function PrivacyPage() {
             <p className="mt-2">
               For privacy requests, email{" "}
               <a
-                className="font-bold text-primary hover:underline"
+                className="font-bold text-brand-foreground hover:underline"
                 href={`mailto:${brand.supportEmail}`}
               >
                 {brand.supportEmail}

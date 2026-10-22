@@ -36,13 +36,31 @@ export function CompactHomePage() {
       <section className="relative overflow-hidden bg-navy text-white">
         <div className="pointer-events-none absolute -left-24 top-12 size-72 rounded-full bg-primary/14 blur-3xl" />
         <div className="pointer-events-none absolute -right-20 bottom-0 size-80 rounded-full bg-primary/16 blur-3xl" />
-        <div className="container-page relative flex min-h-[500px] items-center justify-center py-14 sm:py-16">
+        <div className="container-page relative grid min-h-[500px] items-center gap-10 py-14 sm:py-16 lg:grid-cols-[minmax(190px,0.45fr)_minmax(0,1.55fr)] lg:gap-14">
+          <div className="mx-auto w-full max-w-48 sm:max-w-56 lg:justify-self-start">
+            <div className="relative aspect-square">
+              <div className="absolute -inset-8 rounded-full bg-primary/18 blur-3xl" />
+              <div className="absolute inset-3 rounded-full border border-white/10" />
+              <div className="relative size-full overflow-hidden rounded-full border-[6px] border-white/12 shadow-2xl shadow-black/20 ring-1 ring-white/18">
+                <img
+                  src="/denta-help-logo.png"
+                  alt="Denta Help logo"
+                  width={224}
+                  height={224}
+                  className="size-full scale-[1.18] object-cover"
+                />
+              </div>
+              <span className="absolute right-1 top-5 size-3 rounded-full bg-brand-foreground shadow-[0_0_20px_oklch(0.84_0.085_196/0.8)]" />
+              <span className="absolute bottom-8 left-0 size-2 rounded-full bg-white/70" />
+            </div>
+          </div>
           <div className="mx-auto max-w-3xl text-center">
             <Badge className="border border-white/12 bg-white/8 px-3 py-1.5 text-white shadow-none">
               Dental courses built around your syllabus
             </Badge>
             <h1 className="mt-5 text-4xl font-extrabold leading-[1.06] tracking-[-0.05em] sm:text-5xl lg:text-[3.55rem]">
-              Study less randomly. <span className="text-primary">Walk into the exam ready.</span>
+              Study less randomly.{" "}
+              <span className="text-brand-foreground">Walk into the exam ready.</span>
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-white/72 sm:text-lg">
               Focused clinical slide guides organized around the topics you study at university.
@@ -70,13 +88,13 @@ export function CompactHomePage() {
               aria-label="Course benefits"
             >
               <li className="flex items-center gap-2">
-                <Check className="size-4 text-primary" /> Free slide previews
+                <Check className="size-4 text-brand-foreground" /> Free slide previews
               </li>
               <li className="flex items-center gap-2">
-                <Check className="size-4 text-primary" /> Clear access dates
+                <Check className="size-4 text-brand-foreground" /> Clear access dates
               </li>
               <li className="flex items-center gap-2">
-                <Check className="size-4 text-primary" /> Progress saved
+                <Check className="size-4 text-brand-foreground" /> Progress saved
               </li>
             </ul>
           </div>
@@ -124,13 +142,13 @@ export function CompactHomePage() {
             />
             <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
               <span className="inline-flex items-center gap-2">
-                <Clock3 className="size-4 text-primary" /> Resume anytime
+                <Clock3 className="size-4 text-brand-foreground" /> Resume anytime
               </span>
               <span className="inline-flex items-center gap-2">
-                <FileText className="size-4 text-primary" /> Slides included
+                <FileText className="size-4 text-brand-foreground" /> Slides included
               </span>
               <span className="inline-flex items-center gap-2">
-                <ShieldCheck className="size-4 text-primary" /> No subscription
+                <ShieldCheck className="size-4 text-brand-foreground" /> No subscription
               </span>
             </div>
           </div>
@@ -155,7 +173,7 @@ export function CompactHomePage() {
         <div className="container-page">
           <div className="flex flex-col items-start justify-between gap-6 rounded-3xl bg-navy px-6 py-8 text-white shadow-lift sm:flex-row sm:items-center sm:px-9">
             <div>
-              <p className="text-xs font-extrabold uppercase tracking-[0.17em] text-primary">
+              <p className="text-xs font-extrabold uppercase tracking-[0.17em] text-brand-foreground">
                 Not ready to choose?
               </p>
               <h2 className="mt-2 text-2xl font-extrabold sm:text-3xl">

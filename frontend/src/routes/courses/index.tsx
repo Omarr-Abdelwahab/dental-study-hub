@@ -94,7 +94,7 @@ function CoursesPage() {
                   setQuery("");
                   setFilter("all");
                 }}
-                className="mt-4 text-sm font-bold text-primary hover:underline"
+                className="mt-4 text-sm font-bold text-brand-foreground hover:underline"
               >
                 Clear filters
               </button>

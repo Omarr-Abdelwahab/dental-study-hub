@@ -5,6 +5,7 @@ import {
   buildCatalogState,
   bundledCatalogCourses,
   placeholderCourseIds,
+  retiredCourseIds,
   starterCourses,
 } from "./seed";
 import {
@@ -175,7 +176,7 @@ export class SupabaseAppRepository implements AppRepository {
     fail(catalog.error);
     const publicCourses = (catalog.data ?? [])
       .map((row) => parseCourse(row.payload))
-      .filter((course) => !placeholderCourseIds.has(course.id));
+      .filter((course) => !placeholderCourseIds.has(course.id) && !retiredCourseIds.has(course.id));
     // Once a backend is configured, its catalog is authoritative. Falling back per course would
     // accidentally make an unpublished starter course public again.
     const catalogCourses = [...publicCourses];
@@ -233,16 +234,16 @@ export class SupabaseAppRepository implements AppRepository {
       currentProfile?.role === "admin" ? (courses.data ?? []) : (studentCourses.data ?? [])
     )
       .map((row) => parseCourse(row.payload))
-      .filter((course) => !placeholderCourseIds.has(course.id));
-    if (
-      currentProfile?.role === "admin" &&
-      starterCourses.length > 0 &&
-      catalog.data?.length === 0 &&
-      courses.data?.length === 0
-    ) {
-      const initialCourses = structuredClone(starterCourses);
-      await Promise.all(initialCourses.map((course) => this.saveCourse(course)));
-      remoteCourses = initialCourses;
+      .filter((course) => !placeholderCourseIds.has(course.id) && !retiredCourseIds.has(course.id));
+    if (currentProfile?.role === "admin" && starterCourses.length > 0) {
+      const missingCourses = starterCourses.filter(
+        (starterCourse) => !remoteCourses.some((course) => course.id === starterCourse.id),
+      );
+      if (missingCourses.length > 0) {
+        const initialCourses = structuredClone(missingCourses);
+        await Promise.all(initialCourses.map((course) => this.saveCourse(course)));
+        remoteCourses = [...remoteCourses, ...initialCourses];
+      }
     }
     const mergedCourses = catalogCourses.map(
       (course) => remoteCourses.find((item) => item.id === course.id) ?? course,

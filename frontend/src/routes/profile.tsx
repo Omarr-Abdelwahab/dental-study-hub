@@ -56,7 +56,9 @@ function ProfilePage() {
     <PublicPage>
       <section className="border-b bg-secondary/45 py-12">
         <div className="container-page">
-          <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-primary">Account</p>
+          <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-brand-foreground">
+            Account
+          </p>
           <h1 className="mt-2 text-3xl font-extrabold text-navy sm:text-4xl">Profile settings</h1>
         </div>
       </section>
@@ -70,16 +72,17 @@ function ProfilePage() {
             <Badge className="mt-2 capitalize">{user.role}</Badge>
             <div className="mt-6 grid gap-3 border-t pt-5 text-sm text-muted-foreground">
               <span className="flex items-center gap-2">
-                <Mail className="size-4 text-primary" /> {user.email}
+                <Mail className="size-4 text-brand-foreground" /> {user.email}
               </span>
               <span className="flex items-center gap-2">
-                <Phone className="size-4 text-primary" /> {user.phone}
+                <Phone className="size-4 text-brand-foreground" /> {user.phone}
               </span>
               <span className="flex items-center gap-2">
-                <School className="size-4 text-primary" /> {user.university}
+                <School className="size-4 text-brand-foreground" /> {user.university}
               </span>
               <span className="flex items-center gap-2">
-                <CalendarDays className="size-4 text-primary" /> Joined {formatDate(user.createdAt)}
+                <CalendarDays className="size-4 text-brand-foreground" /> Joined{" "}
+                {formatDate(user.createdAt)}
               </span>
             </div>
           </aside>
@@ -139,7 +142,7 @@ function ProfilePage() {
               </div>
             </form>
             <div className="mt-8 flex gap-3 rounded-xl border border-primary/20 bg-accent/60 p-4">
-              <ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" />
+              <ShieldCheck className="mt-0.5 size-5 shrink-0 text-brand-foreground" />
               <p className="text-sm leading-6 text-accent-foreground">
                 Your account uses secure authentication. Password recovery is handled through a
                 verified email link, and passwords are never stored in the browser.

@@ -94,7 +94,7 @@ function AuthPage() {
         <div className="absolute -left-32 bottom-10 size-96 rounded-full bg-primary/14 blur-3xl" />
         <BrandMark light />
         <div className="relative my-auto max-w-xl">
-          <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-primary">
+          <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-brand-foreground">
             Your learning stays organized
           </p>
           <h1 className="mt-4 text-5xl font-extrabold leading-[1.08] tracking-[-0.045em]">
@@ -116,7 +116,7 @@ function AuthPage() {
                   key={String(text)}
                   className="flex items-center gap-3 text-sm font-semibold text-white/82"
                 >
-                  <span className="grid size-9 place-items-center rounded-lg bg-white/8 text-primary">
+                  <span className="grid size-9 place-items-center rounded-lg bg-white/8 text-brand-foreground">
                     <FeatureIcon className="size-4" />
                   </span>
                   {String(text)}
@@ -219,7 +219,7 @@ function AuthPage() {
                           setForgot(true);
                           setError("");
                         }}
-                        className="text-xs font-bold text-primary hover:underline"
+                        className="text-xs font-bold text-brand-foreground hover:underline"
                       >
                         Forgot password?
                       </button>

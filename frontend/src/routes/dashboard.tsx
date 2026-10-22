@@ -144,7 +144,7 @@ function StudentDashboardContent({ user }: { user: User }) {
       <main className="container-page py-8 sm:py-10">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-primary">
+            <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-brand-foreground">
               My learning
             </p>
             <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.04em] text-navy sm:text-4xl">
@@ -185,7 +185,9 @@ function StudentDashboardContent({ user }: { user: User }) {
               <div className="relative grid items-center gap-7 md:grid-cols-[1fr_250px]">
                 <div>
                   <Badge className="border-white/10 bg-white/8 text-white">Continue learning</Badge>
-                  <p className="mt-5 text-sm font-bold text-primary">{continueCourse.subject}</p>
+                  <p className="mt-5 text-sm font-bold text-brand-foreground">
+                    {continueCourse.subject}
+                  </p>
                   <h2 className="mt-1 text-2xl font-extrabold sm:text-3xl">
                     {continueLesson.title}
                   </h2>
@@ -194,11 +196,11 @@ function StudentDashboardContent({ user }: { user: User }) {
                   </p>
                   <div className="mt-5 flex flex-wrap gap-4 text-xs font-semibold text-white/65">
                     <span className="inline-flex items-center gap-1.5">
-                      <History className="size-3.5 text-primary" />
+                      <History className="size-3.5 text-brand-foreground" />
                       Resume at {formatClock(recentActive?.lastPositionSec ?? 0)}
                     </span>
                     <span className="inline-flex items-center gap-1.5">
-                      <CalendarClock className="size-3.5 text-primary" />
+                      <CalendarClock className="size-3.5 text-brand-foreground" />
                       {Math.max(0, daysRemaining(continueCourse.accessCloseAt))} days left
                     </span>
                   </div>
@@ -236,7 +238,7 @@ function StudentDashboardContent({ user }: { user: User }) {
             </section>
           ) : (
             <section className="rounded-3xl border bg-card p-8 shadow-card">
-              <BookOpen className="size-9 text-primary" />
+              <BookOpen className="size-9 text-brand-foreground" />
               <h2 className="mt-4 text-2xl font-extrabold text-navy">Choose your first course</h2>
               <p className="mt-2 text-muted-foreground">Your active learning will appear here.</p>
               <Button asChild className="mt-6">
@@ -291,7 +293,7 @@ function StudentDashboardContent({ user }: { user: User }) {
         <section className="mt-9">
           <div className="flex items-end justify-between">
             <div>
-              <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-primary">
+              <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-brand-foreground">
                 Active courses
               </p>
               <h2 className="mt-1 text-2xl font-extrabold text-navy">Keep learning</h2>
@@ -321,7 +323,7 @@ function StudentDashboardContent({ user }: { user: User }) {
                     <div className="p-5">
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <p className="text-xs font-bold uppercase tracking-wide text-primary">
+                          <p className="text-xs font-bold uppercase tracking-wide text-brand-foreground">
                             {course.subject}
                           </p>
                           <h3 className="mt-1 font-extrabold text-navy">{course.title}</h3>
@@ -359,12 +361,12 @@ function StudentDashboardContent({ user }: { user: User }) {
           <section className="rounded-2xl border bg-card p-6 shadow-card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-primary">
+                <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-brand-foreground">
                   Saved for revision
                 </p>
                 <h2 className="mt-1 text-xl font-extrabold text-navy">Bookmarks</h2>
               </div>
-              <Bookmark className="size-5 text-primary" />
+              <Bookmark className="size-5 text-brand-foreground" />
             </div>
             <div className="mt-4 divide-y">
               {bookmarks.length ? (
@@ -376,14 +378,14 @@ function StudentDashboardContent({ user }: { user: User }) {
                     className="flex items-center justify-between gap-4 py-4 group"
                   >
                     <div className="min-w-0">
-                      <p className="truncate font-bold text-navy group-hover:text-primary">
+                      <p className="truncate font-bold text-navy group-hover:text-brand-foreground">
                         {lesson.title}
                       </p>
                       <p className="mt-1 text-xs text-muted-foreground">
                         {course.title} · {lesson.durationMin} min
                       </p>
                     </div>
-                    <ArrowRight className="size-4 shrink-0 text-muted-foreground group-hover:text-primary" />
+                    <ArrowRight className="size-4 shrink-0 text-muted-foreground group-hover:text-brand-foreground" />
                   </Link>
                 ))
               ) : (
@@ -397,12 +399,12 @@ function StudentDashboardContent({ user }: { user: User }) {
           <section className="rounded-2xl border bg-card p-6 shadow-card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-primary">
+                <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-brand-foreground">
                   Recent results
                 </p>
                 <h2 className="mt-1 text-xl font-extrabold text-navy">Quiz attempts</h2>
               </div>
-              <CheckCircle2 className="size-5 text-primary" />
+              <CheckCircle2 className="size-5 text-brand-foreground" />
             </div>
             <div className="mt-4 divide-y">
               {recentAttempts.map((attempt) => {
@@ -438,12 +440,12 @@ function StudentDashboardContent({ user }: { user: User }) {
           <section className="rounded-2xl border bg-card p-6 shadow-card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-primary">
+                <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-brand-foreground">
                   Updates
                 </p>
                 <h2 className="mt-1 text-xl font-extrabold text-navy">Announcements</h2>
               </div>
-              <Bell className="size-5 text-primary" />
+              <Bell className="size-5 text-brand-foreground" />
             </div>
             <div className="mt-4 divide-y">
               {announcements.slice(0, 3).map((announcement) => (

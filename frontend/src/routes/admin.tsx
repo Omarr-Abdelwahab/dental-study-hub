@@ -139,6 +139,10 @@ function AdminWorkspace({ user }: { user: User }) {
   const [rejectedPaymentId, setRejectedPaymentId] = useState<string | null>(null);
   const [courseQuery, setCourseQuery] = useState("");
   const [studentQuery, setStudentQuery] = useState("");
+  const pendingPaymentCount = state.payments.filter(
+    (payment) => payment.status === "pending",
+  ).length;
+  const activeTabLabel = navigation.find((item) => item.id === tab)?.label ?? "Overview";
 
   const { students, totalRevenue, activeEnrollmentCount, avgProgress, avgQuiz } = useMemo(() => {
     const studentUsers = state.users.filter((item) => item.role === "student");
@@ -220,7 +224,19 @@ function AdminWorkspace({ user }: { user: User }) {
                   : "text-white/65 hover:bg-white/7 hover:text-white",
               )}
             >
-              <Icon className="size-4" /> {label}
+              <Icon className="size-4" />
+              <span className="flex-1">{label}</span>
+              {id === "payments" && pendingPaymentCount > 0 && (
+                <span
+                  className={cn(
+                    "grid min-w-5 place-items-center rounded-full px-1.5 py-0.5 text-[10px] font-extrabold",
+                    tab === id ? "bg-white/20 text-white" : "bg-primary text-primary-foreground",
+                  )}
+                  aria-label={`${pendingPaymentCount} pending payments`}
+                >
+                  {pendingPaymentCount}
+                </span>
+              )}
             </button>
           ))}
         </nav>
@@ -274,7 +290,7 @@ function AdminWorkspace({ user }: { user: User }) {
                 <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
                   Admin workspace
                 </p>
-                <h1 className="font-extrabold capitalize text-navy">{tab}</h1>
+                <h1 className="font-extrabold text-navy">{activeTabLabel}</h1>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -337,6 +353,15 @@ function AdminWorkspace({ user }: { user: User }) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
+                    {filteredCourses.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
+                          {courseQuery.trim()
+                            ? "No courses match your search."
+                            : "No courses yet. Create the first course to get started."}
+                        </TableCell>
+                      </TableRow>
+                    )}
                     {filteredCourses.map((course) => (
                       <TableRow key={course.id}>
                         <TableCell>
@@ -433,6 +458,15 @@ function AdminWorkspace({ user }: { user: User }) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
+                    {filteredStudents.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                          {studentQuery.trim()
+                            ? "No students match your search."
+                            : "Student accounts will appear here after signup."}
+                        </TableCell>
+                      </TableRow>
+                    )}
                     {filteredStudents.map((student) => {
                       const enrollments = state.enrollments.filter(
                         (item) => item.userId === student.id && !item.revoked,
@@ -516,6 +550,13 @@ function AdminWorkspace({ user }: { user: User }) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
+                    {state.payments.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={8} className="h-32 text-center text-muted-foreground">
+                          Payment requests will appear here when students submit transfers.
+                        </TableCell>
+                      </TableRow>
+                    )}
                     {state.payments.map((payment) => {
                       const student = state.users.find((item) => item.id === payment.userId);
                       const course = state.courses.find((item) => item.id === payment.courseId);
@@ -706,7 +747,9 @@ function Overview({
         <div className="rounded-2xl border bg-card shadow-card">
           <div className="flex items-center justify-between border-b p-5">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wide text-primary">Performance</p>
+              <p className="text-xs font-bold uppercase tracking-wide text-brand-foreground">
+                Performance
+              </p>
               <h2 className="mt-1 text-xl font-extrabold text-navy">Course overview</h2>
             </div>
             <Button variant="ghost" size="sm" onClick={() => onNavigate("courses")}>
@@ -714,6 +757,11 @@ function Overview({
             </Button>
           </div>
           <div className="divide-y">
+            {state.courses.length === 0 && (
+              <p className="p-8 text-center text-sm text-muted-foreground">
+                Course performance will appear after you create a course.
+              </p>
+            )}
             {state.courses.map((course) => (
               <div
                 key={course.id}
@@ -743,12 +791,19 @@ function Overview({
         <div className="rounded-2xl border bg-card p-5 shadow-card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wide text-primary">Recent</p>
+              <p className="text-xs font-bold uppercase tracking-wide text-brand-foreground">
+                Recent
+              </p>
               <h2 className="mt-1 text-xl font-extrabold text-navy">Payments</h2>
             </div>
-            <CreditCard className="size-5 text-primary" />
+            <CreditCard className="size-5 text-brand-foreground" />
           </div>
           <div className="mt-4 divide-y">
+            {state.payments.length === 0 && (
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                No payment requests yet.
+              </p>
+            )}
             {state.payments.slice(0, 5).map((payment) => {
               const student = state.users.find((item) => item.id === payment.userId);
               return (
@@ -792,7 +847,9 @@ function PageHeading({
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-primary">{eyebrow}</p>
+        <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-brand-foreground">
+          {eyebrow}
+        </p>
         <h2 className="mt-1 text-3xl font-extrabold tracking-[-0.035em] text-navy">{title}</h2>
         <p className="mt-2 text-sm text-muted-foreground">{description}</p>
       </div>
@@ -910,7 +967,7 @@ function CurriculumEditor({
                     }
                   />
                   <LabeledInput
-                    label="YouTube video ID"
+                    label="Video source (YouTube or Google Drive ID/URL)"
                     value={lesson.youtubeId}
                     onChange={(value) => updateLesson(section.id, lesson.id, { youtubeId: value })}
                   />
@@ -987,7 +1044,7 @@ function CurriculumEditor({
                     {lesson.quiz.map((question, questionIndex) => (
                       <div key={question.id} className="rounded-lg border bg-card p-3">
                         <div className="flex items-center justify-between">
-                          <p className="text-xs font-bold text-primary">
+                          <p className="text-xs font-bold text-brand-foreground">
                             Question {questionIndex + 1}
                           </p>
                           <Button
@@ -1141,7 +1198,7 @@ function CourseEditor({
   const patch = (values: Partial<Course>) =>
     setDraft((current) => (current ? { ...current, ...values } : current));
   const dateValue = (iso: string) => iso.slice(0, 16);
-  const isoValue = (value: string) => new Date(value).toISOString();
+  const isoValue = (value: string) => (value ? new Date(value).toISOString() : null);
 
   return (
     <Dialog
@@ -1179,7 +1236,15 @@ function CourseEditor({
                   <Input
                     id="course-slug"
                     value={draft.slug}
-                    onChange={(event) => patch({ slug: event.target.value.toLowerCase() })}
+                    onChange={(event) =>
+                      patch({
+                        slug: event.target.value
+                          .toLowerCase()
+                          .replace(/[^a-z0-9-]+/g, "-")
+                          .replace(/-{2,}/g, "-"),
+                      })
+                    }
+                    onBlur={() => patch({ slug: draft.slug.replace(/^-+|-+$/g, "") })}
                   />
                 </div>
                 <div className="space-y-2">
@@ -1273,7 +1338,10 @@ function CourseEditor({
                     id="sales-open"
                     type="datetime-local"
                     value={dateValue(draft.salesOpenAt)}
-                    onChange={(event) => patch({ salesOpenAt: isoValue(event.target.value) })}
+                    onChange={(event) => {
+                      const value = isoValue(event.target.value);
+                      if (value) patch({ salesOpenAt: value });
+                    }}
                   />
                 </div>
                 <div className="space-y-2">
@@ -1282,7 +1350,10 @@ function CourseEditor({
                     id="sales-close"
                     type="datetime-local"
                     value={dateValue(draft.salesCloseAt)}
-                    onChange={(event) => patch({ salesCloseAt: isoValue(event.target.value) })}
+                    onChange={(event) => {
+                      const value = isoValue(event.target.value);
+                      if (value) patch({ salesCloseAt: value });
+                    }}
                   />
                 </div>
                 <div className="space-y-2">
@@ -1291,7 +1362,10 @@ function CourseEditor({
                     id="access-open"
                     type="datetime-local"
                     value={dateValue(draft.accessOpenAt)}
-                    onChange={(event) => patch({ accessOpenAt: isoValue(event.target.value) })}
+                    onChange={(event) => {
+                      const value = isoValue(event.target.value);
+                      if (value) patch({ accessOpenAt: value });
+                    }}
                   />
                 </div>
                 <div className="space-y-2">
@@ -1300,7 +1374,10 @@ function CourseEditor({
                     id="access-close"
                     type="datetime-local"
                     value={dateValue(draft.accessCloseAt)}
-                    onChange={(event) => patch({ accessCloseAt: isoValue(event.target.value) })}
+                    onChange={(event) => {
+                      const value = isoValue(event.target.value);
+                      if (value) patch({ accessCloseAt: value });
+                    }}
                   />
                 </div>
               </div>
@@ -1494,6 +1571,11 @@ function Announcements({
             <h2 className="text-xl font-extrabold text-navy">Published announcements</h2>
           </div>
           <div className="divide-y">
+            {announcements.length === 0 && (
+              <p className="p-8 text-center text-sm text-muted-foreground">
+                Published announcements will appear here.
+              </p>
+            )}
             {announcements.map((announcement) => {
               const course = courses.find((item) => item.id === announcement.courseId);
               return (

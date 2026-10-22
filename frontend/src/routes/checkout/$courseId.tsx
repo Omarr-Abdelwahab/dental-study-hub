@@ -182,7 +182,7 @@ function CheckoutPage() {
         </Button>
         <div className="mt-5 grid gap-7 lg:grid-cols-[1fr_390px]">
           <section className="rounded-2xl border bg-card p-6 shadow-card sm:p-8">
-            <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-primary">
+            <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-brand-foreground">
               InstaPay transfer
             </p>
             <h1 className="mt-2 text-3xl font-extrabold text-navy">Request course access</h1>
@@ -294,11 +294,11 @@ function CheckoutPage() {
             </div>
             <div className="mt-6 grid gap-3 text-sm text-muted-foreground">
               <span className="flex items-start gap-2">
-                <CalendarClock className="mt-0.5 size-4 text-primary" /> Access closes{" "}
+                <CalendarClock className="mt-0.5 size-4 text-brand-foreground" /> Access closes{" "}
                 {formatDate(course.accessCloseAt)}
               </span>
               <span className="flex items-start gap-2">
-                <Clock3 className="mt-0.5 size-4 text-primary" />{" "}
+                <Clock3 className="mt-0.5 size-4 text-brand-foreground" />{" "}
                 {daysRemaining(course.accessCloseAt)} days of course access remain
               </span>
               <span className="flex items-start gap-2">

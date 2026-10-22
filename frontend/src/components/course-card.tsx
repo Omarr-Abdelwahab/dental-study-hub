@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, CalendarClock, Clock3, FileText } from "lucide-react";
+import { ArrowRight, CalendarClock, Clock3, FileText, Play } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -52,7 +52,7 @@ export function CourseCard({ course }: { course: Course }) {
           <CourseStatusBadge course={course} />
           {preview && (
             <Badge className="gap-1.5 border border-white/20 bg-navy/75 text-white shadow-sm backdrop-blur-md">
-              <FileText className="size-3" /> Slides included
+              <Play className="size-3 fill-current" /> Free videos
             </Badge>
           )}
         </div>
@@ -62,7 +62,7 @@ export function CourseCard({ course }: { course: Course }) {
       </Link>
       <div className="flex flex-1 flex-col p-5 sm:p-6">
         <Link to="/courses/$slug" params={{ slug: course.slug }}>
-          <h3 className="text-xl font-extrabold leading-snug text-navy transition-colors group-hover:text-primary">
+          <h3 className="text-xl font-extrabold leading-snug text-navy transition-colors group-hover:text-brand-foreground">
             {course.title}
           </h3>
         </Link>
@@ -71,15 +71,15 @@ export function CourseCard({ course }: { course: Course }) {
         </p>
         <div className="mt-5 flex flex-wrap gap-2 text-xs font-bold text-navy">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5">
-            <FileText className="size-3.5 text-primary" /> Clinical slide guide
+            <FileText className="size-3.5 text-brand-foreground" /> Clinical slide guide
           </span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5">
-            <Clock3 className="size-3.5 text-primary" /> {formatDuration(stats.minutes)}
+            <Clock3 className="size-3.5 text-brand-foreground" /> {formatDuration(stats.minutes)}
           </span>
         </div>
         <div className="mt-4 border-t pt-4 text-xs font-semibold text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
-            <CalendarClock className="size-3.5 text-primary" /> Access until{" "}
+            <CalendarClock className="size-3.5 text-brand-foreground" /> Access until{" "}
             {formatDate(course.accessCloseAt)}
           </span>
         </div>

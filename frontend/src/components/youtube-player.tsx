@@ -1,7 +1,7 @@
 import { LoaderCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-import { getVideoEmbedUrl, getVideoSourceUrl, isGoogleDriveSource } from "@/lib/video-source";
+import { getVideoEmbedUrl, isGoogleDriveSource } from "@/lib/video-source";
 import { loadYouTubeApi, type YouTubePlayerHandle } from "@/lib/youtube-api";
 
 export function YouTubePlayer({
@@ -112,11 +112,13 @@ export function YouTubePlayer({
   if (isDriveVideo) {
     return (
       <div className="relative aspect-video overflow-hidden rounded-2xl bg-black">
-        <video
-          controls
-          preload="metadata"
-          className="h-full w-full bg-black object-contain"
-          src={getVideoSourceUrl(videoId)}
+        <iframe
+          className="h-full w-full"
+          src={getVideoEmbedUrl(videoId)}
+          title="Free lesson video"
+          referrerPolicy="strict-origin-when-cross-origin"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowFullScreen
         />
       </div>
     );
@@ -128,7 +130,7 @@ export function YouTubePlayer({
         <div className="absolute inset-0 z-0 grid place-items-center bg-navy text-white">
           <div className="text-center">
             {loadFailed ? null : (
-              <LoaderCircle className="mx-auto size-6 animate-spin text-primary" />
+              <LoaderCircle className="mx-auto size-6 animate-spin text-brand-foreground" />
             )}
             <p className="mt-3 text-xs font-semibold text-white/60">
               {loadFailed ? "Video player could not be loaded" : "Loading video player"}

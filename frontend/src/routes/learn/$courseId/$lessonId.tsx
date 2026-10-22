@@ -121,7 +121,7 @@ function LessonPage() {
             <span className="mx-auto grid size-16 place-items-center rounded-2xl bg-muted text-muted-foreground">
               <LockKeyhole className="size-7" />
             </span>
-            <p className="mt-6 text-xs font-extrabold uppercase tracking-[0.18em] text-primary">
+            <p className="mt-6 text-xs font-extrabold uppercase tracking-[0.18em] text-brand-foreground">
               {expired ? "Course access ended" : "Student access required"}
             </p>
             <h1 className="mt-2 text-3xl font-extrabold text-navy">{lesson.title}</h1>
@@ -178,7 +178,7 @@ function LessonPage() {
               </Link>
             </Button>
             <div className="min-w-0">
-              <p className="truncate text-xs font-bold text-primary">{course.title}</p>
+              <p className="truncate text-xs font-bold text-brand-foreground">{course.title}</p>
               <p className="truncate font-extrabold text-navy">{lesson.title}</p>
             </div>
           </div>
@@ -227,10 +227,10 @@ function LessonPage() {
               <div className="mb-5 flex flex-col gap-3 rounded-xl border border-primary/20 bg-accent/65 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="font-extrabold text-accent-foreground">
-                    You are viewing a free preview
+                    You are watching a free snippet
                   </p>
                   <p className="mt-1 text-sm text-accent-foreground/72">
-                    Explore this lesson and its slides before enrollment.
+                    No sign-in or enrollment is required for this video.
                   </p>
                 </div>
                 <Button size="sm" asChild>
@@ -243,7 +243,7 @@ function LessonPage() {
 
             {lesson.youtubeId && saved && saved.lastPositionSec > 0 && (
               <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                <PlayCircle className="size-4 text-primary" />
+                <PlayCircle className="size-4 text-brand-foreground" />
                 Resuming from {formatClock(saved.lastPositionSec)}
               </div>
             )}
@@ -257,11 +257,11 @@ function LessonPage() {
             ) : (
               <div className="flex flex-col gap-5 rounded-3xl border border-primary/15 bg-gradient-to-br from-navy to-navy-muted p-6 text-white shadow-lift sm:flex-row sm:items-center sm:justify-between sm:p-8">
                 <div className="flex items-start gap-4">
-                  <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-white/10 text-primary">
+                  <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-white/10 text-brand-foreground">
                     <FileText className="size-6" />
                   </span>
                   <div>
-                    <p className="text-xs font-extrabold uppercase tracking-[0.17em] text-primary">
+                    <p className="text-xs font-extrabold uppercase tracking-[0.17em] text-brand-foreground">
                       Clinical slide deck
                     </p>
                     <h2 className="mt-1.5 text-xl font-extrabold sm:text-2xl">
@@ -292,7 +292,7 @@ function LessonPage() {
                   {lesson.title}
                 </h1>
                 <p className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                  <Clock3 className="size-4 text-primary" /> {lesson.durationMin} minutes
+                  <Clock3 className="size-4 text-brand-foreground" /> {lesson.durationMin} minutes
                 </p>
               </div>
               {user?.role === "student" && activeAccess && (
@@ -345,19 +345,19 @@ function LessonPage() {
                 <p className="mt-3 leading-7 text-muted-foreground">{lesson.description}</p>
                 <div className="mt-6 grid gap-3 sm:grid-cols-3">
                   <div className="rounded-xl bg-muted/65 p-4">
-                    <Clock3 className="size-4 text-primary" />
+                    <Clock3 className="size-4 text-brand-foreground" />
                     <p className="mt-2 text-xs font-bold text-muted-foreground">Duration</p>
                     <p className="mt-1 font-extrabold text-navy">{lesson.durationMin} minutes</p>
                   </div>
                   <div className="rounded-xl bg-muted/65 p-4">
-                    <FileText className="size-4 text-primary" />
+                    <FileText className="size-4 text-brand-foreground" />
                     <p className="mt-2 text-xs font-bold text-muted-foreground">Materials</p>
                     <p className="mt-1 font-extrabold text-navy">
                       {lesson.pdfUrl ? "Slides included" : "Video only"}
                     </p>
                   </div>
                   <div className="rounded-xl bg-muted/65 p-4">
-                    <CheckCircle2 className="size-4 text-primary" />
+                    <CheckCircle2 className="size-4 text-brand-foreground" />
                     <p className="mt-2 text-xs font-bold text-muted-foreground">Completion</p>
                     <p className="mt-1 font-extrabold text-navy">
                       {lesson.quiz.length ? "Pass the quiz" : "Review the slides"}
@@ -491,7 +491,7 @@ function Curriculum({
     <div className="flex h-full flex-col">
       <div className="border-b p-4">
         <p className="flex items-center gap-2 text-sm font-extrabold text-navy">
-          <ListVideo className="size-4 text-primary" /> Course content
+          <ListVideo className="size-4 text-brand-foreground" /> Course content
         </p>
         <label className="relative mt-3 block">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />

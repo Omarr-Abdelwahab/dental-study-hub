@@ -39,7 +39,7 @@ import {
   lastActivityInCourse,
 } from "@/lib/selectors";
 import { useStore } from "@/lib/use-store";
-import { getVideoEmbedUrl, getVideoSourceUrl, isGoogleDriveSource } from "@/lib/video-source";
+import { getVideoEmbedUrl } from "@/lib/video-source";
 
 export const Route = createFileRoute("/courses/$slug")({ component: CourseDetailsPage });
 
@@ -112,16 +112,16 @@ function CourseDetailsPage() {
             <p className="mt-5 max-w-2xl text-base leading-7 text-white/68">{course.summary}</p>
             <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm text-white/72">
               <span className="inline-flex items-center gap-2">
-                <BookOpen className="size-4 text-primary" /> {stats.lessons} lessons
+                <BookOpen className="size-4 text-brand-foreground" /> {stats.lessons} lessons
               </span>
               <span className="inline-flex items-center gap-2">
-                <Clock3 className="size-4 text-primary" /> {formatDuration(stats.minutes)}
+                <Clock3 className="size-4 text-brand-foreground" /> {formatDuration(stats.minutes)}
               </span>
               <span className="inline-flex items-center gap-2">
-                <FileQuestion className="size-4 text-primary" /> {stats.quizzes} quizzes
+                <FileQuestion className="size-4 text-brand-foreground" /> {stats.quizzes} quizzes
               </span>
               <span className="inline-flex items-center gap-2">
-                <CalendarClock className="size-4 text-primary" /> Access until{" "}
+                <CalendarClock className="size-4 text-brand-foreground" /> Access until{" "}
                 {formatDate(course.accessCloseAt)}
               </span>
             </div>
@@ -137,7 +137,7 @@ function CourseDetailsPage() {
       <section className="border-b bg-secondary/45">
         <div className="container-page grid gap-10 py-12 lg:grid-cols-[1fr_360px]">
           <div>
-            <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-primary">
+            <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-brand-foreground">
               Course overview
             </p>
             <h2 className="mt-2 text-3xl font-extrabold text-navy">What you will learn</h2>
@@ -190,24 +190,15 @@ function CourseDetailsPage() {
             {preview.youtubeId ? (
               <div className="overflow-hidden rounded-2xl bg-black shadow-lift">
                 <div className="aspect-video">
-                  {isGoogleDriveSource(preview.youtubeId) ? (
-                    <video
-                      controls
-                      preload="metadata"
-                      className="h-full w-full bg-black object-contain"
-                      src={getVideoSourceUrl(preview.youtubeId)}
-                    />
-                  ) : (
-                    <iframe
-                      className="h-full w-full"
-                      src={getVideoEmbedUrl(preview.youtubeId)}
-                      title={`${preview.title} free preview`}
-                      referrerPolicy="strict-origin-when-cross-origin"
-                      loading="lazy"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  )}
+                  <iframe
+                    className="h-full w-full"
+                    src={getVideoEmbedUrl(preview.youtubeId)}
+                    title={`${preview.title} free preview`}
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
                 </div>
               </div>
             ) : (
@@ -219,7 +210,7 @@ function CourseDetailsPage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/65 to-navy/10" />
                 <div className="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
-                  <span className="grid size-11 place-items-center rounded-xl bg-white/12 text-primary backdrop-blur">
+                  <span className="grid size-11 place-items-center rounded-xl bg-white/12 text-brand-foreground backdrop-blur">
                     <FileText className="size-5" />
                   </span>
                   <p className="mt-3 text-lg font-extrabold">Clinical slide guide</p>
@@ -253,7 +244,7 @@ function CourseDetailsPage() {
               <h3 className="mt-4 text-lg font-bold text-navy">{preview.title}</h3>
               <p className="mt-2 leading-7 text-muted-foreground">{preview.description}</p>
               <p className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                <Clock3 className="size-4 text-primary" /> {preview.durationMin} minutes
+                <Clock3 className="size-4 text-brand-foreground" /> {preview.durationMin} minutes
               </p>
             </div>
           </div>
@@ -263,7 +254,7 @@ function CourseDetailsPage() {
       <section className="border-y bg-secondary/45 py-16 sm:py-20">
         <div className="container-page grid gap-10 lg:grid-cols-[.7fr_1.3fr]">
           <div>
-            <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-primary">
+            <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-brand-foreground">
               Curriculum
             </p>
             <h2 className="mt-2 text-3xl font-extrabold text-navy">Inside the course</h2>
@@ -285,7 +276,7 @@ function CourseDetailsPage() {
               >
                 <AccordionTrigger className="hover:no-underline">
                   <span className="text-left">
-                    <span className="block text-xs font-bold uppercase tracking-wide text-primary">
+                    <span className="block text-xs font-bold uppercase tracking-wide text-brand-foreground">
                       Section {sectionIndex + 1}
                     </span>
                     <span className="mt-1 block font-extrabold text-navy">{section.title}</span>
@@ -306,14 +297,23 @@ function CourseDetailsPage() {
                             <p className="font-bold text-navy">{lesson.title}</p>
                             <p className="mt-0.5 text-xs text-muted-foreground">
                               {lesson.durationMin} min ·{" "}
-                              {lesson.quiz.length ? "Quiz included" : "Slides included"}
+                              {lesson.isPreview
+                                ? "Free video"
+                                : lesson.quiz.length
+                                  ? "Quiz included"
+                                  : "Slides included"}
                             </p>
                           </div>
                         </div>
                         {lesson.isPreview ? (
-                          <Badge className="shrink-0 bg-accent text-accent-foreground">
-                            Preview
-                          </Badge>
+                          <Button size="sm" variant="outline" asChild className="shrink-0">
+                            <Link
+                              to="/learn/$courseId/$lessonId"
+                              params={{ courseId: course.id, lessonId: lesson.id }}
+                            >
+                              <Play /> Watch free
+                            </Link>
+                          </Button>
                         ) : (
                           <LockKeyhole className="size-4 shrink-0 text-muted-foreground/60" />
                         )}

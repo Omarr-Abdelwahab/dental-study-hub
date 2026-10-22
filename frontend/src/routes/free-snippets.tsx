@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Play, ShieldCheck } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight, Play, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 
 import { PublicPage, SectionHeading } from "@/components/app-shell";
@@ -53,10 +53,17 @@ function FreeSnippetsPage() {
             </div>
             <h1 className="mt-5 text-2xl font-extrabold text-navy sm:text-3xl">{selected.title}</h1>
             <p className="mt-2 max-w-3xl leading-7 text-muted-foreground">{selected.description}</p>
+            <Link
+              to="/courses/$slug"
+              params={{ slug: selected.courseSlug }}
+              className="mt-4 inline-flex items-center gap-2 text-sm font-extrabold text-brand-foreground hover:underline"
+            >
+              Explore {selected.courseTitle} <ArrowRight className="size-4" />
+            </Link>
           </div>
 
           <aside aria-label="Free snippet playlist">
-            <p className="mb-3 text-xs font-extrabold uppercase tracking-[0.16em] text-primary">
+            <p className="mb-3 text-xs font-extrabold uppercase tracking-[0.16em] text-brand-foreground">
               Free snippet playlist
             </p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
@@ -87,8 +94,8 @@ function FreeSnippetsPage() {
                       </span>
                     </span>
                     <span className="self-center p-3">
-                      <span className="block text-[11px] font-bold uppercase tracking-wide text-primary">
-                        Snippet {index + 1}
+                      <span className="block text-[11px] font-bold uppercase tracking-wide text-brand-foreground">
+                        {snippet.courseTitle} · Snippet {index + 1}
                       </span>
                       <span className="mt-1 block text-sm font-extrabold leading-5 text-navy">
                         {snippet.title}

@@ -4,6 +4,9 @@ export interface FreeSnippet {
   description: string;
   driveFileId: string;
   thumbnail: string;
+  courseId: "course-fixed-prosthodontics" | "course-operative";
+  courseTitle: "Fixed Prosthodontics" | "Operative";
+  courseSlug: "fixed-prosthodontics" | "operative";
 }
 
 export const freeSnippets: readonly FreeSnippet[] = [
@@ -13,6 +16,9 @@ export const freeSnippets: readonly FreeSnippet[] = [
     description: "A practical check of the finished full-ceramic preparation.",
     driveFileId: "1L7BPD0R5u5JEXrpKA-5kjC7CxnIVscYN",
     thumbnail: "/snippets/full-ceramic.jpg",
+    courseId: "course-fixed-prosthodontics",
+    courseTitle: "Fixed Prosthodontics",
+    courseSlug: "fixed-prosthodontics",
   },
   {
     id: "class-one-cavity-introduction",
@@ -20,6 +26,9 @@ export const freeSnippets: readonly FreeSnippet[] = [
     description: "A short introduction to the Class I cavity preparation workflow.",
     driveFileId: "18LzMsmxRMLavUvezyMRfyJNRFPspmHFV",
     thumbnail: "/snippets/class-one-cavity.jpg",
+    courseId: "course-operative",
+    courseTitle: "Operative",
+    courseSlug: "operative",
   },
   {
     id: "molar-occlusal-pre-reduction",
@@ -27,6 +36,9 @@ export const freeSnippets: readonly FreeSnippet[] = [
     description: "Review the occlusal surface before beginning reduction.",
     driveFileId: "1iwn_3-lJ5c8aRhYJdI1-y7ZbvXgWl0Jw",
     thumbnail: "/snippets/molar-pre-reduction.jpg",
+    courseId: "course-fixed-prosthodontics",
+    courseTitle: "Fixed Prosthodontics",
+    courseSlug: "fixed-prosthodontics",
   },
   {
     id: "premolar-index-final",
@@ -34,6 +46,9 @@ export const freeSnippets: readonly FreeSnippet[] = [
     description: "A concise look at the completed premolar index.",
     driveFileId: "1DsnnNtvcVYqch0AG7s0lJNm5oLmipbMz",
     thumbnail: "/snippets/premolar-index.jpg",
+    courseId: "course-fixed-prosthodontics",
+    courseTitle: "Fixed Prosthodontics",
+    courseSlug: "fixed-prosthodontics",
   },
 ] as const;
 

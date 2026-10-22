@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { ZodError } from "zod";
 import { buildCatalogState } from "./seed";
 import { createId } from "./id";
 import { SupabaseAppRepository } from "./repository";
 import { isBackendConfigured, supabase } from "./supabase";
 import { StoreContext, type ActionResult, type StoreValue } from "./store-context";
 import type { Announcement, AppState, Bookmark, LessonProgress } from "./types";
+import { parseFullCourse } from "./validation";
 
 function catalogState(): AppState {
   return {
@@ -22,6 +24,11 @@ function catalogState(): AppState {
   };
 }
 function message(error: unknown) {
+  if (error instanceof ZodError) {
+    const issue = error.issues[0];
+    const field = issue?.path.length ? `${issue.path.join(" → ")}: ` : "";
+    return `${field}${issue?.message ?? "Please check the course details."}`;
+  }
   return error instanceof Error ? error.message : "Something went wrong. Please try again.";
 }
 
@@ -306,12 +313,12 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
         });
       },
       async saveCourse(course) {
-        return result(() => persistCourse(course));
+        return result(() => persistCourse(parseFullCourse(course)));
       },
       async setPublishState(courseId, publishState) {
         const course = state.courses.find((item) => item.id === courseId);
         if (!course) return { ok: false, error: "Course not found." };
-        return result(() => persistCourse({ ...course, publishState }));
+        return result(() => persistCourse(parseFullCourse({ ...course, publishState })));
       },
       async publishAnnouncement(input) {
         if (!repository) return { ok: false, error: "Account services are not configured." };

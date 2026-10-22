@@ -37,7 +37,7 @@ export function BrandMark({ light = false }: { light?: boolean }) {
         <span className="block text-[15px] font-extrabold leading-none tracking-[-0.03em]">
           Denta
         </span>
-        <span className="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.22em] text-primary">
+        <span className="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.22em] text-brand-foreground">
           Help
         </span>
       </span>
@@ -214,7 +214,9 @@ export function AppFooter() {
           </p>
         </div>
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Platform</p>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-foreground">
+            Platform
+          </p>
           <div className="mt-4 grid gap-2.5 text-sm text-white/68">
             <Link to="/courses" className="hover:text-white">
               Browse courses
@@ -231,7 +233,9 @@ export function AppFooter() {
           </div>
         </div>
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Support</p>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-foreground">
+            Support
+          </p>
           <div className="mt-4 grid gap-2.5 text-sm text-white/68">
             <a href={`mailto:${brand.supportEmail}`} className="hover:text-white">
               Contact support
@@ -281,7 +285,9 @@ export function SectionHeading({
   return (
     <div className={align === "center" ? "mx-auto max-w-2xl text-center" : "max-w-2xl"}>
       {eyebrow && (
-        <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-primary">{eyebrow}</p>
+        <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-brand-foreground">
+          {eyebrow}
+        </p>
       )}
       <h2 className="mt-2 text-3xl font-extrabold tracking-[-0.035em] text-navy sm:text-4xl">
         {title}

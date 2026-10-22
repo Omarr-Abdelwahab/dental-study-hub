@@ -19,6 +19,28 @@ const safeResource = z
       })(),
     "Resource URLs must be same-origin paths or HTTPS URLs.",
   );
+const safeVideoSource = z
+  .string()
+  .trim()
+  .max(2_000)
+  .refine((value) => {
+    if (value === "" || /^[A-Za-z0-9_-]{10,}$/.test(value)) return true;
+    try {
+      const url = new URL(value);
+      return (
+        url.protocol === "https:" &&
+        [
+          "youtube.com",
+          "www.youtube.com",
+          "youtu.be",
+          "youtube-nocookie.com",
+          "drive.google.com",
+        ].includes(url.hostname)
+      );
+    } catch {
+      return false;
+    }
+  }, "Use a YouTube or Google Drive video ID or HTTPS URL.");
 
 const quizQuestion = z.object({
   id,
@@ -33,10 +55,7 @@ const lesson = z.object({
   title: z.string().trim().min(1).max(200),
   description: z.string().trim().max(5_000),
   durationMin: z.number().int().min(0).max(1_440),
-  youtubeId: z
-    .string()
-    .max(32)
-    .regex(/^[A-Za-z0-9_-]*$/),
+  youtubeId: safeVideoSource,
   pdfUrl: safeResource.nullable().optional(),
   pdfName: z.string().max(255).nullable().optional(),
   allowDownload: z.boolean(),
