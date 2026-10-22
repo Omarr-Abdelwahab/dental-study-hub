@@ -91,6 +91,31 @@ try {
   assert.equal(paidLessonCount, 7, "the catalog must contain seven paid lessons");
   assert.equal(questionCount, 28, "the catalog must contain 28 quiz questions");
 
+  const quizMigration = await readFile(
+    path.join(root, "supabase/migrations/202610220003_quiz_grading_feedback.sql"),
+    "utf8",
+  );
+  for (const course of starterCourses) {
+    for (const lesson of course.sections.flatMap((section) => section.lessons)) {
+      if (!lesson.quiz.length) continue;
+      assert.ok(quizMigration.includes(`'${lesson.id}'`), `${lesson.id} needs a server answer key`);
+      assert.ok(
+        quizMigration.includes(JSON.stringify(lesson.quiz.map((question) => question.correctIndex))),
+        `${lesson.id} server answers must match the bundled quiz`,
+      );
+    }
+  }
+  assert.match(
+    quizMigration,
+    /revoke all on table public\.quiz_answer_keys from anon, authenticated/i,
+    "quiz answer keys must never be directly readable by students",
+  );
+  assert.match(
+    quizMigration,
+    /grant execute on function public\.submit_quiz_attempt/i,
+    "students need permission to submit quizzes",
+  );
+
   const migration = await readFile(
     path.join(root, "supabase/migrations/202610220001_instapay_review_hardening.sql"),
     "utf8",

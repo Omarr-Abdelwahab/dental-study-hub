@@ -33,7 +33,15 @@ if (!siteUrl) {
   process.exit(0);
 }
 
-const routes = ["/", "/courses", "/free-snippets", "/privacy", "/terms", "/auth"];
+const routes = [
+  "/",
+  "/courses",
+  "/courses/fixed-prosthodontics",
+  "/courses/operative",
+  "/free-snippets",
+  "/privacy",
+  "/terms",
+];
 const today = new Date().toISOString().slice(0, 10);
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

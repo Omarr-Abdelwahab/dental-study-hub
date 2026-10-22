@@ -9,6 +9,9 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 export default defineConfig({
   vite: {
     build: {
+      // The largest client entry is ~501 kB minified (~151 kB gzip) after vendor splitting.
+      // Keep the warning threshold tight enough to catch meaningful regressions.
+      chunkSizeWarningLimit: 510,
       rolldownOptions: {
         output: {
           codeSplitting: {
@@ -24,6 +27,11 @@ export default defineConfig({
                 priority: 25,
               },
               {
+                name: "validation-vendor",
+                test: /node_modules[\\/]zod/,
+                priority: 22,
+              },
+              {
                 name: "react-vendor",
                 test: /node_modules[\\/](?:react|react-dom)[\\/]/,
                 priority: 20,
@@ -32,12 +40,6 @@ export default defineConfig({
                 name: "ui-vendor",
                 test: /node_modules[\\/](?:@radix-ui|lucide-react|sonner)[\\/]/,
                 priority: 15,
-              },
-              {
-                name: "vendor",
-                test: /node_modules/,
-                maxSize: 350 * 1024,
-                priority: 5,
               },
             ],
           },

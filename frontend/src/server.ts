@@ -48,12 +48,12 @@ function withSecurityHeaders(response: Response, request: Request): Response {
   const headers = new Headers(response.headers);
   headers.set("x-content-type-options", "nosniff");
   headers.set("referrer-policy", "strict-origin-when-cross-origin");
-  headers.set("permissions-policy", "camera=(), microphone=(), geolocation=(), payment=()");
+  headers.set("permissions-policy", "camera=(), geolocation=(), microphone=(), payment=(), usb=()");
   headers.set(
     "content-security-policy",
-    "base-uri 'self'; frame-ancestors 'self' https://lovable.dev https://*.lovable.dev https://lovable.app https://*.lovable.app; object-src 'none'",
+    "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://lovable.dev https://*.lovable.dev https://lovable.app https://*.lovable.app; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://drive.google.com https://docs.google.com; worker-src 'self' blob:; upgrade-insecure-requests",
   );
-  headers.set("cross-origin-opener-policy", "same-origin");
+  headers.set("cross-origin-opener-policy", "same-origin-allow-popups");
   const path = new URL(request.url).pathname;
   if (path.startsWith("/assets/")) {
     headers.set("cache-control", "public, max-age=31536000, immutable");
@@ -61,7 +61,7 @@ function withSecurityHeaders(response: Response, request: Request): Response {
     headers.set("cache-control", "no-cache");
   }
   if (new URL(request.url).protocol === "https:") {
-    headers.set("strict-transport-security", "max-age=31536000; includeSubDomains");
+    headers.set("strict-transport-security", "max-age=63072000; includeSubDomains; preload");
   }
   return new Response(response.body, {
     status: response.status,
