@@ -1,16 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  BarChart3,
+  ArrowUpRight,
   BookOpen,
-  CalendarClock,
   Check,
   ChevronRight,
+  CircleAlert,
   CircleDollarSign,
-  Clock3,
   CreditCard,
   Eye,
-  FileQuestion,
-  GraduationCap,
   LayoutDashboard,
   LockKeyhole,
   LogOut,
@@ -75,12 +72,22 @@ import {
 import { createId } from "@/lib/id";
 import type { ActionResult } from "@/lib/store-context";
 import { useStore } from "@/lib/use-store";
-import type { Course, Lesson, PublishState, QuizQuestion, Section, User } from "@/lib/types";
+import type {
+  Course,
+  Lesson,
+  PaymentStatus,
+  PublishState,
+  QuizQuestion,
+  Section,
+  User,
+} from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin")({ component: AdminPage });
 
 type AdminTab = "overview" | "courses" | "students" | "payments" | "announcements";
+type CourseFilter = "all" | PublishState;
+type PaymentFilter = "all" | PaymentStatus;
 
 const navigation: { id: AdminTab; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -139,6 +146,10 @@ function AdminWorkspace({ user }: { user: User }) {
   const [rejectedPaymentId, setRejectedPaymentId] = useState<string | null>(null);
   const [courseQuery, setCourseQuery] = useState("");
   const [studentQuery, setStudentQuery] = useState("");
+  const [courseFilter, setCourseFilter] = useState<CourseFilter>("all");
+  const [paymentFilter, setPaymentFilter] = useState<PaymentFilter>("all");
+  const [reviewingPaymentId, setReviewingPaymentId] = useState<string | null>(null);
+  const [updatingCourseId, setUpdatingCourseId] = useState<string | null>(null);
   const pendingPaymentCount = state.payments.filter(
     (payment) => payment.status === "pending",
   ).length;
@@ -170,11 +181,12 @@ function AdminWorkspace({ user }: { user: User }) {
 
   const filteredCourses = useMemo(() => {
     const query = courseQuery.trim().toLowerCase();
-    if (!query) return state.courses;
-    return state.courses.filter((course) =>
-      `${course.title} ${course.subject}`.toLowerCase().includes(query),
+    return state.courses.filter(
+      (course) =>
+        (courseFilter === "all" || course.publishState === courseFilter) &&
+        (!query || `${course.title} ${course.subject}`.toLowerCase().includes(query)),
     );
-  }, [courseQuery, state.courses]);
+  }, [courseFilter, courseQuery, state.courses]);
 
   const filteredStudents = useMemo(() => {
     const query = studentQuery.trim().toLowerCase();
@@ -183,6 +195,18 @@ function AdminWorkspace({ user }: { user: User }) {
       `${student.name} ${student.email} ${student.university}`.toLowerCase().includes(query),
     );
   }, [studentQuery, students]);
+
+  const filteredPayments = useMemo(
+    () =>
+      [...state.payments]
+        .filter((payment) => paymentFilter === "all" || payment.status === paymentFilter)
+        .sort((a, b) => {
+          if (a.status === "pending" && b.status !== "pending") return -1;
+          if (a.status !== "pending" && b.status === "pending") return 1;
+          return b.createdAt.localeCompare(a.createdAt);
+        }),
+    [paymentFilter, state.payments],
+  );
 
   const createCourse = () => {
     const template = state.courses[0];
@@ -205,8 +229,15 @@ function AdminWorkspace({ user }: { user: User }) {
 
   const sidebar = (
     <div className="flex h-full flex-col bg-navy text-white">
-      <div className="border-b border-white/10 p-5">
+      <div className="border-b border-white/10 px-5 py-5">
         <BrandMark light />
+        <div className="mt-4 flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+          <span className="relative flex size-2">
+            <span className="absolute inline-flex size-full animate-ping rounded-full bg-teal-300 opacity-50" />
+            <span className="relative inline-flex size-2 rounded-full bg-teal-300" />
+          </span>
+          <span className="text-[11px] font-bold text-white/70">Live administration workspace</span>
+        </div>
       </div>
       <div className="px-4 pt-5">
         <p className="px-3 text-[10px] font-extrabold uppercase tracking-[0.18em] text-white/35">
@@ -217,8 +248,9 @@ function AdminWorkspace({ user }: { user: User }) {
             <button
               key={id}
               onClick={() => setTab(id)}
+              aria-current={tab === id ? "page" : undefined}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-bold transition",
+                "flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold transition",
                 tab === id
                   ? "bg-primary text-primary-foreground"
                   : "text-white/65 hover:bg-white/7 hover:text-white",
@@ -265,13 +297,13 @@ function AdminWorkspace({ user }: { user: User }) {
   );
 
   return (
-    <div className="min-h-screen bg-secondary/35 lg:grid lg:grid-cols-[250px_1fr]">
+    <div className="min-h-screen bg-[linear-gradient(180deg,var(--secondary),var(--background)_28rem)] lg:grid lg:grid-cols-[268px_1fr]">
       <aside className="hidden lg:block">
-        <div className="fixed inset-y-0 w-[250px]">{sidebar}</div>
+        <div className="fixed inset-y-0 w-[268px]">{sidebar}</div>
       </aside>
       <div className="min-w-0">
         <header className="sticky top-0 z-30 border-b bg-background/94 backdrop-blur">
-          <div className="flex h-17 items-center justify-between gap-4 px-4 sm:px-7">
+          <div className="flex h-[72px] items-center justify-between gap-4 px-4 sm:px-7 lg:px-8">
             <div className="flex items-center gap-3">
               <Sheet>
                 <SheetTrigger asChild>
@@ -294,6 +326,16 @@ function AdminWorkspace({ user }: { user: User }) {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              {pendingPaymentCount > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setTab("payments")}
+                  className="hidden border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100 sm:inline-flex"
+                >
+                  <CircleAlert /> {pendingPaymentCount} awaiting review
+                </Button>
+              )}
               <Button variant="outline" size="sm" asChild>
                 <Link to="/">
                   <Eye /> <span className="hidden sm:inline">View site</span>
@@ -303,7 +345,7 @@ function AdminWorkspace({ user }: { user: User }) {
           </div>
         </header>
 
-        <main className="p-4 sm:p-7">
+        <main className="mx-auto w-full max-w-[1600px] p-4 sm:p-7 lg:p-8">
           {tab === "overview" && (
             <Overview
               state={state}
@@ -312,7 +354,9 @@ function AdminWorkspace({ user }: { user: User }) {
               students={students}
               avgProgress={avgProgress}
               avgQuiz={avgQuiz}
+              adminName={user.name}
               onNavigate={setTab}
+              onCreateCourse={createCourse}
             />
           )}
 
@@ -328,8 +372,8 @@ function AdminWorkspace({ user }: { user: User }) {
                   </Button>
                 }
               />
-              <div className="mt-7 rounded-2xl border bg-card shadow-card">
-                <div className="border-b p-4">
+              <div className="mt-7 overflow-hidden rounded-2xl border bg-card shadow-card">
+                <div className="flex flex-col gap-3 border-b p-4 lg:flex-row lg:items-center lg:justify-between">
                   <label className="relative block max-w-sm">
                     <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
@@ -339,90 +383,122 @@ function AdminWorkspace({ user }: { user: User }) {
                       className="pl-9"
                     />
                   </label>
+                  <div className="flex flex-wrap gap-2" aria-label="Filter courses">
+                    {(["all", "published", "draft", "archived"] as const).map((filter) => {
+                      const count =
+                        filter === "all"
+                          ? state.courses.length
+                          : state.courses.filter((course) => course.publishState === filter).length;
+                      return (
+                        <FilterPill
+                          key={filter}
+                          active={courseFilter === filter}
+                          onClick={() => setCourseFilter(filter)}
+                        >
+                          <span className="capitalize">{filter}</span>
+                          <span className="opacity-60">{count}</span>
+                        </FilterPill>
+                      );
+                    })}
+                  </div>
                 </div>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Course</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Price</TableHead>
-                      <TableHead>Students</TableHead>
-                      <TableHead>Access closes</TableHead>
-                      <TableHead>Revenue</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredCourses.length === 0 && (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
                       <TableRow>
-                        <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
-                          {courseQuery.trim()
-                            ? "No courses match your search."
-                            : "No courses yet. Create the first course to get started."}
-                        </TableCell>
+                        <TableHead>Course</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Price</TableHead>
+                        <TableHead>Students</TableHead>
+                        <TableHead>Access closes</TableHead>
+                        <TableHead>Revenue</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
-                    )}
-                    {filteredCourses.map((course) => (
-                      <TableRow key={course.id}>
-                        <TableCell>
-                          <div className="flex min-w-64 items-center gap-3">
-                            <img
-                              src={course.thumbnail}
-                              alt=""
-                              className="size-12 rounded-lg object-cover"
-                            />
-                            <div>
-                              <p className="font-extrabold text-navy">{course.title}</p>
-                              <p className="mt-0.5 text-xs text-muted-foreground">
-                                {course.subject} · {courseStats(course).lessons} lessons
-                              </p>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredCourses.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
+                            {courseQuery.trim()
+                              ? "No courses match your search."
+                              : courseFilter !== "all"
+                                ? `No ${courseFilter} courses.`
+                                : "No courses yet. Create the first course to get started."}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      {filteredCourses.map((course) => (
+                        <TableRow key={course.id}>
+                          <TableCell>
+                            <div className="flex min-w-64 items-center gap-3">
+                              <img
+                                src={course.thumbnail}
+                                alt=""
+                                className="size-12 rounded-lg object-cover"
+                              />
+                              <div>
+                                <p className="font-extrabold text-navy">{course.title}</p>
+                                <p className="mt-0.5 text-xs text-muted-foreground">
+                                  {course.subject} · {courseStats(course).lessons} lessons
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-col items-start gap-1.5">
-                            <CourseStatusBadge course={course} />
-                            <Badge variant="outline" className="capitalize">
-                              {course.publishState}
-                            </Badge>
-                          </div>
-                        </TableCell>
-                        <TableCell className="font-bold">{formatPrice(course.price)}</TableCell>
-                        <TableCell>{courseEnrollmentCount(state, course.id)}</TableCell>
-                        <TableCell className="whitespace-nowrap">
-                          {formatDate(course.accessCloseAt)}
-                        </TableCell>
-                        <TableCell className="font-bold">
-                          {formatPrice(courseRevenue(state, course.id))}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setCourseEditor(structuredClone(course))}
-                            >
-                              <Pencil /> Edit
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={async () => {
-                                const next: PublishState =
-                                  course.publishState === "published" ? "draft" : "published";
-                                const result = await setPublishState(course.id, next);
-                                if (result.ok) toast.success(`Course set to ${next}.`);
-                                else toast.error(result.error);
-                              }}
-                            >
-                              {course.publishState === "published" ? "Unpublish" : "Publish"}
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-col items-start gap-1.5">
+                              <CourseStatusBadge course={course} />
+                              <Badge variant="outline" className="capitalize">
+                                {course.publishState}
+                              </Badge>
+                            </div>
+                          </TableCell>
+                          <TableCell className="font-bold">{formatPrice(course.price)}</TableCell>
+                          <TableCell>{courseEnrollmentCount(state, course.id)}</TableCell>
+                          <TableCell className="whitespace-nowrap">
+                            {formatDate(course.accessCloseAt)}
+                          </TableCell>
+                          <TableCell className="font-bold">
+                            {formatPrice(courseRevenue(state, course.id))}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setCourseEditor(structuredClone(course))}
+                              >
+                                <Pencil /> Edit
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                disabled={updatingCourseId === course.id}
+                                onClick={async () => {
+                                  const next: PublishState =
+                                    course.publishState === "published" ? "draft" : "published";
+                                  setUpdatingCourseId(course.id);
+                                  try {
+                                    const result = await setPublishState(course.id, next);
+                                    if (result.ok) toast.success(`Course set to ${next}.`);
+                                    else toast.error(result.error);
+                                  } finally {
+                                    setUpdatingCourseId(null);
+                                  }
+                                }}
+                              >
+                                {updatingCourseId === course.id
+                                  ? "Updating…"
+                                  : course.publishState === "published"
+                                    ? "Unpublish"
+                                    : "Publish"}
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
             </section>
           )}
@@ -434,7 +510,7 @@ function AdminWorkspace({ user }: { user: User }) {
                 title="Students"
                 description="Review enrollment, activity and progress, then manage course access."
               />
-              <div className="mt-7 rounded-2xl border bg-card shadow-card">
+              <div className="mt-7 overflow-hidden rounded-2xl border bg-card shadow-card">
                 <div className="border-b p-4">
                   <label className="relative block max-w-sm">
                     <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -446,84 +522,90 @@ function AdminWorkspace({ user }: { user: User }) {
                     />
                   </label>
                 </div>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Student</TableHead>
-                      <TableHead>University</TableHead>
-                      <TableHead>Courses</TableHead>
-                      <TableHead>Average progress</TableHead>
-                      <TableHead>Last activity</TableHead>
-                      <TableHead className="text-right">Access</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredStudents.length === 0 && (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
                       <TableRow>
-                        <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
-                          {studentQuery.trim()
-                            ? "No students match your search."
-                            : "Student accounts will appear here after signup."}
-                        </TableCell>
+                        <TableHead>Student</TableHead>
+                        <TableHead>University</TableHead>
+                        <TableHead>Courses</TableHead>
+                        <TableHead>Average progress</TableHead>
+                        <TableHead>Last activity</TableHead>
+                        <TableHead className="text-right">Access</TableHead>
                       </TableRow>
-                    )}
-                    {filteredStudents.map((student) => {
-                      const enrollments = state.enrollments.filter(
-                        (item) => item.userId === student.id && !item.revoked,
-                      );
-                      const values = enrollments.flatMap((item) => {
-                        const course = state.courses.find((entry) => entry.id === item.courseId);
-                        return course ? [courseProgressPercent(state, student.id, course)] : [];
-                      });
-                      const average = values.length
-                        ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length)
-                        : 0;
-                      const recent = [...state.progress]
-                        .filter((item) => item.userId === student.id)
-                        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
-                      return (
-                        <TableRow key={student.id}>
-                          <TableCell>
-                            <div className="flex min-w-52 items-center gap-3">
-                              <span className="grid size-10 place-items-center rounded-xl bg-accent font-extrabold text-accent-foreground">
-                                {student.name.charAt(0)}
-                              </span>
-                              <div>
-                                <p className="font-extrabold text-navy">{student.name}</p>
-                                <p className="text-xs text-muted-foreground">{student.email}</p>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <p className="font-semibold">{student.university}</p>
-                            <p className="text-xs text-muted-foreground">{student.academicYear}</p>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline">{enrollments.length} active</Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex min-w-32 items-center gap-3">
-                              <Progress value={average} className="h-1.5" />
-                              <span className="text-xs font-bold">{average}%</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
-                            {recent ? formatDateTime(recent.updatedAt) : "No activity"}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setManagedStudent(student)}
-                            >
-                              <Settings2 /> Manage
-                            </Button>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredStudents.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                            {studentQuery.trim()
+                              ? "No students match your search."
+                              : "Student accounts will appear here after signup."}
                           </TableCell>
                         </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
+                      )}
+                      {filteredStudents.map((student) => {
+                        const enrollments = state.enrollments.filter(
+                          (item) => item.userId === student.id && !item.revoked,
+                        );
+                        const values = enrollments.flatMap((item) => {
+                          const course = state.courses.find((entry) => entry.id === item.courseId);
+                          return course ? [courseProgressPercent(state, student.id, course)] : [];
+                        });
+                        const average = values.length
+                          ? Math.round(
+                              values.reduce((sum, value) => sum + value, 0) / values.length,
+                            )
+                          : 0;
+                        const recent = [...state.progress]
+                          .filter((item) => item.userId === student.id)
+                          .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
+                        return (
+                          <TableRow key={student.id}>
+                            <TableCell>
+                              <div className="flex min-w-52 items-center gap-3">
+                                <span className="grid size-10 place-items-center rounded-xl bg-accent font-extrabold text-accent-foreground">
+                                  {student.name.charAt(0)}
+                                </span>
+                                <div>
+                                  <p className="font-extrabold text-navy">{student.name}</p>
+                                  <p className="text-xs text-muted-foreground">{student.email}</p>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <p className="font-semibold">{student.university}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {student.academicYear}
+                              </p>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline">{enrollments.length} active</Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex min-w-32 items-center gap-3">
+                                <Progress value={average} className="h-1.5" />
+                                <span className="text-xs font-bold">{average}%</span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
+                              {recent ? formatDateTime(recent.updatedAt) : "No activity"}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setManagedStudent(student)}
+                              >
+                                <Settings2 /> Manage
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
             </section>
           )}
@@ -536,83 +618,127 @@ function AdminWorkspace({ user }: { user: User }) {
                 description="Verify each transfer before granting course access. Approval is atomic and cannot be repeated."
               />
               <div className="mt-7 overflow-hidden rounded-2xl border bg-card shadow-card">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Transaction</TableHead>
-                      <TableHead>Student</TableHead>
-                      <TableHead>Course</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Method</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Review</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {state.payments.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={8} className="h-32 text-center text-muted-foreground">
-                          Payment requests will appear here when students submit transfers.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                    {state.payments.map((payment) => {
-                      const student = state.users.find((item) => item.id === payment.userId);
-                      const course = state.courses.find((item) => item.id === payment.courseId);
+                <div className="flex flex-col gap-3 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm font-extrabold text-navy">Transfer queue</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      Pending requests are shown first.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2" aria-label="Filter payments">
+                    {(["all", "pending", "success", "failed"] as const).map((filter) => {
+                      const count =
+                        filter === "all"
+                          ? state.payments.length
+                          : state.payments.filter((payment) => payment.status === filter).length;
+                      const label =
+                        filter === "success"
+                          ? "Approved"
+                          : filter === "failed"
+                            ? "Rejected"
+                            : filter;
                       return (
-                        <TableRow key={payment.id}>
-                          <TableCell className="font-mono text-xs font-bold">
-                            {payment.txnId}
-                          </TableCell>
-                          <TableCell>
-                            <p className="font-bold text-navy">{student?.name ?? "Unknown"}</p>
-                            <p className="text-xs text-muted-foreground">{student?.email}</p>
-                          </TableCell>
-                          <TableCell className="min-w-48 font-semibold">
-                            {course?.title ?? "Unknown course"}
-                          </TableCell>
-                          <TableCell className="font-extrabold">
-                            {formatPrice(payment.amount)}
-                          </TableCell>
-                          <TableCell>{payment.method}</TableCell>
-                          <TableCell className="whitespace-nowrap">
-                            {formatDateTime(payment.createdAt)}
-                          </TableCell>
-                          <TableCell>
-                            <PaymentBadge status={payment.status} />
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {payment.status === "pending" ? (
-                              <div className="flex justify-end gap-2">
-                                <Button
-                                  size="sm"
-                                  onClick={async () => {
-                                    const result = await reviewPayment(payment.id, true);
-                                    if (result.ok)
-                                      toast.success("Transfer approved and access activated.");
-                                    else toast.error(result.error);
-                                  }}
-                                >
-                                  <Check /> Approve
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => setRejectedPaymentId(payment.id)}
-                                >
-                                  <X /> Reject
-                                </Button>
-                              </div>
-                            ) : (
-                              <span className="text-xs text-muted-foreground">Reviewed</span>
-                            )}
-                          </TableCell>
-                        </TableRow>
+                        <FilterPill
+                          key={filter}
+                          active={paymentFilter === filter}
+                          onClick={() => setPaymentFilter(filter)}
+                        >
+                          <span className="capitalize">{label}</span>
+                          <span className="opacity-60">{count}</span>
+                        </FilterPill>
                       );
                     })}
-                  </TableBody>
-                </Table>
+                  </div>
+                </div>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Transaction</TableHead>
+                        <TableHead>Student</TableHead>
+                        <TableHead>Course</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Method</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Review</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredPayments.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={8} className="h-32 text-center text-muted-foreground">
+                            {state.payments.length === 0
+                              ? "Payment requests will appear here when students submit transfers."
+                              : "No payments match this filter."}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      {filteredPayments.map((payment) => {
+                        const student = state.users.find((item) => item.id === payment.userId);
+                        const course = state.courses.find((item) => item.id === payment.courseId);
+                        return (
+                          <TableRow key={payment.id}>
+                            <TableCell className="font-mono text-xs font-bold">
+                              {payment.txnId}
+                            </TableCell>
+                            <TableCell>
+                              <p className="font-bold text-navy">{student?.name ?? "Unknown"}</p>
+                              <p className="text-xs text-muted-foreground">{student?.email}</p>
+                            </TableCell>
+                            <TableCell className="min-w-48 font-semibold">
+                              {course?.title ?? "Unknown course"}
+                            </TableCell>
+                            <TableCell className="font-extrabold">
+                              {formatPrice(payment.amount)}
+                            </TableCell>
+                            <TableCell>{payment.method}</TableCell>
+                            <TableCell className="whitespace-nowrap">
+                              {formatDateTime(payment.createdAt)}
+                            </TableCell>
+                            <TableCell>
+                              <PaymentBadge status={payment.status} />
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {payment.status === "pending" ? (
+                                <div className="flex justify-end gap-2">
+                                  <Button
+                                    size="sm"
+                                    disabled={reviewingPaymentId === payment.id}
+                                    onClick={async () => {
+                                      setReviewingPaymentId(payment.id);
+                                      try {
+                                        const result = await reviewPayment(payment.id, true);
+                                        if (result.ok)
+                                          toast.success("Transfer approved and access activated.");
+                                        else toast.error(result.error);
+                                      } finally {
+                                        setReviewingPaymentId(null);
+                                      }
+                                    }}
+                                  >
+                                    <Check />
+                                    {reviewingPaymentId === payment.id ? "Approving…" : "Approve"}
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    disabled={reviewingPaymentId === payment.id}
+                                    onClick={() => setRejectedPaymentId(payment.id)}
+                                  >
+                                    <X /> Reject
+                                  </Button>
+                                </div>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">Reviewed</span>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
             </section>
           )}
@@ -678,7 +804,9 @@ function Overview({
   students,
   avgProgress,
   avgQuiz,
+  adminName,
   onNavigate,
+  onCreateCourse,
 }: {
   state: ReturnType<typeof useStore>["state"];
   totalRevenue: number;
@@ -686,35 +814,41 @@ function Overview({
   students: User[];
   avgProgress: number;
   avgQuiz: number;
+  adminName: string;
   onNavigate: (tab: AdminTab) => void;
+  onCreateCourse: () => void;
 }) {
+  const pendingPayments = state.payments.filter((payment) => payment.status === "pending");
+  const draftCourses = state.courses.filter((course) => course.publishState === "draft");
+  const publishedCourses = state.courses.filter((course) => course.publishState === "published");
+  const firstName = adminName.trim().split(/\s+/)[0] || "Admin";
   const metrics = [
     {
       label: "Total revenue",
       value: formatPrice(totalRevenue),
-      note: "Approved InstaPay transfers",
+      note: `${state.payments.filter((payment) => payment.status === "success").length} approved transfers`,
       icon: CircleDollarSign,
       tone: "bg-success/10 text-success",
     },
     {
-      label: "Active enrollments",
-      value: String(activeEnrollmentCount),
-      note: `${students.length} student accounts`,
-      icon: GraduationCap,
+      label: "Students",
+      value: String(students.length),
+      note: `${activeEnrollmentCount} active enrollments`,
+      icon: Users,
       tone: "bg-accent text-accent-foreground",
     },
     {
-      label: "Average progress",
-      value: `${avgProgress}%`,
-      note: "Across course enrollments",
-      icon: TrendingUp,
+      label: "Published courses",
+      value: String(publishedCourses.length),
+      note: `${draftCourses.length} drafts need review`,
+      icon: BookOpen,
       tone: "bg-blue-50 text-blue-700",
     },
     {
-      label: "Average quiz score",
-      value: `${avgQuiz}%`,
-      note: `${state.attempts.length} attempts recorded`,
-      icon: FileQuestion,
+      label: "Learning health",
+      value: `${avgProgress}%`,
+      note: `${avgQuiz}% average quiz score`,
+      icon: TrendingUp,
       tone: "bg-orange-50 text-orange-700",
     },
   ];
@@ -722,12 +856,56 @@ function Overview({
     <section>
       <PageHeading
         eyebrow="Dashboard"
-        title="Good morning."
-        description="A clear view of course sales and student activity."
+        title={`Welcome back, ${firstName}.`}
+        description="Here is what needs your attention and how the academy is performing."
+        action={
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={() => onNavigate("announcements")}>
+              <Megaphone /> New announcement
+            </Button>
+            <Button onClick={onCreateCourse}>
+              <Plus /> Create course
+            </Button>
+          </div>
+        }
       />
+      {(pendingPayments.length > 0 || draftCourses.length > 0) && (
+        <div className="mt-7 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-card p-5 shadow-card">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-start gap-3">
+              <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-amber-100 text-amber-800">
+                <CircleAlert className="size-5" />
+              </span>
+              <div>
+                <p className="font-extrabold text-navy">Action center</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Clear these items first to keep student access and the catalog up to date.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {pendingPayments.length > 0 && (
+                <Button size="sm" onClick={() => onNavigate("payments")}>
+                  Review {pendingPayments.length} payment{pendingPayments.length === 1 ? "" : "s"}
+                  <ArrowUpRight />
+                </Button>
+              )}
+              {draftCourses.length > 0 && (
+                <Button size="sm" variant="outline" onClick={() => onNavigate("courses")}>
+                  Review {draftCourses.length} draft{draftCourses.length === 1 ? "" : "s"}
+                  <ChevronRight />
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       <div className="mt-7 grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
         {metrics.map(({ label, value, note, icon: Icon, tone }) => (
-          <div key={label} className="rounded-2xl border bg-card p-5 shadow-card">
+          <div
+            key={label}
+            className="rounded-2xl border bg-card p-5 shadow-card transition hover:-translate-y-0.5 hover:shadow-lift"
+          >
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
@@ -858,7 +1036,34 @@ function PageHeading({
   );
 }
 
+function FilterPill({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        "inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-extrabold transition",
+        active
+          ? "border-navy bg-navy text-white shadow-sm"
+          : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-navy",
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
 function PaymentBadge({ status }: { status: "success" | "pending" | "failed" }) {
+  const label = status === "success" ? "Approved" : status === "failed" ? "Rejected" : "Pending";
   return (
     <Badge
       className={cn(
@@ -870,7 +1075,7 @@ function PaymentBadge({ status }: { status: "success" | "pending" | "failed" }) 
             : "bg-destructive/8 text-destructive",
       )}
     >
-      {status}
+      {label}
     </Badge>
   );
 }
@@ -905,6 +1110,17 @@ function CurriculumEditor({
 
   return (
     <div className="space-y-5">
+      {sections.length === 0 && (
+        <div className="rounded-2xl border border-dashed bg-muted/25 px-6 py-10 text-center">
+          <span className="mx-auto grid size-12 place-items-center rounded-xl bg-accent text-accent-foreground">
+            <BookOpen className="size-5" />
+          </span>
+          <p className="mt-4 font-extrabold text-navy">Start building the curriculum</p>
+          <p className="mx-auto mt-1 max-w-md text-sm leading-6 text-muted-foreground">
+            Add a section, then add lessons, videos, slides and optional quiz questions inside it.
+          </p>
+        </div>
+      )}
       {sections.map((section, sectionIndex) => (
         <div key={section.id} className="rounded-xl border p-4">
           <div className="flex items-end gap-3">
@@ -1199,6 +1415,9 @@ function CourseEditor({
     setDraft((current) => (current ? { ...current, ...values } : current));
   const dateValue = (iso: string) => iso.slice(0, 16);
   const isoValue = (value: string) => (value ? new Date(value).toISOString() : null);
+  const lessons = courseLessons(draft);
+  const previewCount = lessons.filter((lesson) => lesson.isPreview).length;
+  const publishedLessonCount = lessons.filter((lesson) => lesson.published).length;
 
   return (
     <Dialog
@@ -1207,17 +1426,33 @@ function CourseEditor({
         if (!open) onClose();
       }}
     >
-      <DialogContent className="max-h-[92vh] max-w-4xl overflow-hidden p-0">
+      <DialogContent className="max-h-[92vh] max-w-5xl overflow-hidden p-0">
         <DialogHeader className="border-b p-6 pb-5">
-          <DialogTitle className="text-2xl text-navy">Edit course</DialogTitle>
-          <DialogDescription>Changes are saved to the live course catalog.</DialogDescription>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <DialogTitle className="text-2xl text-navy">Edit course</DialogTitle>
+              <DialogDescription className="mt-1">
+                Changes are validated before they reach the live catalog.
+              </DialogDescription>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="outline">{draft.sections.length} sections</Badge>
+              <Badge variant="outline">{lessons.length} lessons</Badge>
+              <Badge variant="outline">{previewCount} free previews</Badge>
+            </div>
+          </div>
         </DialogHeader>
         <Tabs defaultValue="details" className="min-h-0">
           <div className="border-b px-6">
             <TabsList className="h-11 bg-transparent p-0">
               <TabsTrigger value="details">Details</TabsTrigger>
               <TabsTrigger value="access">Pricing & access</TabsTrigger>
-              <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
+              <TabsTrigger value="curriculum">
+                Curriculum
+                <span className="ml-1.5 rounded-full bg-muted px-1.5 text-[10px]">
+                  {publishedLessonCount}/{lessons.length}
+                </span>
+              </TabsTrigger>
             </TabsList>
           </div>
           <div className="max-h-[62vh] overflow-y-auto p-6">
@@ -1498,6 +1733,8 @@ function Announcements({
 }) {
   const [audience, setAudience] = useState("all");
   const [publishing, setPublishing] = useState(false);
+  const [announcementToDelete, setAnnouncementToDelete] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = event.currentTarget;
@@ -1518,101 +1755,141 @@ function Announcements({
     }
   };
   return (
-    <section>
-      <PageHeading
-        eyebrow="Communication"
-        title="Announcements"
-        description="Publish an update to all students or one course."
-      />
-      <div className="mt-7 grid gap-6 xl:grid-cols-[.8fr_1.2fr]">
-        <form onSubmit={submit} className="h-fit rounded-2xl border bg-card p-6 shadow-card">
-          <h2 className="text-xl font-extrabold text-navy">New announcement</h2>
-          <div className="mt-5 space-y-2">
-            <Label>Audience</Label>
-            <Select value={audience} onValueChange={setAudience}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All enrolled students</SelectItem>
-                {courses.map((course) => (
-                  <SelectItem key={course.id} value={course.id}>
-                    {course.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="mt-4 space-y-2">
-            <Label htmlFor="announcement-title">Title</Label>
-            <Input
-              id="announcement-title"
-              name="title"
-              required
-              placeholder="What students need to know"
-            />
-          </div>
-          <div className="mt-4 space-y-2">
-            <Label htmlFor="announcement-body">Message</Label>
-            <Textarea
-              id="announcement-body"
-              name="body"
-              rows={5}
-              required
-              placeholder="Write the announcement…"
-            />
-          </div>
-          <Button type="submit" disabled={publishing} className="mt-5 w-full">
-            <Send /> {publishing ? "Publishing…" : "Publish announcement"}
-          </Button>
-        </form>
-        <div className="rounded-2xl border bg-card shadow-card">
-          <div className="border-b p-5">
-            <h2 className="text-xl font-extrabold text-navy">Published announcements</h2>
-          </div>
-          <div className="divide-y">
-            {announcements.length === 0 && (
-              <p className="p-8 text-center text-sm text-muted-foreground">
-                Published announcements will appear here.
-              </p>
-            )}
-            {announcements.map((announcement) => {
-              const course = courses.find((item) => item.id === announcement.courseId);
-              return (
-                <article key={announcement.id} className="flex items-start gap-4 p-5">
-                  <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-accent text-accent-foreground">
-                    <Megaphone className="size-4" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-extrabold text-navy">{announcement.title}</h3>
-                      <Badge variant="outline">{course?.title ?? "Everyone"}</Badge>
+    <>
+      <section>
+        <PageHeading
+          eyebrow="Communication"
+          title="Announcements"
+          description="Publish an update to all students or one course."
+        />
+        <div className="mt-7 grid gap-6 xl:grid-cols-[.8fr_1.2fr]">
+          <form onSubmit={submit} className="h-fit rounded-2xl border bg-card p-6 shadow-card">
+            <h2 className="text-xl font-extrabold text-navy">New announcement</h2>
+            <div className="mt-5 space-y-2">
+              <Label>Audience</Label>
+              <Select value={audience} onValueChange={setAudience}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All enrolled students</SelectItem>
+                  {courses.map((course) => (
+                    <SelectItem key={course.id} value={course.id}>
+                      {course.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="mt-4 space-y-2">
+              <Label htmlFor="announcement-title">Title</Label>
+              <Input
+                id="announcement-title"
+                name="title"
+                required
+                placeholder="What students need to know"
+              />
+            </div>
+            <div className="mt-4 space-y-2">
+              <Label htmlFor="announcement-body">Message</Label>
+              <Textarea
+                id="announcement-body"
+                name="body"
+                rows={5}
+                required
+                placeholder="Write the announcement…"
+              />
+            </div>
+            <Button type="submit" disabled={publishing} className="mt-5 w-full">
+              <Send /> {publishing ? "Publishing…" : "Publish announcement"}
+            </Button>
+          </form>
+          <div className="rounded-2xl border bg-card shadow-card">
+            <div className="border-b p-5">
+              <h2 className="text-xl font-extrabold text-navy">Published announcements</h2>
+            </div>
+            <div className="divide-y">
+              {announcements.length === 0 && (
+                <p className="p-8 text-center text-sm text-muted-foreground">
+                  Published announcements will appear here.
+                </p>
+              )}
+              {announcements.map((announcement) => {
+                const course = courses.find((item) => item.id === announcement.courseId);
+                return (
+                  <article key={announcement.id} className="flex items-start gap-4 p-5">
+                    <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-accent text-accent-foreground">
+                      <Megaphone className="size-4" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="font-extrabold text-navy">{announcement.title}</h3>
+                        <Badge variant="outline">{course?.title ?? "Everyone"}</Badge>
+                      </div>
+                      <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                        {announcement.body}
+                      </p>
+                      <p className="mt-2 text-xs font-semibold text-muted-foreground">
+                        {formatDateTime(announcement.createdAt)}
+                      </p>
                     </div>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                      {announcement.body}
-                    </p>
-                    <p className="mt-2 text-xs font-semibold text-muted-foreground">
-                      {formatDateTime(announcement.createdAt)}
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={async () => {
-                      const result = await onDelete(announcement.id);
-                      if (!result.ok) toast.error(result.error);
-                    }}
-                    aria-label="Delete announcement"
-                  >
-                    <X />
-                  </Button>
-                </article>
-              );
-            })}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setAnnouncementToDelete(announcement.id)}
+                      aria-label="Delete announcement"
+                    >
+                      <X />
+                    </Button>
+                  </article>
+                );
+              })}
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+      <Dialog
+        open={Boolean(announcementToDelete)}
+        onOpenChange={(open) => !open && setAnnouncementToDelete(null)}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-navy">Delete this announcement?</DialogTitle>
+            <DialogDescription>
+              Students will no longer see it. This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setAnnouncementToDelete(null)}
+              disabled={deleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={deleting}
+              onClick={async () => {
+                if (!announcementToDelete) return;
+                setDeleting(true);
+                try {
+                  const result = await onDelete(announcementToDelete);
+                  if (result.ok) {
+                    setAnnouncementToDelete(null);
+                    toast.success("Announcement deleted.");
+                  } else toast.error(result.error);
+                } finally {
+                  setDeleting(false);
+                }
+              }}
+            >
+              <Trash2 /> {deleting ? "Deleting…" : "Delete announcement"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
