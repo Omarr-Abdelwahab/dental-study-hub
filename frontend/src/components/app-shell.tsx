@@ -70,6 +70,9 @@ function NavLinks({ mobile = false }: { mobile?: boolean }) {
       <Link to="/courses" className={cls} activeProps={{ className: `${cls} text-navy` }}>
         Courses
       </Link>
+      <Link to="/offline-course" className={cls} activeProps={{ className: `${cls} text-navy` }}>
+        Offline training
+      </Link>
       <Link to="/free-snippets" className={cls} activeProps={{ className: `${cls} text-navy` }}>
         Free snippets
       </Link>
@@ -99,10 +102,10 @@ export function AppHeader() {
       <header className="sticky top-0 z-40 border-b bg-background/94 backdrop-blur supports-[backdrop-filter]:bg-background/86">
         <div className="container-page flex h-17 items-center justify-between gap-4">
           <BrandMark />
-          <nav className="hidden items-center gap-7 md:flex">
+          <nav className="hidden items-center gap-7 lg:flex">
             <NavLinks />
           </nav>
-          <div className="hidden items-center gap-2 md:flex">
+          <div className="hidden items-center gap-2 lg:flex">
             {user ? (
               <>
                 <Button variant="ghost" asChild>
@@ -153,7 +156,7 @@ export function AppHeader() {
           </div>
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="md:hidden" aria-label="Open menu">
+              <Button variant="outline" size="icon" className="lg:hidden" aria-label="Open menu">
                 <Menu />
               </Button>
             </SheetTrigger>
@@ -240,6 +243,9 @@ export function AppFooter() {
             </Link>
             <Link to="/free-snippets" className="hover:text-white">
               Free snippets
+            </Link>
+            <Link to="/offline-course" className="hover:text-white">
+              Offline training
             </Link>
             <Link to="/auth" className="hover:text-white">
               Student sign in

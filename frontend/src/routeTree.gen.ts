@@ -14,6 +14,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as FreeSnippetsRouteImport } from './routes/free-snippets'
+import { Route as OfflineCourseRouteImport } from './routes/offline-course'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -46,6 +47,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const FreeSnippetsRoute = FreeSnippetsRouteImport.update({
   id: '/free-snippets',
   path: '/free-snippets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OfflineCourseRoute = OfflineCourseRouteImport.update({
+  id: '/offline-course',
+  path: '/offline-course',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -95,6 +101,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/free-snippets': typeof FreeSnippetsRoute
+  '/offline-course': typeof OfflineCourseRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -110,6 +117,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/free-snippets': typeof FreeSnippetsRoute
+  '/offline-course': typeof OfflineCourseRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -126,6 +134,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/free-snippets': typeof FreeSnippetsRoute
+  '/offline-course': typeof OfflineCourseRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -143,6 +152,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/free-snippets'
+    | '/offline-course'
     | '/privacy'
     | '/profile'
     | '/reset-password'
@@ -158,6 +168,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/free-snippets'
+    | '/offline-course'
     | '/privacy'
     | '/profile'
     | '/reset-password'
@@ -173,6 +184,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/free-snippets'
+    | '/offline-course'
     | '/privacy'
     | '/profile'
     | '/reset-password'
@@ -189,6 +201,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
   FreeSnippetsRoute: typeof FreeSnippetsRoute
+  OfflineCourseRoute: typeof OfflineCourseRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -234,6 +247,13 @@ declare module '@tanstack/react-router' {
       path: '/free-snippets'
       fullPath: '/free-snippets'
       preLoaderRoute: typeof FreeSnippetsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/offline-course': {
+      id: '/offline-course'
+      path: '/offline-course'
+      fullPath: '/offline-course'
+      preLoaderRoute: typeof OfflineCourseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -301,6 +321,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
   FreeSnippetsRoute: FreeSnippetsRoute,
+  OfflineCourseRoute: OfflineCourseRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
   ResetPasswordRoute: ResetPasswordRoute,

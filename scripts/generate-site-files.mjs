@@ -39,6 +39,7 @@ const routes = [
   "/courses/fixed-prosthodontics",
   "/courses/operative",
   "/free-snippets",
+  "/offline-course",
   "/privacy",
   "/terms",
 ];

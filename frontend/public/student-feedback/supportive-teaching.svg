@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 249" role="img" aria-labelledby="title desc">
+  <title id="title">Student feedback about Dr Salma</title>
+  <desc id="desc">A WhatsApp message praising Dr Salma's supportive and honest teaching.</desc>
+  <defs>
+    <pattern id="paper" width="72" height="72" patternUnits="userSpaceOnUse">
+      <rect width="72" height="72" fill="#f4f0e7"/>
+      <g fill="none" stroke="#ded9ce" stroke-width="1.5" opacity=".55">
+        <path d="M9 13c8-7 17 5 8 11s-16-5-8-11Zm40 4 8 8-8 8-8-8 8-8Z"/>
+        <path d="M20 48c5-8 16-5 17 4 1 7-6 12-12 8-5-3-8-7-5-12Zm35 7c3-8 12-8 15-1"/>
+      </g>
+    </pattern>
+    <filter id="shadow" x="-10%" y="-15%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#7a776f" flood-opacity=".23"/>
+    </filter>
+  </defs>
+  <rect width="720" height="249" fill="url(#paper)"/>
+  <rect x="286" y="8" width="148" height="45" rx="12" fill="#fff" filter="url(#shadow)"/>
+  <text x="360" y="38" text-anchor="middle" font-family="Tahoma, Arial, sans-serif" font-size="22" fill="#505050">7 July 2026</text>
+  <rect x="30" y="66" width="660" height="172" rx="15" fill="#fff" filter="url(#shadow)"/>
+  <g direction="rtl" text-anchor="middle" font-family="Tahoma, Arial, sans-serif" font-size="31" fill="#111">
+    <text x="360" y="105">والله الدكتوره كانت من اروع مايكون معانا</text>
+    <text x="360" y="145">وكانت بتعاملنا بامانه وعمرها مافرطت معانا</text>
+    <text x="360" y="185">بمعلومه وانا شخصيا استفدت جدا منها</text>
+    <text x="360" y="225">وبقيت بطلع شغل تحفه</text>
+  </g>
+</svg>

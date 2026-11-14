@@ -151,6 +151,11 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
+  }
+
   * {
     border-color: var(--color-border);
   }
@@ -167,6 +172,25 @@
   h3,
   h4 {
     letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-primary) 28%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
 
